@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Plantation Tracker">
+    <meta name="theme-color" content="#1a3b6e">
+    <meta name="description" content="Daily revenue tracker for Plantation location">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231A3B6E' width='192' height='192'/><text x='96' y='120' font-size='80' font-weight='bold' text-anchor='middle' fill='%234B9FC4'>P</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%231A3B6E' width='180' height='180' rx='40'/><text x='90' y='110' font-size='70' font-weight='bold' text-anchor='middle' fill='%234B9FC4'>P</text></svg>">
+    <link rel="manifest" href="/manifest.json">
+    <title>Plantation May Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f1929 0%, #1a2d47 100%);
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow-y: auto;
+            -webkit-user-select: none;
+            user-select: none;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(75, 159, 196, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .hero-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(75, 159, 196, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .metric-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4B9FC4;
+        }
+        
+        .metric-value.accent {
+            color: #F9C922;
+        }
+        
+        .metric-value.status {
+            font-size: 16px;
+        }
+        
+        .daily-pace-section {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .daily-pace-section .card-title {
+            color: #10b981;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        input[type="number"] {
+            flex: 1;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        input[type="number"]::placeholder {
+            color: #6b7280;
+        }
+        
+        .btn-add {
+            padding: 14px 20px;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .btn-add:active {
+            background: #059669;
+        }
+        
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .btn-quick {
+            padding: 10px 8px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .btn-quick:active {
+            background: rgba(16, 185, 129, 0.4);
+        }
+        
+        .sensitivity-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(75, 159, 196, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .sensitivity-section .card-title {
+            margin-bottom: 12px;
+        }
+        
+        .sensitivity-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .sensitivity-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .sensitivity-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .sensitivity-rate {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .sensitivity-label {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
+        .sensitivity-value {
+            font-size: 16px;
+            font-weight: 700;
+            text-align: right;
+        }
+        
+        .membership-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(249, 201, 34, 0.1);
+            border: 1px solid rgba(249, 201, 34, 0.3);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+        
+        .membership-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #F9C922;
+        }
+        
+        button {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-edit {
+            padding: 6px 12px;
+            background: rgba(249, 201, 34, 0.2);
+            color: #F9C922;
+            border: 1px solid rgba(249, 201, 34, 0.4);
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .btn-save {
+            padding: 8px 12px;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .btn-cancel {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .membership-edit-form {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        
+        .membership-edit-form input {
+            flex: 1;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .daily-log {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+        }
+        
+        .daily-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(75, 159, 196, 0.2);
+            border-radius: 6px;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 11px;
+        }
+        
+        .daily-day {
+            color: #9ca3af;
+            margin-bottom: 2px;
+            font-size: 10px;
+        }
+        
+        .daily-value {
+            font-weight: 700;
+            color: #4B9FC4;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .daily-buttons {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+        
+        .btn-log-edit {
+            padding: 4px 8px;
+            background: rgba(75, 159, 196, 0.3);
+            color: #4B9FC4;
+            border: 1px solid rgba(75, 159, 196, 0.5);
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-log-edit:active {
+            background: rgba(75, 159, 196, 0.5);
+        }
+        
+        .btn-log-delete {
+            padding: 4px 8px;
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-log-delete:active {
+            background: rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plantation May</h1>
+        <p class="subtitle">Daily pace tracker through May 31</p>
+        
+        <div class="membership-section">
+            <div>
+                <div style="font-size: 11px; color: #9ca3af; margin-bottom: 4px;">Membership</div>
+                <div class="membership-value" id="membershipDisplay">$12,007</div>
+            </div>
+            <button class="btn-edit" id="membershipEdit" onclick="editMembership()">Edit</button>
+            <div id="membershipEditForm" class="hidden membership-edit-form">
+                <input type="number" id="membershipInput" value="12007.24" />
+                <button class="btn-save" onclick="saveMembership()">Save</button>
+                <button class="btn-cancel" onclick="cancelMembership()">Cancel</button>
+            </div>
+        </div>
+        
+        <div class="card" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3);">
+            <div class="card-title" style="color: #a78bfa;">Prior Month Benchmark</div>
+            <div class="metric-row">
+                <div class="metric-label">April Revenue</div>
+                <div class="metric-value" style="color: #a78bfa;" id="aprilDisplay">$23,276</div>
+                <button class="btn-edit" onclick="editApril()" style="margin-left: 8px;">Edit</button>
+            </div>
+            <div id="aprilEditForm" class="hidden membership-edit-form" style="margin-top: 8px;">
+                <input type="number" id="aprilInput" value="23276.32" />
+                <button class="btn-save" onclick="saveApril()">Save</button>
+                <button class="btn-cancel" onclick="cancelApril()">Cancel</button>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Target (April +10%)</div>
+                <div class="metric-value" style="color: #a78bfa;" id="aprilTargetDisplay">$25,604</div>
+            </div>
+        </div>
+        
+        <div class="hero-section">
+            <div class="metric-row">
+                <div class="metric-label">MTD Total</div>
+                <div class="metric-value" id="mtdDisplay">$22,405.03</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">May 31 Projection</div>
+                <div class="metric-value accent" id="projectedDisplay">$28,000.00</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Daily Avg (All Addons)</div>
+                <div class="metric-value" style="font-size: 18px;" id="dailyAvgDisplay">$611.63/day</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Status</div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span id="statusIcon" style="font-size: 16px;">→</span>
+                    <div class="metric-value status" id="statusLabel" style="color: #4B9FC4;">On Track</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="daily-pace-section">
+            <div class="card-title">Add Daily Addon Revenue</div>
+            <div class="input-group">
+                <input type="number" id="dailyInput" placeholder="$" />
+                <button class="btn-add" onclick="addDay()">Add Day <span id="nextDayNum">21</span></button>
+            </div>
+            <div class="quick-buttons">
+                <button class="btn-quick" onclick="quickAdd(400)">$400</button>
+                <button class="btn-quick" onclick="quickAdd(500)">$500</button>
+                <button class="btn-quick" onclick="quickAdd(600)">$600</button>
+                <button class="btn-quick" onclick="quickAdd(700)">$700</button>
+                <button class="btn-quick" onclick="quickAdd(800)">$800</button>
+                <button class="btn-quick" onclick="quickAdd(900)">$900</button>
+            </div>
+        </div>
+        
+        <div class="sensitivity-section">
+            <div class="card-title">If You Hit This Daily Pace...</div>
+            <div class="sensitivity-vertical" id="sensitivityGrid"></div>
+        </div>
+        
+        <div class="card" id="dailyLogCard" style="display: none;">
+            <div class="card-title">Your Daily Log (May 19-31)</div>
+            <div class="daily-log" id="dailyLog"></div>
+        </div>
+    </div>
+
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').catch(() => {
+                console.log('Service worker registration skipped');
+            });
+        }
+
+        let membership = 12007.24;
+        let dailyLog = [
+            { day: 19, revenue: 503 },
+            { day: 20, revenue: 473.50 }
+        ];
+        let aprilRevenue = 23276.32;
+        
+        const baseYTDAddonRevenue = 9421.29;
+        const baseYTDTotal = 21428.53;
+        const daysInMay = 31;
+        const baseYTDDays = 18;
+        const mayOneTo18AddonDays = 15;
+        
+        const scenarios = [
+            { rate: 300, color: '#f59e0b', label: 'At Risk' },
+            { rate: 400, color: '#fbbf24' },
+            { rate: 500, color: '#fcd34d' },
+            { rate: 600, color: '#4B9FC4', label: 'Midpoint' },
+            { rate: 700, color: '#34d399' },
+            { rate: 800, color: '#10b981' },
+            { rate: 900, color: '#059669', label: 'Target' }
+        ];
+        
+        function updateUI() {
+            const dailyTotal = dailyLog.reduce((sum, e) => sum + e.revenue, 0);
+            const mtdTotal = membership + baseYTDAddonRevenue + dailyTotal;
+            const daysCompleted = baseYTDDays + dailyLog.length;
+            const daysRemaining = daysInMay - daysCompleted;
+            
+            const totalAddonRevenue = baseYTDAddonRevenue + dailyTotal;
+            const totalAddonDays = mayOneTo18AddonDays + dailyLog.length;
+            const dailyAvg = totalAddonRevenue / totalAddonDays;
+            
+            const projectedTotal = membership + totalAddonRevenue + (dailyAvg * daysRemaining);
+            
+            document.getElementById('membershipDisplay').textContent = '$' + membership.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('aprilDisplay').textContent = '$' + aprilRevenue.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('aprilTargetDisplay').textContent = '$' + (aprilRevenue * 1.10).toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('mtdDisplay').textContent = '$' + mtdTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('dailyAvgDisplay').textContent = '$' + dailyAvg.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '/day';
+            document.getElementById('projectedDisplay').textContent = '$' + projectedTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('nextDayNum').textContent = (baseYTDDays + dailyLog.length + 1);
+            
+            const targetLow = baseYTDTotal + (300 * daysRemaining);
+            const targetMid = baseYTDTotal + (600 * daysRemaining);
+            const status = projectedTotal < targetLow ? 'risk' : projectedTotal < targetMid ? 'on' : 'above';
+            const statusConfig = {
+                above: { icon: '✓', label: 'Above Target', color: '#10b981' },
+                on: { icon: '→', label: 'On Track', color: '#4B9FC4' },
+                risk: { icon: '⚠', label: 'At Risk', color: '#f59e0b' }
+            };
+            document.getElementById('statusIcon').textContent = statusConfig[status].icon;
+            document.getElementById('statusLabel').textContent = statusConfig[status].label;
+            document.getElementById('statusLabel').style.color = statusConfig[status].color;
+            
+            const sensitivityGrid = document.getElementById('sensitivityGrid');
+            sensitivityGrid.innerHTML = '';
+            scenarios.forEach((s) => {
+                const may21to31Addon = s.rate * daysRemaining;
+                const projected = membership + totalAddonRevenue + may21to31Addon;
+                
+                const div = document.createElement('div');
+                div.className = 'sensitivity-item';
+                div.style.borderColor = s.color;
+                div.innerHTML = `
+                    <div class="sensitivity-left">
+                        <div class="sensitivity-rate" style="color: ${s.color};">$${s.rate}/day</div>
+                        <div class="sensitivity-label" style="color: ${s.color};">
+                            ${s.label || (s.rate < 600 ? 'Below Mid' : 'Above Mid')}
+                        </div>
+                    </div>
+                    <div class="sensitivity-value" style="color: ${s.color};">$${projected.toLocaleString('en-US', {maximumFractionDigits: 0})}</div>
+                `;
+                sensitivityGrid.appendChild(div);
+            });
+            
+            if (dailyLog.length > 0) {
+                document.getElementById('dailyLogCard').style.display = 'block';
+                const log = document.getElementById('dailyLog');
+                log.innerHTML = '';
+                dailyLog.forEach((entry, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'daily-item';
+                    div.innerHTML = `
+                        <div class="daily-day">May ${entry.day}</div>
+                        <div class="daily-value">$${entry.revenue.toLocaleString('en-US', {maximumFractionDigits: 0})}</div>
+                        <div class="daily-buttons">
+                            <button class="btn-log-edit">Edit</button>
+                            <button class="btn-log-delete">Delete</button>
+                        </div>
+                    `;
+                    
+                    const editBtn = div.querySelector('.btn-log-edit');
+                    const deleteBtn = div.querySelector('.btn-log-delete');
+                    
+                    editBtn.addEventListener('click', function() {
+                        const newValue = prompt(`Edit May ${entry.day} addon revenue:`, entry.revenue);
+                        if (newValue !== null && !isNaN(newValue) && parseFloat(newValue) > 0) {
+                            dailyLog[idx].revenue = parseFloat(newValue);
+                            updateUI();
+                        }
+                    });
+                    
+                    deleteBtn.addEventListener('click', function() {
+                        if (confirm(`Delete May ${entry.day} entry ($${entry.revenue})?`)) {
+                            dailyLog.splice(idx, 1);
+                            updateUI();
+                        }
+                    });
+                    
+                    log.appendChild(div);
+                });
+            }
+        }
+        
+        function addDay() {
+            const input = document.getElementById('dailyInput');
+            if (input.value && !isNaN(input.value)) {
+                dailyLog.push({ day: baseYTDDays + dailyLog.length + 1, revenue: parseFloat(input.value) });
+                input.value = '';
+                updateUI();
+            }
+        }
+        
+        function quickAdd(amount) {
+            dailyLog.push({ day: baseYTDDays + dailyLog.length + 1, revenue: amount });
+            document.getElementById('dailyInput').value = '';
+            updateUI();
+        }
+        
+        function editMembership() {
+            document.getElementById('membershipEdit').classList.add('hidden');
+            document.getElementById('membershipEditForm').classList.remove('hidden');
+        }
+        
+        function saveMembership() {
+            const val = parseFloat(document.getElementById('membershipInput').value);
+            if (!isNaN(val) && val >= 0) {
+                membership = val;
+                document.getElementById('membershipEdit').classList.remove('hidden');
+                document.getElementById('membershipEditForm').classList.add('hidden');
+                updateUI();
+            }
+        }
+        
+        function cancelMembership() {
+            document.getElementById('membershipEdit').classList.remove('hidden');
+            document.getElementById('membershipEditForm').classList.add('hidden');
+            document.getElementById('membershipInput').value = membership;
+        }
+        
+        function editApril() {
+            document.getElementById('aprilEditForm').classList.remove('hidden');
+        }
+        
+        function saveApril() {
+            const val = parseFloat(document.getElementById('aprilInput').value);
+            if (!isNaN(val) && val >= 0) {
+                aprilRevenue = val;
+                document.getElementById('aprilEditForm').classList.add('hidden');
+                updateUI();
+            }
+        }
+        
+        function cancelApril() {
+            document.getElementById('aprilEditForm').classList.add('hidden');
+            document.getElementById('aprilInput').value = aprilRevenue;
+        }
+        
+        updateUI();
+        document.getElementById('dailyInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addDay();
+        });
+    </script>
+</body>
+</html>
