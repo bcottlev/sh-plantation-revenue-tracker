@@ -385,11 +385,11 @@
         <div class="membership-section">
             <div>
                 <div style="font-size: 11px; color: #9ca3af; margin-bottom: 4px;">Membership</div>
-                <div class="membership-value" id="membershipDisplay">$11,808</div>
+                <div class="membership-value" id="membershipDisplay">$11,908</div>
             </div>
             <button class="btn-edit" id="membershipEdit" onclick="editMembership()">Edit</button>
             <div id="membershipEditForm" class="hidden membership-edit-form">
-                <input type="number" id="membershipInput" value="11808.00" />
+                <input type="number" id="membershipInput" value="11907.50" />
                 <button class="btn-save" onclick="saveMembership()">Save</button>
                 <button class="btn-cancel" onclick="cancelMembership()">Cancel</button>
             </div>
@@ -416,7 +416,7 @@
         <div class="hero-section">
             <div class="metric-row">
                 <div class="metric-label">MTD Total</div>
-                <div class="metric-value" id="mtdDisplay">$11,808.00</div>
+                <div class="metric-value" id="mtdDisplay">$11,908.00</div>
             </div>
             <div class="metric-row">
                 <div class="metric-label">June 30 Projection</div>
@@ -463,19 +463,19 @@
     </div>
 
     <script>
-        let membership = 11808.00;
+        let membership = 11907.50;
         let dailyLog = [
-            { day: 2, revenue: 1360.99 },
-            { day: 3, revenue: 1248.00 },
-            { day: 4, revenue: 1076.00 },
-            { day: 5, revenue: 1279.99 },
-            { day: 6, revenue: 2521.00 },
-            { day: 7, revenue: 1739.00 }
+            { day: 2, revenue: 528.74 },
+            { day: 3, revenue: 473.00 },
+            { day: 4, revenue: 399.00 },
+            { day: 5, revenue: 556.74 },
+            { day: 6, revenue: 1189.50 },
+            { day: 7, revenue: 659.00 }
         ];
         let mayRevenue = 28167.24;
         
-        const baseYTDAddonRevenue = 9224.98;
-        const baseYTDTotal = 21032.98;
+        const baseYTDAddonRevenue = 3805.98;
+        const baseYTDTotal = 15713.48;
         const daysInJune = 30;
         const baseYTDDays = 7;
         const juneoneTo7AddonDays = 6;
