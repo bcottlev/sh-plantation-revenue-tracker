@@ -12,34 +12,6 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%231A3B6E' width='180' height='180' rx='40'/><text x='90' y='110' font-size='70' font-weight='bold' text-anchor='middle' fill='%234B9FC4'>P</text></svg>">
     <title>Plantation June Tracker</title>
     <style>
-        :root {
-            --bg-primary: linear-gradient(135deg, #0f1929 0%, #1a2d47 100%);
-            --bg-card: rgba(255, 255, 255, 0.05);
-            --bg-hero: rgba(255, 255, 255, 0.08);
-            --border-card: rgba(75, 159, 196, 0.2);
-            --border-hero: rgba(75, 159, 196, 0.3);
-            --text-primary: #fff;
-            --text-secondary: #9ca3af;
-            --text-accent: #4B9FC4;
-            --text-warning: #F9C922;
-            --btn-bg: rgba(16, 185, 129, 0.2);
-            --btn-border: rgba(16, 185, 129, 0.4);
-        }
-
-        body.light-mode {
-            --bg-primary: linear-gradient(135deg, #f8fafb 0%, #f3f4f6 100%);
-            --bg-card: rgba(75, 159, 196, 0.06);
-            --bg-hero: rgba(75, 159, 196, 0.1);
-            --border-card: rgba(75, 159, 196, 0.3);
-            --border-hero: rgba(75, 159, 196, 0.4);
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --text-accent: #0369a1;
-            --text-warning: #d97706;
-            --btn-bg: rgba(16, 185, 129, 0.1);
-            --btn-border: rgba(16, 185, 129, 0.6);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -53,8 +25,8 @@
         }
         
         body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: linear-gradient(135deg, #0f1929 0%, #1a2d47 100%);
+            color: #fff;
             font-family: system-ui, -apple-system, sans-serif;
             overflow-y: auto;
             -webkit-user-select: none;
@@ -63,49 +35,12 @@
             padding-bottom: max(12px, env(safe-area-inset-bottom));
             padding-left: max(0px, env(safe-area-inset-left));
             padding-right: max(0px, env(safe-area-inset-right));
-            transition: background-color 0.3s ease;
         }
         
         .container {
             max-width: 500px;
             margin: 0 auto;
             padding: 0 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .header-text h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
-
-        .header-text .subtitle {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .theme-toggle {
-            padding: 8px 12px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: 8px;
-            color: var(--text-accent);
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            margin-top: 4px;
-        }
-
-        .theme-toggle:active {
-            background: rgba(75, 159, 196, 0.15);
         }
         
         h1 {
@@ -116,14 +51,14 @@
         }
         
         .subtitle {
-            color: var(--text-secondary);
+            color: #9ca3af;
             font-size: 12px;
             margin-bottom: 24px;
         }
         
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(75, 159, 196, 0.2);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
@@ -133,15 +68,15 @@
         .card-title {
             font-size: 12px;
             font-weight: 600;
-            color: var(--text-secondary);
+            color: #9ca3af;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 12px;
         }
         
         .hero-section {
-            background: var(--bg-hero);
-            border: 1px solid var(--border-hero);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(75, 159, 196, 0.3);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 20px;
@@ -161,7 +96,7 @@
         
         .metric-label {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: #9ca3af;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -169,11 +104,11 @@
         .metric-value {
             font-size: 24px;
             font-weight: 700;
-            color: var(--text-accent);
+            color: #4B9FC4;
         }
         
         .metric-value.accent {
-            color: var(--text-warning);
+            color: #F9C922;
         }
         
         .metric-value.status {
@@ -205,18 +140,13 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            color: var(--text-primary);
+            color: #fff;
             font-size: 14px;
             font-weight: 600;
         }
-
-        body.light-mode input[type="number"] {
-            background: rgba(75, 159, 196, 0.08);
-            border: 1px solid rgba(75, 159, 196, 0.3);
-        }
         
         input[type="number"]::placeholder {
-            color: var(--text-secondary);
+            color: #6b7280;
         }
         
         .btn-add {
@@ -256,8 +186,8 @@
         }
         
         .sensitivity-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(75, 159, 196, 0.2);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 16px;
@@ -283,10 +213,6 @@
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
-        }
-
-        body.light-mode .sensitivity-item {
-            background: rgba(75, 159, 196, 0.05);
         }
         
         .sensitivity-left {
@@ -322,16 +248,11 @@
             margin-bottom: 16px;
             font-size: 12px;
         }
-
-        body.light-mode .membership-section {
-            background: rgba(217, 119, 6, 0.08);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-        }
         
         .membership-value {
             font-size: 18px;
             font-weight: 700;
-            color: var(--text-warning);
+            color: #F9C922;
         }
         
         button {
@@ -341,17 +262,12 @@
         .btn-edit {
             padding: 6px 12px;
             background: rgba(249, 201, 34, 0.2);
-            color: var(--text-warning);
+            color: #F9C922;
             border: 1px solid rgba(249, 201, 34, 0.4);
             border-radius: 4px;
             font-weight: 500;
             cursor: pointer;
             font-size: 11px;
-        }
-
-        body.light-mode .btn-edit {
-            background: rgba(217, 119, 6, 0.15);
-            border: 1px solid rgba(217, 119, 6, 0.4);
         }
         
         .btn-save {
@@ -367,9 +283,9 @@
         
         .btn-cancel {
             padding: 8px 12px;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border-card);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
@@ -388,13 +304,8 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            color: var(--text-primary);
+            color: #fff;
             font-size: 12px;
-        }
-
-        body.light-mode .membership-edit-form input {
-            background: rgba(75, 159, 196, 0.08);
-            border: 1px solid rgba(75, 159, 196, 0.3);
         }
         
         .hidden {
@@ -415,21 +326,16 @@
             text-align: center;
             font-size: 11px;
         }
-
-        body.light-mode .daily-item {
-            background: rgba(75, 159, 196, 0.08);
-            border: 1px solid rgba(75, 159, 196, 0.3);
-        }
         
         .daily-day {
-            color: var(--text-secondary);
+            color: #9ca3af;
             margin-bottom: 2px;
             font-size: 10px;
         }
         
         .daily-value {
             font-weight: 700;
-            color: var(--text-accent);
+            color: #4B9FC4;
             font-size: 12px;
             margin-bottom: 6px;
         }
@@ -443,7 +349,7 @@
         .btn-log-edit {
             padding: 4px 8px;
             background: rgba(75, 159, 196, 0.3);
-            color: var(--text-accent);
+            color: #4B9FC4;
             border: 1px solid rgba(75, 159, 196, 0.5);
             border-radius: 3px;
             font-size: 9px;
@@ -465,10 +371,6 @@
             font-weight: 600;
             cursor: pointer;
         }
-
-        body.light-mode .btn-log-delete {
-            color: #dc2626;
-        }
         
         .btn-log-delete:active {
             background: rgba(239, 68, 68, 0.5);
@@ -477,17 +379,12 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-text">
-                <h1>Plantation June</h1>
-                <p class="subtitle">Daily pace tracker through June 30</p>
-            </div>
-            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
-        </div>
+        <h1>Plantation June</h1>
+        <p class="subtitle">Daily pace tracker through June 30</p>
         
         <div class="membership-section">
             <div>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Membership</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-bottom: 4px;">Membership</div>
                 <div class="membership-value" id="membershipDisplay">$11,908</div>
             </div>
             <button class="btn-edit" id="membershipEdit" onclick="editMembership()">Edit</button>
@@ -533,7 +430,7 @@
                 <div class="metric-label">Status</div>
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <span id="statusIcon" style="font-size: 16px;">→</span>
-                    <div class="metric-value status" id="statusLabel" style="color: var(--text-accent);">On Track</div>
+                    <div class="metric-value status" id="statusLabel" style="color: #4B9FC4;">On Track</div>
                 </div>
             </div>
         </div>
@@ -593,28 +490,6 @@
             { rate: 900, color: '#10b981' },
             { rate: 1000, color: '#059669', label: 'Target' }
         ];
-
-        function toggleTheme() {
-            const body = document.body;
-            body.classList.toggle('light-mode');
-            const isDark = !body.classList.contains('light-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeToggleButton();
-        }
-
-        function updateThemeToggleButton() {
-            const toggle = document.getElementById('themeToggle');
-            const isDark = !document.body.classList.contains('light-mode');
-            toggle.textContent = isDark ? '☀️' : '🌙';
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-            }
-            updateThemeToggleButton();
-        }
         
         function updateUI() {
             const dailyTotal = dailyLog.reduce((sum, e) => sum + e.revenue, 0);
@@ -646,6 +521,7 @@
             };
             document.getElementById('statusIcon').textContent = statusConfig[status].icon;
             document.getElementById('statusLabel').textContent = statusConfig[status].label;
+            document.getElementById('statusLabel').style.color = statusConfig[status].color;
             
             const sensitivityGrid = document.getElementById('sensitivityGrid');
             sensitivityGrid.innerHTML = '';
@@ -760,8 +636,7 @@
             document.getElementById('mayEditForm').classList.add('hidden');
             document.getElementById('mayInput').value = mayRevenue;
         }
-
-        initTheme();
+        
         updateUI();
         document.getElementById('dailyInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') addDay();
