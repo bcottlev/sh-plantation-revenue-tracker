@@ -389,7 +389,7 @@
             </div>
             <button class="btn-edit" id="membershipEdit" onclick="editMembership()">Edit</button>
             <div id="membershipEditForm" class="hidden membership-edit-form">
-                <input type="number" id="membershipInput" value="11907.50" />
+                <input type="number" id="membershipInput" value="11908.00" />
                 <button class="btn-save" onclick="saveMembership()">Save</button>
                 <button class="btn-cancel" onclick="cancelMembership()">Cancel</button>
             </div>
@@ -416,7 +416,7 @@
         <div class="hero-section">
             <div class="metric-row">
                 <div class="metric-label">MTD Total</div>
-                <div class="metric-value" id="mtdDisplay">$11,908.00</div>
+                <div class="metric-value" id="mtdDisplay">$15,783.48</div>
             </div>
             <div class="metric-row">
                 <div class="metric-label">June 30 Projection</div>
@@ -463,22 +463,23 @@
     </div>
 
     <script>
-        let membership = 11907.50;
+        let membership = 11908.00;
         let dailyLog = [
             { day: 2, revenue: 528.74 },
             { day: 3, revenue: 473.00 },
             { day: 4, revenue: 399.00 },
             { day: 5, revenue: 556.74 },
             { day: 6, revenue: 1189.50 },
-            { day: 7, revenue: 659.00 }
+            { day: 7, revenue: 659.00 },
+            { day: 8, revenue: 568.50 }
         ];
         let mayRevenue = 28167.24;
         
-        const baseYTDAddonRevenue = 3805.98;
-        const baseYTDTotal = 15713.48;
+        const baseYTDAddonRevenue = 3875.48;
+        const baseYTDTotal = 15783.48;
         const daysInJune = 30;
-        const baseYTDDays = 7;
-        const juneoneTo7AddonDays = 6;
+        const baseYTDDays = 8;
+        const juneoneTo8AddonDays = 7;
         
         const scenarios = [
             { rate: 300, color: '#f59e0b', label: 'At Risk' },
@@ -497,7 +498,7 @@
             const daysRemaining = daysInJune - daysCompleted;
             
             const totalAddonRevenue = baseYTDAddonRevenue + dailyTotal;
-            const totalAddonDays = juneoneTo7AddonDays + dailyLog.length;
+            const totalAddonDays = juneoneTo8AddonDays + dailyLog.length;
             const dailyAvg = totalAddonDays > 0 ? totalAddonRevenue / totalAddonDays : 0;
             
             const projectedTotal = membership + totalAddonRevenue + (dailyAvg * daysRemaining);
