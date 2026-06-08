@@ -399,17 +399,17 @@
             <div class="card-title" style="color: #a78bfa;">Prior Month Benchmark</div>
             <div class="metric-row">
                 <div class="metric-label">May Revenue</div>
-                <div class="metric-value" style="color: #a78bfa;" id="mayDisplay">$22,405</div>
+                <div class="metric-value" style="color: #a78bfa;" id="mayDisplay">$28,167</div>
                 <button class="btn-edit" onclick="editMay()" style="margin-left: 8px;">Edit</button>
             </div>
             <div id="mayEditForm" class="hidden membership-edit-form" style="margin-top: 8px;">
-                <input type="number" id="mayInput" value="22405.03" />
+                <input type="number" id="mayInput" value="28167.24" />
                 <button class="btn-save" onclick="saveMay()">Save</button>
                 <button class="btn-cancel" onclick="cancelMay()">Cancel</button>
             </div>
             <div class="metric-row">
                 <div class="metric-label">Target (May +10%)</div>
-                <div class="metric-value" style="color: #a78bfa;" id="mayTargetDisplay">$24,646</div>
+                <div class="metric-value" style="color: #a78bfa;" id="mayTargetDisplay">$30,984</div>
             </div>
         </div>
         
@@ -439,7 +439,7 @@
             <div class="card-title">Add Daily Addon Revenue</div>
             <div class="input-group">
                 <input type="number" id="dailyInput" placeholder="$" />
-                <button class="btn-add" onclick="addDay()">Add Day <span id="nextDayNum">2</span></button>
+                <button class="btn-add" onclick="addDay()">Add Day <span id="nextDayNum">9</span></button>
             </div>
             <div class="quick-buttons">
                 <button class="btn-quick" onclick="quickAdd(400)">$400</button>
@@ -464,23 +464,30 @@
 
     <script>
         let membership = 11808.00;
-        let dailyLog = [];
-        let mayRevenue = 22405.03;
+        let dailyLog = [
+            { day: 2, revenue: 1360.99 },
+            { day: 3, revenue: 1248.00 },
+            { day: 4, revenue: 1076.00 },
+            { day: 5, revenue: 1279.99 },
+            { day: 6, revenue: 2521.00 },
+            { day: 7, revenue: 1739.00 }
+        ];
+        let mayRevenue = 28167.24;
         
-        const baseYTDAddonRevenue = 0;
-        const baseYTDTotal = 11808.00;
+        const baseYTDAddonRevenue = 9224.98;
+        const baseYTDTotal = 21032.98;
         const daysInJune = 30;
-        const baseYTDDays = 1;
-        const juneOneTo1AddonDays = 0;
+        const baseYTDDays = 7;
+        const juneoneTo7AddonDays = 6;
         
         const scenarios = [
             { rate: 300, color: '#f59e0b', label: 'At Risk' },
             { rate: 400, color: '#fbbf24' },
             { rate: 500, color: '#fcd34d' },
-            { rate: 600, color: '#4B9FC4', label: 'Midpoint' },
-            { rate: 700, color: '#34d399' },
-            { rate: 800, color: '#10b981' },
-            { rate: 900, color: '#059669', label: 'Target' }
+            { rate: 700, color: '#4B9FC4', label: 'Midpoint' },
+            { rate: 800, color: '#34d399' },
+            { rate: 900, color: '#10b981' },
+            { rate: 1000, color: '#059669', label: 'Target' }
         ];
         
         function updateUI() {
@@ -490,7 +497,7 @@
             const daysRemaining = daysInJune - daysCompleted;
             
             const totalAddonRevenue = baseYTDAddonRevenue + dailyTotal;
-            const totalAddonDays = juneOneTo1AddonDays + dailyLog.length;
+            const totalAddonDays = juneoneTo7AddonDays + dailyLog.length;
             const dailyAvg = totalAddonDays > 0 ? totalAddonRevenue / totalAddonDays : 0;
             
             const projectedTotal = membership + totalAddonRevenue + (dailyAvg * daysRemaining);
@@ -504,7 +511,7 @@
             document.getElementById('nextDayNum').textContent = (baseYTDDays + dailyLog.length + 1);
             
             const targetLow = baseYTDTotal + (300 * daysRemaining);
-            const targetMid = baseYTDTotal + (600 * daysRemaining);
+            const targetMid = baseYTDTotal + (700 * daysRemaining);
             const status = projectedTotal < targetLow ? 'risk' : projectedTotal < targetMid ? 'on' : 'above';
             const statusConfig = {
                 above: { icon: '✓', label: 'Above Target', color: '#10b981' },
@@ -518,8 +525,8 @@
             const sensitivityGrid = document.getElementById('sensitivityGrid');
             sensitivityGrid.innerHTML = '';
             scenarios.forEach((s) => {
-                const june2to30Addon = s.rate * daysRemaining;
-                const projected = membership + totalAddonRevenue + june2to30Addon;
+                const juneRemainingAddon = s.rate * daysRemaining;
+                const projected = membership + totalAddonRevenue + juneRemainingAddon;
                 
                 const div = document.createElement('div');
                 div.className = 'sensitivity-item';
@@ -528,7 +535,7 @@
                     <div class="sensitivity-left">
                         <div class="sensitivity-rate" style="color: ${s.color};">$${s.rate}/day</div>
                         <div class="sensitivity-label" style="color: ${s.color};">
-                            ${s.label || (s.rate < 600 ? 'Below Mid' : 'Above Mid')}
+                            ${s.label || (s.rate < 700 ? 'Below Mid' : 'Above Mid')}
                         </div>
                     </div>
                     <div class="sensitivity-value" style="color: ${s.color};">$${projected.toLocaleString('en-US', {maximumFractionDigits: 0})}</div>
