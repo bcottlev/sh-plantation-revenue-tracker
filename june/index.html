@@ -501,7 +501,7 @@
         
         function updateUI() {
             const dailyTotal = dailyLog.reduce((sum, e) => sum + e.revenue, 0);
-            const mtdTotal = membership + baseYTDAddonRevenue + dailyTotal;
+            const mtdTotal = membership + dailyTotal;  // All add-ons in dailyLog
             const daysCompleted = baseYTDDays + dailyLog.length;
             const daysRemaining = daysInJune - daysCompleted;
             
