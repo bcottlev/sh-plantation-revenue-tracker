@@ -14,9 +14,10 @@ today_short = datetime.now().strftime("%m/%d/%Y")
 
 print(f"🔍 Looking for today's revenue ({today})...")
 
-# Read Slack channel
+# Read Slack channel using channel ID
+channel_id = "C0AK3TZ484S"
 try:
-    result = client.conversations_history(channel="plantation-leadership", limit=50)
+    result = client.conversations_history(channel=channel_id, limit=50)
     messages = result["messages"]
     print(f"✓ Found {len(messages)} messages in plantation-leadership")
 except Exception as e:
@@ -57,7 +58,7 @@ if log_match:
     old_log = log_match.group(0)
     
     # Check if today already exists
-    today_pattern = rf"\{{\s*day:\s*{today_day},\s*revenue:\s*[\d.]+\s*\}}"
+    today_pattern = rf"\{{\s*day:\s*{today_day},\s*revenue:\s*[0-9.]+\s*\}}"
     
     if re.search(today_pattern, old_log):
         # Replace existing entry
