@@ -1,0 +1,22 @@
+name: Backfill June 9-16
+
+on: workflow_dispatch
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install slack-sdk
+      - env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python backfill_tracker.py
+      - run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add june/index.html
+          git commit -m "Backfill: June 9-16 revenue from Slack" || true
+          git push origin main
