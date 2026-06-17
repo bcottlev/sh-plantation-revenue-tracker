@@ -2,6 +2,9 @@ name: Backfill June 9-16
 
 on: workflow_dispatch
 
+permissions:
+  contents: write
+
 jobs:
   backfill:
     runs-on: ubuntu-latest
