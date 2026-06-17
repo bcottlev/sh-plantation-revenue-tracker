@@ -15,7 +15,7 @@ today_short = datetime.now().strftime("%m/%d/%Y")
 print(f"🔍 Looking for today's revenue ({today})...")
 
 # Read Slack channel using channel ID
-channel_id = "C0AK3TZ484S"
+channel_id = "C0B241EHPP0"
 try:
     result = client.conversations_history(channel=channel_id, limit=50)
     messages = result["messages"]
