@@ -17,6 +17,7 @@
         }
         .container { max-width: 500px; margin: 0 auto; }
         h1 { font-size: 28px; margin-bottom: 8px; }
+        h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin: 24px 0 16px; }
         .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
         .card {
             background: rgba(255,255,255,0.05);
@@ -33,6 +34,26 @@
         .value.mtd { color: #4dd0e1; }
         .value.target { color: #81c784; }
         .value.projection { color: #ffb74d; }
+        
+        .sensitivity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .sensitivity-box {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .sensitivity-label { color: #888; font-size: 12px; margin-bottom: 6px; }
+        .sensitivity-value { font-size: 18px; font-weight: bold; color: #4dd0e1; }
+        .sensitivity-box.at-risk .sensitivity-value { color: #ffb74d; }
+        .sensitivity-box.at-risk { border-color: rgba(255, 183, 77, 0.3); }
+        .sensitivity-box.on-target .sensitivity-value { color: #81c784; }
+        .sensitivity-box.on-target { border-color: rgba(129, 199, 132, 0.3); }
     </style>
 </head>
 <body>
@@ -65,20 +86,67 @@
             </div>
             <div class="metric">
                 <span class="label">June 30 Projection</span>
-                <span class="value projection">$29,384</span>
+                <span class="value projection" id="baseProjection">$29,384</span>
             </div>
             <div class="metric">
                 <span class="label">Daily Avg (Add-ons)</span>
-                <span class="value">$603/day</span>
+                <span class="value" id="baseAvg">$603/day</span>
             </div>
             <div class="metric">
                 <span class="label">Status</span>
-                <span class="value target">→ 5% below target</span>
+                <span class="value target" id="baseStatus">→ 5% below target</span>
             </div>
+        </div>
+
+        <div class="card">
+            <h2>If you average this daily for rest of June...</h2>
+            <div class="sensitivity-grid" id="sensitivityGrid"></div>
         </div>
     </div>
 
     <script>
+        // Revenue data from CSV for June 1-19
+        const mtdTotal = 22755.35;
+        const membership = 11908.50;
+        const mtdAddOns = mtdTotal - membership;
+        const targetTotal = 30984;
+        const daysCompleted = 19;
+        const daysInJune = 30;
+        const daysRemaining = daysInJune - daysCompleted;
+
+        // Base calculation
+        const baseDaily = (mtdAddOns / 18).toFixed(2); // 18 completed add-on days (excluding June 1)
+        const baseProjection = mtdTotal + (baseDaily * daysRemaining);
+
+        document.getElementById('baseProjection').textContent = '$' + Math.round(baseProjection).toLocaleString();
+        document.getElementById('baseAvg').textContent = '$' + baseDaily + '/day';
+        
+        const statusDiff = baseProjection - targetTotal;
+        const statusPercent = ((statusDiff / targetTotal) * 100).toFixed(1);
+        document.getElementById('baseStatus').textContent = statusDiff < 0 
+            ? `${Math.abs(statusPercent)}% below target` 
+            : `${statusPercent}% above target`;
+
+        // Sensitivity analysis
+        const dailyLevels = [300, 400, 500, 600, 700, 800, 900, 1000];
+        const gridContainer = document.getElementById('sensitivityGrid');
+
+        dailyLevels.forEach(dailyRate => {
+            const projection = mtdTotal + (dailyRate * daysRemaining);
+            const diff = projection - targetTotal;
+            const isOnTarget = projection >= targetTotal * 0.95 && projection <= targetTotal * 1.05;
+            const status = isOnTarget ? 'on-target' : (projection < targetTotal ? 'at-risk' : 'on-target');
+
+            const box = document.createElement('div');
+            box.className = `sensitivity-box ${status}`;
+            box.innerHTML = `
+                <div class="sensitivity-label">$${dailyRate}/day</div>
+                <div class="sensitivity-value">$${Math.round(projection).toLocaleString()}</div>
+            `;
+            gridContainer.appendChild(box);
+        });
+
+        // PWA service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
