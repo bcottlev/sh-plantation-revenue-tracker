@@ -33,21 +33,6 @@
         .value.mtd { color: #4dd0e1; }
         .value.target { color: #81c784; }
         .value.projection { color: #ffb74d; }
-        .daily-log {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .day {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-        .day-name { color: #888; font-size: 12px; margin-bottom: 4px; }
-        .day-revenue { font-size: 18px; font-weight: bold; color: #4dd0e1; }
     </style>
 </head>
 <body>
@@ -76,69 +61,24 @@
         <div class="card">
             <div class="metric">
                 <span class="label">MTD Total (June 1-19)</span>
-                <span class="value mtd" id="mtdValue">$23,326</span>
+                <span class="value mtd">$22,755</span>
             </div>
             <div class="metric">
                 <span class="label">June 30 Projection</span>
-                <span class="value projection" id="projValue">$30,658</span>
+                <span class="value projection">$29,384</span>
             </div>
             <div class="metric">
                 <span class="label">Daily Avg (Add-ons)</span>
-                <span class="value" id="avgValue">$601/day</span>
+                <span class="value">$603/day</span>
             </div>
             <div class="metric">
                 <span class="label">Status</span>
-                <span class="value target">✓ On Track</span>
+                <span class="value target">→ 5% below target</span>
             </div>
-        </div>
-
-        <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Your Daily Log (June 1-30)</h3>
-            <div class="daily-log" id="dailyLog"></div>
         </div>
     </div>
 
     <script>
-        // Revenue data from CSV for June 1-19
-        const dailyData = {
-            1: 11908.50,
-            2: 528.74, 3: 473.00, 4: 399.00, 5: 556.74, 6: 1189.50,
-            7: 659.00, 8: 560.50, 9: 516.50, 10: 1139.00, 11: 428.00,
-            12: 469.49, 13: 1002.24, 14: 399.00, 15: 592.00, 16: 414.50,
-            17: 578.22, 18: 314.19, 19: 627.23
-        };
-
-        const daysInJune = 30;
-
-        // Calculate totals
-        const totalRevenue = Object.values(dailyData).reduce((a, b) => a + b, 0);
-        const mtdTotal = totalRevenue;
-        const daysCompleted = Object.keys(dailyData).length;
-        const addOnsOnly = totalRevenue - 11908.50; // Exclude membership
-        const addOnDays = daysCompleted - 1; // Exclude day 1
-        const dailyAvg = (addOnsOnly / addOnDays).toFixed(2);
-        const daysRemaining = daysInJune - daysCompleted;
-        const projection = mtdTotal + (dailyAvg * daysRemaining);
-
-        // Update display
-        document.getElementById('mtdValue').textContent = '$' + Math.round(mtdTotal).toLocaleString();
-        document.getElementById('projValue').textContent = '$' + Math.round(projection).toLocaleString();
-        document.getElementById('avgValue').textContent = '$' + dailyAvg + '/day';
-
-        // Render daily log
-        const logContainer = document.getElementById('dailyLog');
-        for (let day = 1; day <= 30; day++) {
-            const dayEl = document.createElement('div');
-            dayEl.className = 'day';
-            if (dailyData[day]) {
-                dayEl.innerHTML = `<div class="day-name">June ${day}</div><div class="day-revenue">$${dailyData[day].toFixed(2)}</div>`;
-            } else {
-                dayEl.innerHTML = `<div class="day-name">June ${day}</div><div class="day-revenue" style="color: #666;">—</div>`;
-            }
-            logContainer.appendChild(dayEl);
-        }
-
-        // PWA service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
