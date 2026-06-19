@@ -58,7 +58,7 @@
         <div class="card">
             <div class="metric">
                 <span class="label">Membership (June 1)</span>
-                <span class="value membership">$11,908</span>
+                <span class="value membership">$11,909</span>
             </div>
         </div>
 
@@ -75,52 +75,59 @@
 
         <div class="card">
             <div class="metric">
-                <span class="label">MTD Total (June 2-16)</span>
-                <span class="value mtd" id="mtdValue">$21,412</span>
+                <span class="label">MTD Total (June 1-19)</span>
+                <span class="value mtd" id="mtdValue">$23,326</span>
             </div>
             <div class="metric">
                 <span class="label">June 30 Projection</span>
-                <span class="value projection" id="projValue">$28,997</span>
+                <span class="value projection" id="projValue">$30,658</span>
             </div>
             <div class="metric">
                 <span class="label">Daily Avg (Add-ons)</span>
-                <span class="value" id="avgValue">$633/day</span>
+                <span class="value" id="avgValue">$601/day</span>
+            </div>
+            <div class="metric">
+                <span class="label">Status</span>
+                <span class="value target">✓ On Track</span>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Your Daily Log (June 2-30)</h3>
+            <h3 style="margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Your Daily Log (June 1-30)</h3>
             <div class="daily-log" id="dailyLog"></div>
         </div>
     </div>
 
     <script>
-        // Revenue data from MyTime for June 2-16
+        // Revenue data from CSV for June 1-19
         const dailyData = {
-            2: 529.00, 3: 473.00, 4: 399.00, 5: 557.00, 6: 1190.00,
-            7: 659.00, 8: 569.00, 9: 616.50, 10: 1139.00, 11: 428.00,
-            12: 469.49, 13: 1002.24, 14: 399.00, 15: 660.00, 16: 414.50
+            1: 11908.50,
+            2: 528.74, 3: 473.00, 4: 399.00, 5: 556.74, 6: 1189.50,
+            7: 659.00, 8: 560.50, 9: 516.50, 10: 1139.00, 11: 428.00,
+            12: 469.49, 13: 1002.24, 14: 399.00, 15: 592.00, 16: 414.50,
+            17: 578.22, 18: 314.19, 19: 627.23
         };
 
-        const membership = 11908;
         const daysInJune = 30;
 
         // Calculate totals
-        const totalAddOns = Object.values(dailyData).reduce((a, b) => a + b, 0);
-        const mtdTotal = membership + totalAddOns;
+        const totalRevenue = Object.values(dailyData).reduce((a, b) => a + b, 0);
+        const mtdTotal = totalRevenue;
         const daysCompleted = Object.keys(dailyData).length;
-        const daysRemaining = daysInJune - 1 - daysCompleted;
-        const dailyAvg = (totalAddOns / daysCompleted).toFixed(2);
+        const addOnsOnly = totalRevenue - 11908.50; // Exclude membership
+        const addOnDays = daysCompleted - 1; // Exclude day 1
+        const dailyAvg = (addOnsOnly / addOnDays).toFixed(2);
+        const daysRemaining = daysInJune - daysCompleted;
         const projection = mtdTotal + (dailyAvg * daysRemaining);
 
         // Update display
-        document.getElementById('mtdValue').textContent = '$' + mtdTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('mtdValue').textContent = '$' + Math.round(mtdTotal).toLocaleString();
         document.getElementById('projValue').textContent = '$' + Math.round(projection).toLocaleString();
         document.getElementById('avgValue').textContent = '$' + dailyAvg + '/day';
 
         // Render daily log
         const logContainer = document.getElementById('dailyLog');
-        for (let day = 2; day <= 30; day++) {
+        for (let day = 1; day <= 30; day++) {
             const dayEl = document.createElement('div');
             dayEl.className = 'day';
             if (dailyData[day]) {
