@@ -81,20 +81,20 @@
 
         <div class="card">
             <div class="metric">
-                <span class="label">MTD Total (June 1-19)</span>
-                <span class="value mtd">$22,755</span>
+                <span class="label">MTD Total (June 1-20)</span>
+                <span class="value mtd">$23,972</span>
             </div>
             <div class="metric">
                 <span class="label">June 30 Projection</span>
-                <span class="value projection" id="baseProjection">$29,384</span>
+                <span class="value projection" id="baseProjection">$30,562</span>
             </div>
             <div class="metric">
                 <span class="label">Daily Avg (Add-ons)</span>
-                <span class="value" id="baseAvg">$603/day</span>
+                <span class="value" id="baseAvg">$637/day</span>
             </div>
             <div class="metric">
                 <span class="label">Status</span>
-                <span class="value target" id="baseStatus">→ 5% below target</span>
+                <span class="value target" id="baseStatus">→ On track</span>
             </div>
         </div>
 
@@ -105,17 +105,17 @@
     </div>
 
     <script>
-        // Revenue data from CSV for June 1-19
-        const mtdTotal = 22755.35;
+        // Revenue data updated through June 20
+        const mtdTotal = 23972.35;
         const membership = 11908.50;
         const mtdAddOns = mtdTotal - membership;
         const targetTotal = 30984;
-        const daysCompleted = 19;
+        const daysCompleted = 20;
         const daysInJune = 30;
         const daysRemaining = daysInJune - daysCompleted;
 
         // Base calculation
-        const baseDaily = (mtdAddOns / 18).toFixed(2); // 18 completed add-on days (excluding June 1)
+        const baseDaily = (mtdAddOns / 19).toFixed(2); // 19 completed add-on days (excluding June 1)
         const baseProjection = mtdTotal + (baseDaily * daysRemaining);
 
         document.getElementById('baseProjection').textContent = '$' + Math.round(baseProjection).toLocaleString();
