@@ -1,0 +1,32 @@
+name: Daily FACT_API Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 6 AM UTC daily
+  workflow_dispatch:  # Manual trigger option
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Fetch FACT_API data
+        run: python fetch_fact_api.py
+      
+      - name: Commit and push
+        run: |
+          git config user.email "automation@scenthound.local"
+          git config user.name "FACT_API Bot"
+          git add june/index.html
+          git commit -m "Auto-update: Daily FACT_API revenue sync" || echo "No changes"
+          git push origin main || echo "Push failed - no changes"
+

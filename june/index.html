@@ -81,16 +81,16 @@
 
         <div class="card">
             <div class="metric">
-                <span class="label">MTD Total (June 1-22)</span>
-                <span class="value mtd">$25,035</span>
+                <span class="label">MTD Total (June 1-23)</span>
+                <span class="value mtd">$25,686</span>
             </div>
             <div class="metric">
                 <span class="label">June 30 Projection</span>
-                <span class="value projection" id="baseProjection">$30,032</span>
+                <span class="value projection" id="baseProjection">$30,070</span>
             </div>
             <div class="metric">
                 <span class="label">Daily Avg (Add-ons)</span>
-                <span class="value" id="baseAvg">$625/day</span>
+                <span class="value" id="baseAvg">$626/day</span>
             </div>
             <div class="metric">
                 <span class="label">Status</span>
@@ -105,17 +105,17 @@
     </div>
 
     <script>
-        // Revenue data updated through June 22
-        const mtdTotal = 25034.84;
+        // Revenue data updated through June 23
+        const mtdTotal = 25686.34;
         const membership = 11908.50;
         const mtdAddOns = mtdTotal - membership;
         const targetTotal = 30984;
-        const daysCompleted = 22;
+        const daysCompleted = 23;
         const daysInJune = 30;
         const daysRemaining = daysInJune - daysCompleted;
 
         // Base calculation
-        const baseDaily = (mtdAddOns / 21).toFixed(2); // 21 completed add-on days (excluding June 1)
+        const baseDaily = (mtdAddOns / 22).toFixed(2); // 22 completed add-on days (excluding June 1)
         const baseProjection = mtdTotal + (baseDaily * daysRemaining);
 
         document.getElementById('baseProjection').textContent = '$' + Math.round(baseProjection).toLocaleString();
