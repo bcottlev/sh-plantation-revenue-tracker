@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantation July Revenue Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin: 24px 0 16px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .metric { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .label { color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 24px; font-weight: bold; }
+        .value.membership { color: #ffc107; }
+        .value.mtd { color: #4dd0e1; }
+        .value.target { color: #81c784; }
+        .value.projection { color: #ffb74d; }
+        
+        .sensitivity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .sensitivity-box {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .sensitivity-label { color: #888; font-size: 12px; margin-bottom: 6px; }
+        .sensitivity-value { font-size: 18px; font-weight: bold; color: #4dd0e1; }
+        .sensitivity-box.at-risk .sensitivity-value { color: #ffb74d; }
+        .sensitivity-box.at-risk { border-color: rgba(255, 183, 77, 0.3); }
+        .sensitivity-box.on-target .sensitivity-value { color: #81c784; }
+        .sensitivity-box.on-target { border-color: rgba(129, 199, 132, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plantation July</h1>
+        <p class="subtitle">Daily pace tracker through July 31</p>
+
+        <div class="card">
+            <div class="metric">
+                <span class="label">Membership (July 1)</span>
+                <span class="value membership">$12,613</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="metric">
+                <span class="label">June Revenue (Final)</span>
+                <span class="value">$30,686</span>
+            </div>
+            <div class="metric">
+                <span class="label">Target (June +10%)</span>
+                <span class="value target">$33,755</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="metric">
+                <span class="label">MTD Total (July 1-20)</span>
+                <span class="value mtd">$23,432</span>
+            </div>
+            <div class="metric">
+                <span class="label">July 31 Projection</span>
+                <span class="value projection" id="baseProjection">$29,763</span>
+            </div>
+            <div class="metric">
+                <span class="label">Daily Avg (Add-ons)</span>
+                <span class="value" id="baseAvg">$569/day</span>
+            </div>
+            <div class="metric">
+                <span class="label">Status</span>
+                <span class="value target" id="baseStatus">→ 12% below target</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>If you average this daily for rest of July...</h2>
+            <div class="sensitivity-grid" id="sensitivityGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const mtdTotal = 23432.25;
+        const membership = 12613.26;
+        const mtdAddOns = mtdTotal - membership;
+        const targetTotal = 33755;
+        const daysCompleted = 20;
+        const daysInJuly = 31;
+        const daysRemaining = daysInJuly - daysCompleted;
+
+        const baseDaily = (mtdAddOns / 19).toFixed(2);
+        const baseProjection = mtdTotal + (baseDaily * daysRemaining);
+
+        document.getElementById('baseProjection').textContent = '$' + Math.round(baseProjection).toLocaleString();
+        document.getElementById('baseAvg').textContent = '$' + baseDaily + '/day';
+        
+        const statusDiff = baseProjection - targetTotal;
+        const statusPercent = ((statusDiff / targetTotal) * 100).toFixed(1);
+        document.getElementById('baseStatus').textContent = statusDiff < -500 
+            ? `${Math.abs(statusPercent)}% below target` 
+            : statusDiff > 500
+            ? `✓ On target`
+            : `✓ On target`;
+
+        const dailyLevels = [300, 400, 500, 600, 700, 800, 900, 1000];
+        const gridContainer = document.getElementById('sensitivityGrid');
+
+        dailyLevels.forEach(dailyRate => {
+            const projection = mtdTotal + (dailyRate * daysRemaining);
+            const isOnTarget = projection >= targetTotal * 0.95 && projection <= targetTotal * 1.05;
+            const status = isOnTarget ? 'on-target' : (projection < targetTotal ? 'at-risk' : 'on-target');
+
+            const box = document.createElement('div');
+            box.className = `sensitivity-box ${status}`;
+            box.innerHTML = `
+                <div class="sensitivity-label">$${dailyRate}/day</div>
+                <div class="sensitivity-value">$${Math.round(projection).toLocaleString()}</div>
+            `;
+            gridContainer.appendChild(box);
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+</body>
+</html>
