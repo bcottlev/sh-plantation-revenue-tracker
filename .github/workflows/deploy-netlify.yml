@@ -15,7 +15,7 @@ jobs:
         with:
           publish-dir: '.'
           production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT_TOKEN }}
           deploy-message: "Deploy from GitHub: ${{ github.commit_message }}"
           enable-pull-request-comment: false
           enable-commit-comment: false
