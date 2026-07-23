@@ -8,10 +8,8 @@ import json
 import re
 from datetime import datetime
 
-SLACK_WEBHOOK = None  # Will use token + channel instead
-SLACK_TOKEN = None  # From GitHub secrets
-SLACK_CHANNEL = "C0B241EHPP0"  # plantation-leadership
 SLACK_API = "https://slack.com/api/chat.postMessage"
+SLACK_CHANNEL = "C0B241EHPP0"  # plantation-leadership
 
 def read_tracker_data(month):
     """Extract MTD and calculations from tracker HTML"""
@@ -51,45 +49,29 @@ def read_tracker_data(month):
         'current_daily_avg': current_daily_avg,
         'projection': projection,
         'target': target,
-        'addon_revenue': addon_revenue
     }
 
-def calculate_targets(mtd, days_remaining):
-    """Calculate what's needed to hit each tier"""
-    targets = {
-        '30000': {'bonus': '$250', 'daily': None},
-        '31000': {'bonus': '$375', 'daily': None},
-        '32000': {'bonus': '$500', 'daily': None},
-        '33000': {'bonus': '$1,000', 'daily': None},
-    }
-    
-    for tier, data in targets.items():
-        tier_amount = float(tier)
-        gap = tier_amount - mtd
-        if days_remaining > 0:
-            daily_needed = gap / days_remaining
-            data['daily'] = daily_needed
-    
-    return targets
+def calculate_daily_needed(mtd, days_remaining, target_amount):
+    """Calculate daily average needed to hit target"""
+    gap = target_amount - mtd
+    if days_remaining > 0:
+        return gap / days_remaining
+    return 0
 
 def format_slack_message(data, month):
     """Format message for Slack"""
     month_name = 'July' if month == 'july' else 'June'
     
-    # Calculate targets
-    targets = calculate_targets(data['mtd'], data['days_remaining'])
-    
-    # Format target lines
+    # Calculate daily needed for each tier
+    targets = [30000, 31000, 32000, 33000]
     target_lines = []
-    for tier_amount, tier_data in targets.items():
-        if tier_data['daily']:
-            daily = tier_data['daily']
-            bonus = tier_data['bonus']
-            target_lines.append(f"  ${tier_amount}: ${daily:.0f}/day remaining → {bonus}")
+    for tier in targets:
+        daily = calculate_daily_needed(data['mtd'], data['days_remaining'], tier)
+        target_lines.append(f"  ${tier:,}: ${daily:.0f}/day")
     
-    message = f"""🎯 *{month_name} Revenue Report*
+    message = f"""📊 *{month_name} Revenue Status*
 
-*Current Status:*
+*Where We Stand:*
 • MTD: ${data['mtd']:,.0f}
 • Days Complete: {data['days_completed']} | Days Remaining: {data['days_remaining']}
 
@@ -98,7 +80,7 @@ def format_slack_message(data, month):
 • Projected Close: ${data['projection']:,.0f}
 • Target: ${data['target']:,.0f}
 
-*What We Need:*
+*Daily Average Needed to Hit:*
 {chr(10).join(target_lines)}"""
     
     return message
