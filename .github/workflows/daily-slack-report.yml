@@ -22,5 +22,5 @@ jobs:
       - name: Send Slack report
         run: python send_slack_report.py
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 

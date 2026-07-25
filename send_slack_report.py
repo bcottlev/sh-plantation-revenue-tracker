@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
-Daily revenue report to Slack with MTD, projections, and targets
+Daily revenue report to Slack via Incoming Webhook
 """
 
 import requests
 import json
 import re
+import os
 from datetime import datetime
-
-SLACK_API = "https://slack.com/api/chat.postMessage"
-SLACK_CHANNEL = "C0B241EHPP0"  # plantation-leadership
 
 def read_tracker_data(month):
     """Extract MTD and calculations from tracker HTML"""
@@ -85,21 +83,15 @@ def format_slack_message(data, month):
     
     return message
 
-def send_slack_message(token, channel, message):
-    """Send message to Slack"""
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-    
+def send_slack_message(webhook_url, message):
+    """Send message to Slack via webhook"""
     payload = {
-        'channel': channel,
         'text': message,
         'mrkdwn': True
     }
     
     try:
-        response = requests.post(SLACK_API, headers=headers, json=payload, timeout=10)
+        response = requests.post(webhook_url, json=payload, timeout=10)
         response.raise_for_status()
         print("✅ Message sent to Slack")
         return True
@@ -109,6 +101,12 @@ def send_slack_message(token, channel, message):
 
 def main():
     print("📊 Generating daily revenue report...")
+    
+    # Get webhook URL from environment
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+    if not webhook_url:
+        print("❌ SLACK_WEBHOOK_URL not set")
+        return False
     
     # Get current month
     month_num = datetime.now().month
@@ -124,15 +122,8 @@ def main():
     message = format_slack_message(data, month)
     print(f"\n{message}\n")
     
-    # Get token from environment (GitHub secret)
-    import os
-    token = os.getenv('SLACK_BOT_TOKEN')
-    if not token:
-        print("❌ SLACK_BOT_TOKEN not set")
-        return False
-    
     # Send to Slack
-    if send_slack_message(token, SLACK_CHANNEL, message):
+    if send_slack_message(webhook_url, message):
         return True
     else:
         return False
