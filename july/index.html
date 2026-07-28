@@ -54,6 +54,28 @@
         .sensitivity-box.at-risk { border-color: rgba(255, 183, 77, 0.3); }
         .sensitivity-box.on-target .sensitivity-value { color: #81c784; }
         .sensitivity-box.on-target { border-color: rgba(129, 199, 132, 0.3); }
+        
+        .daily-table {
+            font-size: 12px;
+            margin-top: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .daily-row {
+            display: grid;
+            grid-template-columns: 50px 1fr;
+            gap: 8px;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            align-items: center;
+        }
+        .daily-row.header {
+            font-weight: bold;
+            color: #aaa;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .daily-day { text-align: center; color: #888; }
+        .daily-revenue { text-align: right; color: #4dd0e1; }
     </style>
 </head>
 <body>
@@ -81,8 +103,8 @@
 
         <div class="card">
             <div class="metric">
-                <span class="label">MTD Total (July 1-21)</span>
-                <span class="value mtd">$23,922</span>
+                <span class="label">MTD Total</span>
+                <span class="value mtd" id="mtdDisplay">$23,922</span>
             </div>
             <div class="metric">
                 <span class="label">July 31 Projection</span>
@@ -99,21 +121,77 @@
         </div>
 
         <div class="card">
+            <h2>Daily Breakdown</h2>
+            <div class="daily-table" id="dailyTable"></div>
+        </div>
+
+        <div class="card">
             <h2>If you average this daily for rest of July...</h2>
             <div class="sensitivity-grid" id="sensitivityGrid"></div>
         </div>
     </div>
 
     <script>
-        const mtdTotal = 23921.75;
+        // Daily revenue tracking by date
+        const dailyRevenue = {
+            '2026-07-01': 12613.26,
+            '2026-07-02': 378.86,
+            '2026-07-03': 901.74,
+            '2026-07-04': 58.00,
+            '2026-07-05': 1149.59,
+            '2026-07-06': 467.35,
+            '2026-07-07': 914.49,
+            '2026-07-08': 628.00,
+            '2026-07-09': 398.00,
+            '2026-07-10': 413.50,
+            '2026-07-11': 836.50,
+            '2026-07-12': 304.23,
+            '2026-07-13': 237.00,
+            '2026-07-14': 410.75,
+            '2026-07-15': 413.00,
+            '2026-07-16': 512.50,
+            '2026-07-17': 815.99,
+            '2026-07-18': 949.99,
+            '2026-07-19': 397.50,
+            '2026-07-20': 632.00,
+            '2026-07-21': 489.50
+        };
+
+        // Calculate MTD from daily data
+        const mtdTotal = Object.values(dailyRevenue).reduce((a, b) => a + b, 0);
+        const daysWithData = Object.keys(dailyRevenue).length;
+        const daysCompleted = Math.max(...Object.keys(dailyRevenue).map(d => parseInt(d.split('-')[2])));
         const membership = 12613.26;
-        const mtdAddOns = mtdTotal - membership;
         const targetTotal = 33755;
-        const daysCompleted = 21;
         const daysInJuly = 31;
         const daysRemaining = daysInJuly - daysCompleted;
 
-        const baseDaily = (mtdAddOns / 20).toFixed(2);
+        // Display MTD
+        document.getElementById('mtdDisplay').textContent = '$' + Math.round(mtdTotal).toLocaleString();
+
+        // Build daily table
+        const tableContainer = document.getElementById('dailyTable');
+        const headerRow = document.createElement('div');
+        headerRow.className = 'daily-row header';
+        headerRow.innerHTML = '<div class="daily-day">Day</div><div class="daily-revenue">Revenue</div>';
+        tableContainer.appendChild(headerRow);
+
+        for (let day = 1; day <= 31; day++) {
+            const dateStr = `2026-07-${String(day).padStart(2, '0')}`;
+            const revenue = dailyRevenue[dateStr];
+            
+            const row = document.createElement('div');
+            row.className = 'daily-row';
+            row.innerHTML = `
+                <div class="daily-day">${day}</div>
+                <div class="daily-revenue">${revenue ? '$' + revenue.toFixed(2) : '—'}</div>
+            `;
+            tableContainer.appendChild(row);
+        }
+
+        // Calculate projections
+        const mtdAddOns = mtdTotal - membership;
+        const baseDaily = (mtdAddOns / (daysCompleted - 1)).toFixed(2);
         const baseProjection = mtdTotal + (baseDaily * daysRemaining);
 
         document.getElementById('baseProjection').textContent = '$' + Math.round(baseProjection).toLocaleString();
@@ -123,8 +201,6 @@
         const statusPercent = ((statusDiff / targetTotal) * 100).toFixed(1);
         document.getElementById('baseStatus').textContent = statusDiff < -500 
             ? `${Math.abs(statusPercent)}% below target` 
-            : statusDiff > 500
-            ? `✓ On target`
             : `✓ On target`;
 
         const dailyLevels = [300, 400, 500, 600, 700, 800, 900, 1000];

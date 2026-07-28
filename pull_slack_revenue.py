@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
 Pull daily revenue from Slack End-of-Shift PL SM Report
-and update tracker
+and update tracker with day-by-day breakdown
 """
 
 import os
 import re
 import requests
+import json
 from datetime import datetime
 
 SLACK_API = "https://slack.com/api/conversations.history"
@@ -48,8 +49,8 @@ def parse_eom_report(message_text):
     
     return None
 
-def update_tracker_with_revenue(month, date, revenue):
-    """Update tracker HTML with new daily revenue"""
+def update_tracker_with_daily_revenue(month, date_str, revenue):
+    """Update tracker HTML with daily revenue in dailyRevenue object"""
     tracker_file = f'{month}/index.html'
     
     try:
@@ -59,38 +60,48 @@ def update_tracker_with_revenue(month, date, revenue):
         print(f"❌ Could not read tracker: {e}")
         return False
     
-    # Extract day from date (YYYY-MM-DD)
-    day = int(date.split('-')[2])
-    
-    # Update the JavaScript dailyData or mtdTotal
-    # For now, we'll update mtdTotal directly
-    mtd_match = re.search(r'const mtdTotal = ([\d.]+)', content)
-    if not mtd_match:
-        print("❌ Could not find mtdTotal in tracker")
-        return False
-    
-    old_mtd = float(mtd_match.group(1))
-    new_mtd = old_mtd + revenue
-    
-    content = content.replace(
-        f'const mtdTotal = {old_mtd}',
-        f'const mtdTotal = {new_mtd}'
+    # Extract existing dailyRevenue object
+    daily_match = re.search(
+        r"const dailyRevenue = \{([^}]+)\}",
+        content,
+        re.DOTALL
     )
     
-    # Update daysCompleted
-    days_match = re.search(r'const daysCompleted = (\d+)', content)
-    if days_match:
-        old_days = int(days_match.group(1))
-        if day > old_days:
-            content = content.replace(
-                f'const daysCompleted = {old_days}',
-                f'const daysCompleted = {day}'
-            )
+    if not daily_match:
+        print("❌ Could not find dailyRevenue object in tracker")
+        return False
+    
+    old_daily_obj = daily_match.group(0)
+    
+    # Build new dailyRevenue line for this date
+    new_line = f"            '{date_str}': {revenue},"
+    
+    # Check if date already exists
+    date_pattern = f"'{date_str}':"
+    if date_pattern in old_daily_obj:
+        # Update existing date (replace old value with new)
+        old_line_match = re.search(
+            f"            '{date_str}': [0-9.]+,",
+            old_daily_obj
+        )
+        if old_line_match:
+            old_line = old_line_match.group(0)
+            new_obj = old_daily_obj.replace(old_line, new_line)
+            print(f"⚠️  Date {date_str} already exists. Updating value.")
+        else:
+            print(f"❌ Could not parse existing entry for {date_str}")
+            return False
+    else:
+        # Add new date (insert before closing brace)
+        new_obj = old_daily_obj.replace("        };", f"            '{date_str}': {revenue},\n        }};")
+    
+    # Replace in content
+    content = content.replace(old_daily_obj, new_obj)
     
     try:
         with open(tracker_file, 'w') as f:
             f.write(content)
-        print(f"✅ Updated {tracker_file}: +${revenue:.2f} | MTD now ${new_mtd:.2f}")
+        print(f"✅ Updated {tracker_file} for {date_str}: ${revenue:.2f}")
         return True
     except Exception as e:
         print(f"❌ Could not write tracker: {e}")
@@ -115,7 +126,7 @@ def main():
     latest_report = None
     for msg in messages:
         text = msg.get('text', '')
-        if 'End-of-Shift PL SM Report' in text:
+        if 'End-of-Shift PL SM Report' in text and 'Date of Report:' in text:
             latest_report = text
             break
     
@@ -136,7 +147,8 @@ def main():
     month = 'july' if month_num == 7 else 'june'
     
     # Update tracker
-    if update_tracker_with_revenue(month, data['date'], data['revenue']):
+    if update_tracker_with_daily_revenue(month, data['date'], data['revenue']):
+        print(f"✅ Tracker updated successfully")
         return True
     else:
         return False
