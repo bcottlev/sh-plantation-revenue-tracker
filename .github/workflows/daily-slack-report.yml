@@ -11,12 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Send Slack report
-        run: python3 send_daily_slack.py
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send to Slack
+        run: |
+          # Extract values from tracker
+          MTD=$(grep -oP 'const mtdTotal = \K[\d.]+' july/index.html)
+          DAYS=$(grep -oP 'const daysCompleted = \K\d+' july/index.html)
+          TARGET=$(grep -oP 'const targetTotal = \K\d+' july/index.html)
+          
+          DAYS_REMAINING=$((31 - DAYS))
+          DAILY_AVG=$(echo "scale=0; ($MTD - 12613.26) / ($DAYS - 1)" | bc)
+          PROJECTION=$(echo "scale=0; $MTD + ($DAILY_AVG * $DAYS_REMAINING)" | bc)
+          
+          # Build message
+          MESSAGE="📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$(printf "%.0f" $MTD | sed ':a;s/\B[0-9]\{3\}\>/,&/g;ta')\n• Days Complete: $DAYS | Days Remaining: $DAYS_REMAINING\n\n*Performance:*\n• Current Daily Avg: \$$(printf "%.0f" $DAILY_AVG)/day\n• Projected Close: \$$(printf "%.0f" $PROJECTION | sed ':a;s/\B[0-9]\{3\}\>/,&/g;ta')\n• Target: \$$(printf "%.0f" $TARGET | sed ':a;s/\B[0-9]\{3\}\>/,&/g;ta')"
+          
+          # Send to webhook
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
+
