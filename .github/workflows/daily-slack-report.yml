@@ -19,8 +19,59 @@ jobs:
       - name: Install dependencies
         run: pip install requests
       
-      - name: Send Slack report
-        run: python send_slack_report.py
+      - name: Send Slack report via curl
+        run: |
+          python3 << 'PYEOF'
+import re
+import subprocess
+import json
+import os
+
+# Read tracker
+with open('july/index.html', 'r') as f:
+    content = f.read()
+
+# Extract values
+mtd_match = re.search(r'const mtdTotal = ([\d.]+)', content)
+days_match = re.search(r'const daysCompleted = (\d+)', content)
+target_match = re.search(r'const targetTotal = ([\d.]+)', content)
+
+mtd = float(mtd_match.group(1)) if mtd_match else 0
+days = int(days_match.group(1)) if days_match else 0
+target = float(target_match.group(1)) if target_match else 0
+
+days_remaining = 31 - days
+daily_avg = (mtd - 12613.26) / (days - 1) if days > 1 else 0
+projection = mtd + (daily_avg * days_remaining)
+
+# Build JSON payload
+payload = {
+    "text": f"📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: ${mtd:,.0f}\n• Days Complete: {days} | Days Remaining: {days_remaining}\n\n*Performance:*\n• Current Daily Avg: ${daily_avg:.0f}/day\n• Projected Close: ${projection:,.0f}\n• Target: ${target:,.0f}"
+}
+
+webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+json_payload = json.dumps(payload)
+
+# Send via curl
+import subprocess
+result = subprocess.run(
+    ['curl', '-X', 'POST', '-H', 'Content-type: application/json', '--data', json_payload, webhook_url],
+    capture_output=True,
+    text=True
+)
+
+print(f"Status: {result.returncode}")
+if result.stdout:
+    print(f"Response: {result.stdout}")
+if result.stderr:
+    print(f"Error: {result.stderr}")
+
+if result.returncode == 0:
+    print("✅ Message sent to Slack")
+else:
+    print("❌ Failed to send")
+
+PYEOF
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
