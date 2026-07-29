@@ -13,8 +13,55 @@ jobs:
       
       - name: Send to Slack
         run: |
-          curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: $23,922\n• Days Complete: 21 | Days Remaining: 10\n\n*Performance:*\n• Current Daily Avg: $565/day\n• Projected Close: $29,576\n• Target: $33,755\n\n*Daily Average Needed to Hit:*\n  $300/day → $29,922\n  $600/day → $35,922\n  $900/day → $38,422"}' \
-            "${{ secrets.SLACK_WEBHOOK_URL }}"
-          echo "✅ Sent to Slack"
+          python3 << 'PYEOF'
+import re
+import subprocess
+import json
+import os
+
+# Read tracker
+with open('july/index.html', 'r') as f:
+    content = f.read()
+
+# Extract values using simple regex
+mtd = float(re.search(r'const mtdTotal = ([\d.]+)', content).group(1))
+days = int(re.search(r'const daysCompleted = (\d+)', content).group(1))
+target = float(re.search(r'const targetTotal = ([\d.]+)', content).group(1))
+
+# Calculate
+days_remaining = 31 - days
+daily_avg = (mtd - 12613.26) / (days - 1)
+projection = mtd + (daily_avg * days_remaining)
+
+# Build message
+message = f"""📊 *July Revenue Status*
+
+*Where We Stand:*
+• MTD: ${mtd:,.0f}
+• Days Complete: {days} | Days Remaining: {days_remaining}
+
+*Performance:*
+• Current Daily Avg: ${daily_avg:.0f}/day
+• Projected Close: ${projection:,.0f}
+• Target: ${target:,.0f}
+
+*Daily Average Needed to Hit:*
+  $300/day → ${(300 * days_remaining) + mtd:,.0f}
+  $600/day → ${(600 * days_remaining) + mtd:,.0f}
+  $900/day → ${(900 * days_remaining) + mtd:,.0f}"""
+
+# Send to webhook
+webhook = os.getenv('SLACK_WEBHOOK_URL')
+payload = json.dumps({"text": message})
+
+result = subprocess.run(
+    ['curl', '-X', 'POST', '-H', 'Content-type: application/json', '--data', payload, webhook],
+    capture_output=True
+)
+
+print("✅ Sent to Slack" if result.returncode == 0 else "❌ Failed")
+PYEOF
+
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
