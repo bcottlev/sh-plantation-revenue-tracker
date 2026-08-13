@@ -13,28 +13,51 @@ jobs:
       
       - name: Send to Slack
         run: |
-          # Extract values from tracker using grep and sed
-          MTD=$(grep "const mtdTotal = " july/index.html | sed "s/.*const mtdTotal = \([0-9.]*\).*/\1/")
-          DAYS=$(grep "const daysCompleted = " july/index.html | sed "s/.*const daysCompleted = \([0-9]*\).*/\1/")
-          TARGET=$(grep "const targetTotal = " july/index.html | sed "s/.*const targetTotal = \([0-9]*\).*/\1/")
+          NODE_SCRIPT=$(cat <<'NODEOF'
+          const fs = require('fs');
+          const https = require('https');
           
-          echo "MTD: $MTD, Days: $DAYS, Target: $TARGET"
+          // Read tracker
+          const html = fs.readFileSync('july/index.html', 'utf8');
           
-          # Calculate metrics
-          DAYS_REM=$((31 - DAYS))
-          DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12613) / ($DAYS - 1)}")
-          PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
+          // Simple string extraction
+          const mtdMatch = html.match(/const mtdTotal = ([0-9.]+)/);
+          const daysMatch = html.match(/const daysCompleted = ([0-9]+)/);
+          const targetMatch = html.match(/const targetTotal = ([0-9]+)/);
           
-          TIER_300=$(awk "BEGIN {printf \"%.0f\", (300 * $DAYS_REM) + $MTD}")
-          TIER_600=$(awk "BEGIN {printf \"%.0f\", (600 * $DAYS_REM) + $MTD}")
-          TIER_900=$(awk "BEGIN {printf \"%.0f\", (900 * $DAYS_REM) + $MTD}")
+          if (!mtdMatch || !daysMatch || !targetMatch) {
+            console.error('Failed to extract values');
+            process.exit(1);
+          }
           
-          # Send to Slack
-          MESSAGE="📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$(printf \"%.0f\" $MTD | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n• Days Complete: $DAYS | Days Remaining: $DAYS_REM\n\n*Performance:*\n• Current Daily Avg: \$$DAILY_AVG/day\n• Projected Close: \$$(printf \"%.0f\" $PROJECTION | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n• Target: \$$(printf \"%.0f\" $TARGET | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n\n*Daily Average Needed to Hit:*\n  \$300/day → \$$(printf \"%.0f\" $TIER_300 | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n  \$600/day → \$$(printf \"%.0f\" $TIER_600 | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n  \$900/day → \$$(printf \"%.0f\" $TIER_900 | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')"
+          const mtd = parseFloat(mtdMatch[1]);
+          const days = parseInt(daysMatch[1]);
+          const target = parseInt(targetMatch[1]);
           
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"$MESSAGE\"}" \
-            "${{ secrets.SLACK_WEBHOOK_URL }}"
+          const daysRem = 31 - days;
+          const dailyAvg = Math.round((mtd - 12613.26) / (days - 1));
+          const projection = Math.round(mtd + (dailyAvg * daysRem));
           
-          echo "✅ Sent to Slack"
+          const formatNum = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          
+          const msg = `📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtd)}\n• Days Complete: ${days} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtd)}\n  $600/day → $${formatNum((600 * daysRem) + mtd)}\n  $900/day → $${formatNum((900 * daysRem) + mtd)}`;
+          
+          const payload = JSON.stringify({text: msg});
+          const url = new URL(process.env.SLACK_WEBHOOK_URL);
+          
+          const req = https.request(url, {
+            method: 'POST',
+            headers: {'Content-type': 'application/json', 'Content-Length': payload.length}
+          }, (res) => {
+            console.log(res.statusCode === 200 ? '✅ Sent' : `❌ ${res.statusCode}`);
+          });
+          
+          req.write(payload);
+          req.end();
+          NODEOF
+          )
+          
+          node -e "$NODE_SCRIPT"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
