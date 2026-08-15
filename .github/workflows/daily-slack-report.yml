@@ -17,8 +17,16 @@ jobs:
           const fs = require('fs');
           const https = require('https');
           
+          // Determine current month
+          const now = new Date();
+          const month = (now.getMonth() + 1).toString().padStart(2, '0');
+          const year = now.getFullYear();
+          
+          let trackerPath = 'august/index.html';
+          if (month === '07') trackerPath = 'july/index.html';
+          
           // Read tracker
-          const html = fs.readFileSync('july/index.html', 'utf8');
+          const html = fs.readFileSync(trackerPath, 'utf8');
           
           // Simple string extraction
           const mtdMatch = html.match(/const mtdTotal = ([0-9.]+)/);
@@ -35,12 +43,12 @@ jobs:
           const target = parseInt(targetMatch[1]);
           
           const daysRem = 31 - days;
-          const dailyAvg = Math.round((mtd - 12613.26) / (days - 1));
+          const dailyAvg = Math.round((mtd - 12600) / (days - 1));
           const projection = Math.round(mtd + (dailyAvg * daysRem));
           
           const formatNum = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           
-          const msg = `📊 *July Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtd)}\n• Days Complete: ${days} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtd)}\n  $600/day → $${formatNum((600 * daysRem) + mtd)}\n  $900/day → $${formatNum((900 * daysRem) + mtd)}`;
+          const msg = `📊 *${month === '08' ? 'August' : 'July'} Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtd)}\n• Days Complete: ${days} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtd)}\n  $600/day → $${formatNum((600 * daysRem) + mtd)}\n  $900/day → $${formatNum((900 * daysRem) + mtd)}`;
           
           const payload = JSON.stringify({text: msg});
           const url = new URL(process.env.SLACK_WEBHOOK_URL);
