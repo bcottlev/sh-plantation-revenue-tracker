@@ -39,10 +39,7 @@ jobs:
           TARGET_FMT=$(FORMAT $TARGET)
           PACE_FMT=$(FORMAT $PACE_NEEDED)
           
-          # Calculate tiers
-          TIER_100=$(FORMAT $((${MTD%.*} + (100 * DAYS_REM))))
-          TIER_200=$(FORMAT $((${MTD%.*} + (200 * DAYS_REM))))
-          TIER_300=$(FORMAT $((${MTD%.*} + (300 * DAYS_REM))))
+          # Calculate tiers (400-1000 only)
           TIER_400=$(FORMAT $((${MTD%.*} + (400 * DAYS_REM))))
           TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
           TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
@@ -55,15 +52,12 @@ jobs:
           MSG=$(printf '%s\n' \
             "• MTD Revenue: \$$MTD_FMT" \
             "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
-            "• Current Daily Avg: \$$AVG_FMT/day" \
+            "• Current Daily Avg: \$$AVG_FMT" \
             "• Projected Close: \$$PROJ_FMT" \
             "• EoM Target: \$$TARGET_FMT" \
-            "• Daily Pace Needed: \$$PACE_FMT/day to hit target" \
+            "• Daily Pace Needed: \$$PACE_FMT to hit target" \
             "" \
-            "Daily Average Needed to Hit:" \
-            "• \$100/day → \$$TIER_100" \
-            "• \$200/day → \$$TIER_200" \
-            "• \$300/day → \$$TIER_300" \
+            "Daily Average Scenarios:" \
             "• \$400/day → \$$TIER_400" \
             "• \$500/day → \$$TIER_500" \
             "• \$600/day → \$$TIER_600" \
