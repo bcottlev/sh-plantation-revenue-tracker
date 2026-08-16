@@ -25,41 +25,56 @@ jobs:
           # Extract target
           TARGET=$(grep -oP "const targetTotal = \K\d+" august/index.html)
           
-          echo "MTD: $MTD, Days: $DAYS, Target: $TARGET"
-          
           # Calculate derived values
           DAYS_REM=$((31 - DAYS))
           DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
           
           # Format numbers with commas
-          MTD_FMT=$(printf "%.0f" $MTD | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          AVG_FMT=$(printf "%.0f" $DAILY_AVG | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          PROJ_FMT=$(printf "%.0f" $PROJECTION | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TARGET_FMT=$(printf "%.0f" $TARGET | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+          FORMAT() { printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'; }
+          MTD_FMT=$(FORMAT $MTD)
+          AVG_FMT=$(FORMAT $DAILY_AVG)
+          PROJ_FMT=$(FORMAT $PROJECTION)
+          TARGET_FMT=$(FORMAT $TARGET)
           
-          # Build tier lines with proper formatting
-          TIER_100=$(awk "BEGIN {printf \"%.0f\", $MTD + (100 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_200=$(awk "BEGIN {printf \"%.0f\", $MTD + (200 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_300=$(awk "BEGIN {printf \"%.0f\", $MTD + (300 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_400=$(awk "BEGIN {printf \"%.0f\", $MTD + (400 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_500=$(awk "BEGIN {printf \"%.0f\", $MTD + (500 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_600=$(awk "BEGIN {printf \"%.0f\", $MTD + (600 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_700=$(awk "BEGIN {printf \"%.0f\", $MTD + (700 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_800=$(awk "BEGIN {printf \"%.0f\", $MTD + (800 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_900=$(awk "BEGIN {printf \"%.0f\", $MTD + (900 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          TIER_1000=$(awk "BEGIN {printf \"%.0f\", $MTD + (1000 * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+          # Calculate tiers
+          TIER_100=$(FORMAT $((${MTD%.*} + (100 * DAYS_REM))))
+          TIER_200=$(FORMAT $((${MTD%.*} + (200 * DAYS_REM))))
+          TIER_300=$(FORMAT $((${MTD%.*} + (300 * DAYS_REM))))
+          TIER_400=$(FORMAT $((${MTD%.*} + (400 * DAYS_REM))))
+          TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
+          TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
+          TIER_700=$(FORMAT $((${MTD%.*} + (700 * DAYS_REM))))
+          TIER_800=$(FORMAT $((${MTD%.*} + (800 * DAYS_REM))))
+          TIER_900=$(FORMAT $((${MTD%.*} + (900 * DAYS_REM))))
+          TIER_1000=$(FORMAT $((${MTD%.*} + (1000 * DAYS_REM))))
           
-          # Build JSON payload with proper escaping
-          cat > /tmp/slack_payload.json << JSONEOF
-          {
-            "text": "📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$MTD_FMT\n• Days Complete: $DAYS | Days Remaining: $DAYS_REM\n\n*Performance:*\n• Current Daily Avg: \$$AVG_FMT/day\n• Projected Close: \$$PROJ_FMT\n• Target: \$$TARGET_FMT\n\n*Daily Average Needed to Hit:*\n• \$100/day → \$$TIER_100\n• \$200/day → \$$TIER_200\n• \$300/day → \$$TIER_300\n• \$400/day → \$$TIER_400\n• \$500/day → \$$TIER_500\n• \$600/day → \$$TIER_600\n• \$700/day → \$$TIER_700\n• \$800/day → \$$TIER_800\n• \$900/day → \$$TIER_900\n• \$1000/day → \$$TIER_1000"
-          }
-          JSONEOF
+          # Build text with newlines
+          MSG=$(printf '%s\n' \
+            "📊 *August Revenue Status*" \
+            "" \
+            "*Where We Stand:*" \
+            "• MTD: \$$MTD_FMT" \
+            "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
+            "" \
+            "*Performance:*" \
+            "• Current Daily Avg: \$$AVG_FMT/day" \
+            "• Projected Close: \$$PROJ_FMT" \
+            "• Target: \$$TARGET_FMT" \
+            "" \
+            "*Daily Average Needed to Hit:*" \
+            "• \$100/day → \$$TIER_100" \
+            "• \$200/day → \$$TIER_200" \
+            "• \$300/day → \$$TIER_300" \
+            "• \$400/day → \$$TIER_400" \
+            "• \$500/day → \$$TIER_500" \
+            "• \$600/day → \$$TIER_600" \
+            "• \$700/day → \$$TIER_700" \
+            "• \$800/day → \$$TIER_800" \
+            "• \$900/day → \$$TIER_900" \
+            "• \$1000/day → \$$TIER_1000" | jq -Rs .)
           
           curl -X POST -H 'Content-type: application/json' \
-            --data @/tmp/slack_payload.json \
+            --data "{\"text\":$MSG}" \
             "${{ secrets.SLACK_WEBHOOK_URL }}"
-          
-          echo "Message sent"
 
