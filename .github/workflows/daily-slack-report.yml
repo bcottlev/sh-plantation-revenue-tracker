@@ -32,8 +32,20 @@ jobs:
           DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
           
+          # Format numbers with commas
+          FORMAT_NUM() {
+            printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'
+          }
+          
+          # Build tier lines for $100 increments
+          TIERS=""
+          for DAILY in 100 200 300 400 500 600 700 800 900 1000; do
+            PROJ=$(awk "BEGIN {printf \"%.0f\", ($MTD) + ($DAILY * $DAYS_REM)}")
+            TIERS="$TIERS\n  \$$DAILY/day → \$$(FORMAT_NUM $PROJ)"
+          done
+          
           # Build message
-          MSG="📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$(printf "%.0f" $MTD | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n• Days Complete: $DAYS | Days Remaining: $DAYS_REM\n\n*Performance:*\n• Current Daily Avg: \$$DAILY_AVG/day\n• Projected Close: \$$(printf "%.0f" $PROJECTION | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n• Target: \$$(printf "%.0f" $TARGET | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n\n*Daily Average Needed to Hit:*\n  \$300/day → \$$(awk "BEGIN {printf \"%.0f\", (300 * $DAYS_REM) + $MTD}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n  \$600/day → \$$(awk "BEGIN {printf \"%.0f\", (600 * $DAYS_REM) + $MTD}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')\n  \$900/day → \$$(awk "BEGIN {printf \"%.0f\", (900 * $DAYS_REM) + $MTD}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')"
+          MSG="📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$(FORMAT_NUM $MTD)\n• Days Complete: $DAYS | Days Remaining: $DAYS_REM\n\n*Performance:*\n• Current Daily Avg: \$$(FORMAT_NUM $DAILY_AVG)/day\n• Projected Close: \$$(FORMAT_NUM $PROJECTION)\n• Target: \$$(FORMAT_NUM $TARGET)\n\n*Daily Average Needed to Hit:*$TIERS"
           
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$MSG\"}" \
