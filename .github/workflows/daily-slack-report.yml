@@ -53,15 +53,14 @@ jobs:
           
           # Build text with newlines
           MSG=$(printf '%s\n' \
-            "📊 *Current August Status:*" \
-            "• MTD: \$$MTD_FMT (through 8/$DAYS)" \
+            "• MTD Revenue: \$$MTD_FMT" \
             "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
             "• Current Daily Avg: \$$AVG_FMT/day" \
             "• Projected Close: \$$PROJ_FMT" \
-            "• Target: \$$TARGET_FMT" \
+            "• EoM Target: \$$TARGET_FMT" \
             "• Daily Pace Needed: \$$PACE_FMT/day to hit target" \
             "" \
-            "*Daily Average Needed to Hit:*" \
+            "Daily Average Needed to Hit:" \
             "• \$100/day → \$$TIER_100" \
             "• \$200/day → \$$TIER_200" \
             "• \$300/day → \$$TIER_300" \
