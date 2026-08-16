@@ -1,8 +1,9 @@
 name: Daily Slack Revenue Report
 
 on:
-  schedule:
-    - cron: '0 8 * * *'
+  workflow_run:
+    workflows: ["pull-slack-revenue"]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
@@ -39,8 +40,7 @@ jobs:
           TARGET_FMT=$(FORMAT $TARGET)
           PACE_FMT=$(FORMAT $PACE_NEEDED)
           
-          # Calculate tiers (400-1000 only)
-          TIER_400=$(FORMAT $((${MTD%.*} + (400 * DAYS_REM))))
+          # Calculate tiers (500-1000 only)
           TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
           TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
           TIER_700=$(FORMAT $((${MTD%.*} + (700 * DAYS_REM))))
@@ -58,7 +58,6 @@ jobs:
             "• Daily Pace Needed: \$$PACE_FMT to hit target" \
             "" \
             "Daily Average Scenarios:" \
-            "• \$400/day → \$$TIER_400" \
             "• \$500/day → \$$TIER_500" \
             "• \$600/day → \$$TIER_600" \
             "• \$700/day → \$$TIER_700" \
