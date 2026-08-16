@@ -32,20 +32,34 @@ jobs:
           DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
           
-          # Format numbers with commas
-          FORMAT_NUM() {
-            printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'
-          }
+          # Build tier lines using awk
+          TIERS=$(awk -v mtd="$MTD" -v days_rem="$DAYS_REM" 'BEGIN {
+            for (d = 100; d <= 1000; d += 100) {
+              proj = mtd + (d * days_rem)
+              printf "  $%d/day → $%s\n", d, int(proj)
+            }
+          }' | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           
-          # Build tier lines for $100 increments
-          TIERS=""
-          for DAILY in 100 200 300 400 500 600 700 800 900 1000; do
-            PROJ=$(awk "BEGIN {printf \"%.0f\", ($MTD) + ($DAILY * $DAYS_REM)}")
-            TIERS="$TIERS\n  \$$DAILY/day → \$$(FORMAT_NUM $PROJ)"
-          done
+          # Format numbers with commas
+          MTD_FMT=$(printf "%.0f" $MTD | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+          AVG_FMT=$(printf "%.0f" $DAILY_AVG | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+          PROJ_FMT=$(printf "%.0f" $PROJECTION | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+          TARGET_FMT=$(printf "%.0f" $TARGET | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           
           # Build message
-          MSG="📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: \$$(FORMAT_NUM $MTD)\n• Days Complete: $DAYS | Days Remaining: $DAYS_REM\n\n*Performance:*\n• Current Daily Avg: \$$(FORMAT_NUM $DAILY_AVG)/day\n• Projected Close: \$$(FORMAT_NUM $PROJECTION)\n• Target: \$$(FORMAT_NUM $TARGET)\n\n*Daily Average Needed to Hit:*$TIERS"
+          MSG="📊 *August Revenue Status*
+
+*Where We Stand:*
+• MTD: \$$MTD_FMT
+• Days Complete: $DAYS | Days Remaining: $DAYS_REM
+
+*Performance:*
+• Current Daily Avg: \$$AVG_FMT/day
+• Projected Close: \$$PROJ_FMT
+• Target: \$$TARGET_FMT
+
+*Daily Average Needed to Hit:*
+$TIERS"
           
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$MSG\"}" \
