@@ -1,70 +1,16 @@
 name: Daily Slack Revenue Report
 
 on:
-  schedule:
-    - cron: '0 8 * * *'
   workflow_dispatch:
 
 jobs:
   send-report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Send to Slack
+      - name: Test Slack Webhook
         run: |
-          node << 'EOF_NODE'
-          const fs = require('fs');
-          const https = require('https');
-          
-          // Read august tracker
-          const html = fs.readFileSync('august/index.html', 'utf8');
-          
-          // Extract dailyRevenue object
-          const revenueMatch = html.match(/const dailyRevenue = \{([^}]+)\}/);
-          if (!revenueMatch) {
-            console.error('Could not find dailyRevenue object');
-            process.exit(1);
-          }
-          
-          // Parse revenue entries
-          const revenueStr = revenueMatch[1];
-          const entries = revenueStr.match(/'2026-08-\d+': [\d.]+/g) || [];
-          
-          const mtdTotal = entries.reduce((sum, entry) => {
-            const value = parseFloat(entry.split(': ')[1]);
-            return sum + value;
-          }, 0);
-          
-          const daysCompleted = entries.length;
-          
-          // Extract target
-          const targetMatch = html.match(/const targetTotal = (\d+)/);
-          const target = parseInt(targetMatch[1]);
-          
-          console.log(`MTD: $${mtdTotal.toFixed(2)}, Days: ${daysCompleted}, Target: ${target}`);
-          
-          const daysRem = 31 - daysCompleted;
-          const dailyAvg = Math.round((mtdTotal - 12618) / (daysCompleted - 1));
-          const projection = Math.round(mtdTotal + (dailyAvg * daysRem));
-          
-          const formatNum = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          
-          const msg = `📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtdTotal)}\n• Days Complete: ${daysCompleted} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtdTotal)}\n  $600/day → $${formatNum((600 * daysRem) + mtdTotal)}\n  $900/day → $${formatNum((900 * daysRem) + mtdTotal)}`;
-          
-          const payload = JSON.stringify({text: msg});
-          const url = new URL(process.env.SLACK_WEBHOOK_URL);
-          
-          const req = https.request(url, {
-            method: 'POST',
-            headers: {'Content-type': 'application/json', 'Content-Length': payload.length}
-          }, (res) => {
-            console.log(res.statusCode === 200 ? '✅ Sent' : `❌ ${res.statusCode}`);
-          });
-          
-          req.write(payload);
-          req.end();
-          EOF_NODE
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"📊 Test: August Revenue Status\n\nMTD: $21,026\nDays: 14\nTarget: $32,529"}' \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
+          echo "Message sent"
 
