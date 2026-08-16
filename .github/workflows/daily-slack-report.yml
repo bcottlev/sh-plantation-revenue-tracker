@@ -29,6 +29,7 @@ jobs:
           DAYS_REM=$((31 - DAYS))
           DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
+          PACE_NEEDED=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
           
           # Format numbers with commas
           FORMAT() { printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'; }
@@ -36,6 +37,7 @@ jobs:
           AVG_FMT=$(FORMAT $DAILY_AVG)
           PROJ_FMT=$(FORMAT $PROJECTION)
           TARGET_FMT=$(FORMAT $TARGET)
+          PACE_FMT=$(FORMAT $PACE_NEEDED)
           
           # Calculate tiers
           TIER_100=$(FORMAT $((${MTD%.*} + (100 * DAYS_REM))))
@@ -51,16 +53,13 @@ jobs:
           
           # Build text with newlines
           MSG=$(printf '%s\n' \
-            "📊 *August Revenue Status*" \
-            "" \
-            "*Where We Stand:*" \
-            "• MTD: \$$MTD_FMT" \
+            "📊 *Current August Status:*" \
+            "• MTD: \$$MTD_FMT (through 8/$DAYS)" \
             "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
-            "" \
-            "*Performance:*" \
             "• Current Daily Avg: \$$AVG_FMT/day" \
             "• Projected Close: \$$PROJ_FMT" \
             "• Target: \$$TARGET_FMT" \
+            "• Daily Pace Needed: \$$PACE_FMT/day to hit target" \
             "" \
             "*Daily Average Needed to Hit:*" \
             "• \$100/day → \$$TIER_100" \
