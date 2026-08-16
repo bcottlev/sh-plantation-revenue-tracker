@@ -13,25 +13,21 @@ jobs:
       
       - name: Send to Slack
         run: |
-          NODE_SCRIPT=$(cat <<'NODEOF'
+          node << 'EOF_NODE'
           const fs = require('fs');
           const https = require('https');
           
-          // Determine current month
-          const now = new Date();
-          const month = (now.getMonth() + 1).toString().padStart(2, '0');
-          const year = now.getFullYear();
+          // Read august tracker (current month)
+          const html = fs.readFileSync('august/index.html', 'utf8');
           
-          let trackerPath = 'august/index.html';
-          if (month === '07') trackerPath = 'july/index.html';
+          // Extract values - more flexible regex
+          const mtdMatch = html.match(/mtdTotal = ([0-9.]+)/);
+          const daysMatch = html.match(/daysCompleted = ([0-9]+)/);
+          const targetMatch = html.match(/targetTotal = ([0-9]+)/);
           
-          // Read tracker
-          const html = fs.readFileSync(trackerPath, 'utf8');
-          
-          // Simple string extraction
-          const mtdMatch = html.match(/const mtdTotal = ([0-9.]+)/);
-          const daysMatch = html.match(/const daysCompleted = ([0-9]+)/);
-          const targetMatch = html.match(/const targetTotal = ([0-9]+)/);
+          console.log('mtdMatch:', mtdMatch ? mtdMatch[1] : 'NOT FOUND');
+          console.log('daysMatch:', daysMatch ? daysMatch[1] : 'NOT FOUND');
+          console.log('targetMatch:', targetMatch ? targetMatch[1] : 'NOT FOUND');
           
           if (!mtdMatch || !daysMatch || !targetMatch) {
             console.error('Failed to extract values');
@@ -43,12 +39,12 @@ jobs:
           const target = parseInt(targetMatch[1]);
           
           const daysRem = 31 - days;
-          const dailyAvg = Math.round((mtd - 12600) / (days - 1));
+          const dailyAvg = Math.round((mtd - 12618) / (days - 1));
           const projection = Math.round(mtd + (dailyAvg * daysRem));
           
           const formatNum = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           
-          const msg = `📊 *${month === '08' ? 'August' : 'July'} Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtd)}\n• Days Complete: ${days} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtd)}\n  $600/day → $${formatNum((600 * daysRem) + mtd)}\n  $900/day → $${formatNum((900 * daysRem) + mtd)}`;
+          const msg = `📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: $${formatNum(mtd)}\n• Days Complete: ${days} | Days Remaining: ${daysRem}\n\n*Performance:*\n• Current Daily Avg: $${dailyAvg}/day\n• Projected Close: $${formatNum(projection)}\n• Target: $${formatNum(target)}\n\n*Daily Average Needed to Hit:*\n  $300/day → $${formatNum((300 * daysRem) + mtd)}\n  $600/day → $${formatNum((600 * daysRem) + mtd)}\n  $900/day → $${formatNum((900 * daysRem) + mtd)}`;
           
           const payload = JSON.stringify({text: msg});
           const url = new URL(process.env.SLACK_WEBHOOK_URL);
@@ -62,10 +58,7 @@ jobs:
           
           req.write(payload);
           req.end();
-          NODEOF
-          )
-          
-          node -e "$NODE_SCRIPT"
+          EOF_NODE
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
