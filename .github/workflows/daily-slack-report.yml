@@ -32,37 +32,24 @@ jobs:
           DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
           
-          # Build tier lines using awk
-          TIERS=$(awk -v mtd="$MTD" -v days_rem="$DAYS_REM" 'BEGIN {
-            for (d = 100; d <= 1000; d += 100) {
-              proj = mtd + (d * days_rem)
-              printf "  $%d/day → $%s\n", d, int(proj)
-            }
-          }' | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
-          
           # Format numbers with commas
           MTD_FMT=$(printf "%.0f" $MTD | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           AVG_FMT=$(printf "%.0f" $DAILY_AVG | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           PROJ_FMT=$(printf "%.0f" $PROJECTION | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           TARGET_FMT=$(printf "%.0f" $TARGET | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
           
-          # Build message
-          MSG="📊 *August Revenue Status*
-
-*Where We Stand:*
-• MTD: \$$MTD_FMT
-• Days Complete: $DAYS | Days Remaining: $DAYS_REM
-
-*Performance:*
-• Current Daily Avg: \$$AVG_FMT/day
-• Projected Close: \$$PROJ_FMT
-• Target: \$$TARGET_FMT
-
-*Daily Average Needed to Hit:*
-$TIERS"
+          # Build tier lines
+          TIERS=$(for d in 100 200 300 400 500 600 700 800 900 1000; do
+            PROJ=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta')
+            echo "  \$$d/day → \$$PROJ"
+          done | tr '\n' '\\n')
+          
+          # Build message using jq for proper JSON escaping
+          MESSAGE=$(jq -n --arg mtd "$MTD_FMT" --arg days "$DAYS" --arg days_rem "$DAYS_REM" --arg avg "$AVG_FMT" --arg proj "$PROJ_FMT" --arg target "$TARGET_FMT" --arg tiers "$TIERS" \
+            '{"text": "📊 *August Revenue Status*\n\n*Where We Stand:*\n• MTD: $\($mtd)\n• Days Complete: \($days) | Days Remaining: \($days_rem)\n\n*Performance:*\n• Current Daily Avg: $\($avg)/day\n• Projected Close: $\($proj)\n• Target: $\($target)\n\n*Daily Average Needed to Hit:*\n\($tiers)"}')
           
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"$MSG\"}" \
+            --data "$MESSAGE" \
             "${{ secrets.SLACK_WEBHOOK_URL }}"
           
           echo "Message sent"
