@@ -22,7 +22,7 @@ jobs:
           
           # Count days and get latest date
           DAYS=$(grep -oP "'2026-08-\d+'" august/index.html | wc -l)
-          LATEST_DATE=$(grep -oP "'2026-08-\d+'" august/index.html | tail -1 | grep -oP '\d+')
+          LATEST_DATE=$(grep -oP "'2026-08-(\d+)'" august/index.html | tail -1 | grep -oP '\d+$')
           
           # Extract target
           TARGET=$(grep -oP "const targetTotal = \K\d+" august/index.html)
