@@ -20,8 +20,9 @@ jobs:
           # Calculate MTD sum
           MTD=$(echo "$ENTRIES" | awk '{sum=0; for(i=1;i<=NF;i++) sum+=$i; print sum}')
           
-          # Count days
+          # Count days and get latest date
           DAYS=$(grep -oP "'2026-08-\d+'" august/index.html | wc -l)
+          LATEST_DATE=$(grep -oP "'2026-08-\d+'" august/index.html | tail -1 | grep -oP '\d+')
           
           # Extract target
           TARGET=$(grep -oP "const targetTotal = \K\d+" august/index.html)
@@ -50,7 +51,7 @@ jobs:
           
           # Build text with newlines
           MSG=$(printf '%s\n' \
-            "• MTD Revenue: \$$MTD_FMT" \
+            "• MTD: \$$MTD_FMT (latest 8/$LATEST_DATE)" \
             "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
             "• Current Daily Avg: \$$AVG_FMT" \
             "• Projected Close: \$$PROJ_FMT" \
