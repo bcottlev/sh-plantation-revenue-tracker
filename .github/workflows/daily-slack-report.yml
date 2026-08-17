@@ -15,7 +15,7 @@ jobs:
       - name: Send August Revenue to Slack
         run: |
           # Extract dailyRevenue entries from August tracker
-          ENTRIES=$(grep -oP "'2026-08-\d+': \K[\d.]+(?=,)" august/index.html | tr '\n' ' ')
+          ENTRIES=$(grep -oP "'2026-08-\d+': \K[\d.]+" august/index.html | tr '\n' ' ')
           
           # Calculate MTD sum
           MTD=$(echo "$ENTRIES" | awk '{sum=0; for(i=1;i<=NF;i++) sum+=$i; print sum}')

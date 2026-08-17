@@ -153,7 +153,7 @@
         };
 
         // Calculate MTD from daily data
-        const mtdTotal = 22420.77;
+        const mtdTotal = Object.values(dailyRevenue).reduce((a, b) => a + b, 0);
         const daysWithData = Object.keys(dailyRevenue).length;
         const daysCompleted = Math.max(...Object.keys(dailyRevenue).map(d => parseInt(d.split('-')[2])));
         const membership = 12618.10;
