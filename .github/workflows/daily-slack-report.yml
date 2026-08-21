@@ -1,9 +1,8 @@
 name: Daily Slack Revenue Report
 
 on:
-  workflow_run:
-    workflows: ["pull-slack-revenue"]
-    types: [completed]
+  schedule:
+    - cron: '0 8 * * *'
   workflow_dispatch:
 
 jobs:
