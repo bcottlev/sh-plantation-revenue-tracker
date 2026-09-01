@@ -67,14 +67,15 @@ jobs:
           # ---- month complete ----
           if [ "$DAYS_REM" -le 0 ]; then
             PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
-            DELTA=$(awk "BEGIN {printf \"%+.0f\", $MTD-$TARGET}")
+            DSIGN=$(awk "BEGIN {print ($MTD>=$TARGET)?\"+\":\"-\"}")
+            DELTA="$DSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$TARGET)?$MTD-$TARGET:$TARGET-$MTD}"))"
             LINES=("✅ *$MONTH_NAME Final*" "• Final Revenue: \$$MTD_FMT" "• Days Complete: $DAYS" \
                    "• Service Daily Avg: \$$AVG_FMT" "• EoM Target: \$$TARGET_FMT" "• Result: $PCT% of target ($DELTA)")
             if [ -n "$PRIOR_TOTAL" ]; then
               GP=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
               SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
               GA="$SIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
-              LINES+=("" "*Growth vs $PRIOR_NAME:*" "• $PRIOR_NAME: \$$(FORMAT $PRIOR_TOTAL)" "• Change: $GA ($GP%)")
+              LINES+=("• Growth vs Prior Month (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
             fi
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
