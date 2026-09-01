@@ -32,7 +32,10 @@ jobs:
           # ---- prior month ----
           PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m)
           PRIOR_NAME=$(date -u -d "$PRIOR_YM-01" +%B)
-          PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k] // empty' month_totals.json)
+          PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k].total // empty' month_totals.json)
+          PRIOR_MEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].membership // empty' month_totals.json)
+          PRIOR_DAYS=$(jq -r --arg k "$PRIOR_YM" '.[$k].days // empty' month_totals.json)
+          BEST_PRIOR=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)|.value.total]|max // 0' month_totals.json)
 
           echo "Reporting $YM ($MONTH_NAME, $DAYS_IN_MONTH days) file=$MONTH_FILE prior=$PRIOR_YM=$PRIOR_TOTAL"
 
@@ -69,14 +72,29 @@ jobs:
             PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
             DSIGN=$(awk "BEGIN {print ($MTD>=$TARGET)?\"+\":\"-\"}")
             DELTA="$DSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$TARGET)?$MTD-$TARGET:$TARGET-$MTD}"))"
-            LINES=("✅ *$MONTH_NAME Final*" "• Final Revenue: \$$MTD_FMT" "• Days Complete: $DAYS" \
-                   "• Service Daily Avg: \$$AVG_FMT" "• EoM Target: \$$TARGET_FMT" "• Result: $PCT% of target ($DELTA)")
+            SERVICE=$(awk "BEGIN {printf \"%.2f\", $MTD-$MEMBERSHIP}")
+
+            HEAD="✅ *$MONTH_NAME Final: \$$MTD_FMT*"
+            if [ -n "$BEST_PRIOR" ] && awk "BEGIN {exit !($MTD > $BEST_PRIOR)}"; then
+              HEAD="$HEAD (best month on record)"
+            fi
+            LINES=("$HEAD" "• Target: \$$TARGET_FMT — $PCT% ($DELTA)")
+
             if [ -n "$PRIOR_TOTAL" ]; then
               GP=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
               SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
               GA="$SIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
               LINES+=("• Vs $PRIOR_NAME (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
             fi
+
+            SVC_LINE="• Service: \$$(FORMAT $SERVICE) (\$$AVG_FMT/day"
+            if [ -n "$PRIOR_MEMB" ] && [ -n "$PRIOR_DAYS" ]; then
+              PSD=$(awk "BEGIN {printf \"%.2f\", ($PRIOR_TOTAL-$PRIOR_MEMB)/($PRIOR_DAYS-1)}")
+              SVC_GROWTH=$(awk "BEGIN {printf \"%+.1f\", 100*($DAILY_AVG/$PSD - 1)}")
+              SVC_LINE="$SVC_LINE, $SVC_GROWTH% vs $PRIOR_NAME"
+            fi
+            LINES+=("$SVC_LINE)" "• Membership: \$$(FORMAT $MEMBERSHIP)")
+
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
           fi
