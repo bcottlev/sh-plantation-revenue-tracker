@@ -48,6 +48,23 @@ jobs:
           TIER_900=$(FORMAT $((${MTD%.*} + (900 * DAYS_REM))))
           TIER_1000=$(FORMAT $((${MTD%.*} + (1000 * DAYS_REM))))
           
+          # Month complete: post final summary instead of pace math
+          if [ "$DAYS_REM" -le 0 ]; then
+            PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
+            DELTA=$(awk "BEGIN {printf \"%.0f\", $MTD-$TARGET}")
+            MSG=$(printf '%s\n' \
+              "✅ *August Final*" \
+              "• Final Revenue: \$$MTD_FMT" \
+              "• Days Complete: $DAYS" \
+              "• Daily Avg (service): \$$AVG_FMT" \
+              "• EoM Target: \$$TARGET_FMT" \
+              "• Result: $PCT% of target (\$$DELTA)" | jq -Rs .)
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":$MSG}" \
+              "${{ secrets.SLACK_WEBHOOK_URL }}"
+            exit 0
+          fi
+
           # Build text with newlines
           MSG=$(printf '%s\n' \
             "• MTD: \$$MTD_FMT (latest 8/$LATEST_DATE)" \
