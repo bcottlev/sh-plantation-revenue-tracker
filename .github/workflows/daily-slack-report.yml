@@ -38,16 +38,7 @@ jobs:
           AVG_FMT=$(FORMAT $DAILY_AVG)
           PROJ_FMT=$(FORMAT $PROJECTION)
           TARGET_FMT=$(FORMAT $TARGET)
-          PACE_FMT=$(FORMAT $PACE_NEEDED)
-          
-          # Calculate tiers (500-1000 only)
-          TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
-          TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
-          TIER_700=$(FORMAT $((${MTD%.*} + (700 * DAYS_REM))))
-          TIER_800=$(FORMAT $((${MTD%.*} + (800 * DAYS_REM))))
-          TIER_900=$(FORMAT $((${MTD%.*} + (900 * DAYS_REM))))
-          TIER_1000=$(FORMAT $((${MTD%.*} + (1000 * DAYS_REM))))
-          
+
           # Month complete: post final summary instead of pace math
           if [ "$DAYS_REM" -le 0 ]; then
             PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
@@ -64,6 +55,16 @@ jobs:
               "${{ secrets.SLACK_WEBHOOK_URL }}"
             exit 0
           fi
+          PACE_FMT=$(FORMAT $PACE_NEEDED)
+          
+          # Calculate tiers (500-1000 only)
+          TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
+          TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
+          TIER_700=$(FORMAT $((${MTD%.*} + (700 * DAYS_REM))))
+          TIER_800=$(FORMAT $((${MTD%.*} + (800 * DAYS_REM))))
+          TIER_900=$(FORMAT $((${MTD%.*} + (900 * DAYS_REM))))
+          TIER_1000=$(FORMAT $((${MTD%.*} + (1000 * DAYS_REM))))
+          
 
           # Build text with newlines
           MSG=$(printf '%s\n' \
