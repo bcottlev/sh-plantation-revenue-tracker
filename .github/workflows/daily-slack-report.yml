@@ -10,80 +10,65 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Send August Revenue to Slack
+
+      - name: Send Revenue Report to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          # Extract dailyRevenue entries from August tracker
-          ENTRIES=$(grep -oP "'2026-08-\d+': \K[\d.]+" august/index.html | tr '\n' ' ')
-          
-          # Calculate MTD sum
-          MTD=$(echo "$ENTRIES" | awk '{sum=0; for(i=1;i<=NF;i++) sum+=$i; print sum}')
-          
-          # Count days and get latest date
-          DAYS=$(grep -oP "'2026-08-\d+'" august/index.html | wc -l)
-          LATEST_DATE=$(grep -oP "'2026-08-\K\d+" august/index.html | tail -1 | sed "s/^0//")
-          
-          # Extract target
-          TARGET=$(grep -oP "const targetTotal = \K\d+" august/index.html)
-          
-          # Calculate derived values
-          DAYS_REM=$((31 - DAYS))
-          DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - 12618) / ($DAYS - 1)}")
-          PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
-          PACE_NEEDED=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
-          
-          # Format numbers with commas
+          MONTH_FILE=august/index.html
+          MONTH_NAME=August
+          DAYS_IN_MONTH=31
+          MEMBERSHIP=12618
+
+          MTD=$(grep -oP "'2026-08-\d+': \K[\d.]+" $MONTH_FILE | awk '{s+=$1} END {print s}')
+          DAYS=$(grep -oP "'2026-08-\d+'" $MONTH_FILE | wc -l)
+          TARGET=$(grep -oP "const targetTotal = \K\d+" $MONTH_FILE)
+          DAYS_REM=$((DAYS_IN_MONTH - DAYS))
+
           FORMAT() { printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'; }
+
+          DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - $MEMBERSHIP) / ($DAYS - 1)}")
           MTD_FMT=$(FORMAT $MTD)
           AVG_FMT=$(FORMAT $DAILY_AVG)
-          PROJ_FMT=$(FORMAT $PROJECTION)
           TARGET_FMT=$(FORMAT $TARGET)
 
-          # Month complete: post final summary instead of pace math
+          post() {
+            curl -sS -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"
+          }
+
           if [ "$DAYS_REM" -le 0 ]; then
             PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
             DELTA=$(awk "BEGIN {printf \"%.0f\", $MTD-$TARGET}")
             MSG=$(printf '%s\n' \
-              "✅ *August Final*" \
+              "✅ *$MONTH_NAME Final*" \
               "• Final Revenue: \$$MTD_FMT" \
               "• Days Complete: $DAYS" \
-              "• Daily Avg (service): \$$AVG_FMT" \
+              "• Service Daily Avg: \$$AVG_FMT" \
               "• EoM Target: \$$TARGET_FMT" \
               "• Result: $PCT% of target (\$$DELTA)" | jq -Rs .)
-            curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":$MSG}" \
-              "${{ secrets.SLACK_WEBHOOK_URL }}"
+            post "$MSG"
             exit 0
           fi
-          PACE_FMT=$(FORMAT $PACE_NEEDED)
-          
-          # Calculate tiers (500-1000 only)
-          TIER_500=$(FORMAT $((${MTD%.*} + (500 * DAYS_REM))))
-          TIER_600=$(FORMAT $((${MTD%.*} + (600 * DAYS_REM))))
-          TIER_700=$(FORMAT $((${MTD%.*} + (700 * DAYS_REM))))
-          TIER_800=$(FORMAT $((${MTD%.*} + (800 * DAYS_REM))))
-          TIER_900=$(FORMAT $((${MTD%.*} + (900 * DAYS_REM))))
-          TIER_1000=$(FORMAT $((${MTD%.*} + (1000 * DAYS_REM))))
-          
 
-          # Build text with newlines
+          PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
+          PACE_NEEDED=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
+          PROJ_FMT=$(FORMAT $PROJECTION)
+          PACE_FMT=$(FORMAT $PACE_NEEDED)
+
+          TIERS=""
+          for d in 500 600 700 800 900 1000; do
+            V=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}")
+            TIERS="$TIERS\n• \$$d/day → \$$(FORMAT $V)"
+          done
+
           MSG=$(printf '%s\n' \
-            "• MTD: \$$MTD_FMT (latest 8/$LATEST_DATE)" \
+            "• MTD: \$$MTD_FMT (latest 8/$DAYS)" \
             "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
             "• Current Daily Avg: \$$AVG_FMT" \
             "• Projected Close: \$$PROJ_FMT" \
             "• EoM Target: \$$TARGET_FMT" \
             "• Daily Pace Needed: \$$PACE_FMT to hit target" \
             "" \
-            "Daily Average Scenarios:" \
-            "• \$500/day → \$$TIER_500" \
-            "• \$600/day → \$$TIER_600" \
-            "• \$700/day → \$$TIER_700" \
-            "• \$800/day → \$$TIER_800" \
-            "• \$900/day → \$$TIER_900" \
-            "• \$1000/day → \$$TIER_1000" | jq -Rs .)
-          
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":$MSG}" \
-            "${{ secrets.SLACK_WEBHOOK_URL }}"
-
+            "Daily Average Scenarios:$(printf "$TIERS")" | jq -Rs .)
+          post "$MSG"
