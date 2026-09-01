@@ -78,7 +78,12 @@ jobs:
             if [ -n "$BEST_PRIOR" ] && awk "BEGIN {exit !($MTD > $BEST_PRIOR)}"; then
               HEAD="$HEAD (best month on record)"
             fi
-            LINES=("$HEAD" "• Target: \$$TARGET_FMT — $PCT% ($DELTA)")
+            TGT_LABEL="• Target: \$$TARGET_FMT — $PCT% ($DELTA)"
+            if [ -n "$PRIOR_TOTAL" ]; then
+              TG=$(awk "BEGIN {printf \"%+.0f\", 100*($TARGET/$PRIOR_TOTAL - 1)}")
+              TGT_LABEL="• Target ($TG% vs $PRIOR_NAME): \$$TARGET_FMT — $PCT% ($DELTA)"
+            fi
+            LINES=("$HEAD" "$TGT_LABEL")
 
             if [ -n "$PRIOR_TOTAL" ]; then
               GP=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
@@ -87,13 +92,13 @@ jobs:
               LINES+=("• vs $PRIOR_NAME (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
             fi
 
-            SVC_LINE="• Service: \$$(FORMAT $SERVICE) (\$$AVG_FMT/day"
+            SVC_LINE="• Non-Membership Revenue: \$$(FORMAT $SERVICE) (\$$AVG_FMT/day"
             if [ -n "$PRIOR_MEMB" ] && [ -n "$PRIOR_DAYS" ]; then
               PSD=$(awk "BEGIN {printf \"%.2f\", ($PRIOR_TOTAL-$PRIOR_MEMB)/($PRIOR_DAYS-1)}")
               SVC_GROWTH=$(awk "BEGIN {printf \"%+.1f\", 100*($DAILY_AVG/$PSD - 1)}")
               SVC_LINE="$SVC_LINE, $SVC_GROWTH% vs $PRIOR_NAME"
             fi
-            MEMB_LINE="• Membership: \$$(FORMAT $MEMBERSHIP)"
+            MEMB_LINE="• Membership Revenue: \$$(FORMAT $MEMBERSHIP)"
             if [ -n "$PRIOR_MEMB" ]; then
               MG=$(awk "BEGIN {printf \"%+.1f\", 100*($MEMBERSHIP/$PRIOR_MEMB - 1)}")
               MSIGN=$(awk "BEGIN {print ($MEMBERSHIP>=$PRIOR_MEMB)?\"+\":\"-\"}")
