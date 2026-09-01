@@ -75,7 +75,7 @@ jobs:
               GP=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
               SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
               GA="$SIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
-              LINES+=("• Growth vs Prior Month (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
+              LINES+=("• Vs $PRIOR_NAME (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
             fi
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
