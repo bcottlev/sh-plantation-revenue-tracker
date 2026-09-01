@@ -19,6 +19,8 @@ jobs:
           MONTH_NAME=August
           DAYS_IN_MONTH=31
           MEMBERSHIP=12618
+          PRIOR_MONTH_NAME=July
+          PRIOR_TOTAL=29571.43
 
           MTD=$(grep -oP "'2026-08-\d+': \K[\d.]+" $MONTH_FILE | awk '{s+=$1} END {print s}')
           DAYS=$(grep -oP "'2026-08-\d+'" $MONTH_FILE | wc -l)
@@ -40,13 +42,21 @@ jobs:
           if [ "$DAYS_REM" -le 0 ]; then
             PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
             DELTA=$(awk "BEGIN {printf \"%.0f\", $MTD-$TARGET}")
+            GROWTH_PCT=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
+            SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
+            GROWTH_ABS="$SIGN$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
+            PRIOR_FMT=$(FORMAT $PRIOR_TOTAL)
             MSG=$(printf '%s\n' \
               "✅ *$MONTH_NAME Final*" \
               "• Final Revenue: \$$MTD_FMT" \
               "• Days Complete: $DAYS" \
               "• Service Daily Avg: \$$AVG_FMT" \
               "• EoM Target: \$$TARGET_FMT" \
-              "• Result: $PCT% of target (\$$DELTA)" | jq -Rs .)
+              "• Result: $PCT% of target (\$$DELTA)" \
+              "" \
+              "*Growth vs $PRIOR_MONTH_NAME:*" \
+              "• $PRIOR_MONTH_NAME: \$$PRIOR_FMT" \
+              "• Change: \$$GROWTH_ABS ($GROWTH_PCT%)" | jq -Rs .)
             post "$MSG"
             exit 0
           fi
