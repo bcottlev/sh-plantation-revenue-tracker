@@ -75,13 +75,10 @@ jobs:
             SERVICE=$(awk "BEGIN {printf \"%.2f\", $MTD-$MEMBERSHIP}")
 
             HEAD="✅ *$MONTH_NAME Final: \$$MTD_FMT*"
-            if [ -n "$BEST_PRIOR" ] && awk "BEGIN {exit !($MTD > $BEST_PRIOR)}"; then
-              HEAD="$HEAD (best month on record)"
-            fi
             TGT_LABEL="• Target: \$$TARGET_FMT — $PCT% ($DELTA)"
             if [ -n "$PRIOR_TOTAL" ]; then
               TG=$(awk "BEGIN {printf \"%+.0f\", 100*($TARGET/$PRIOR_TOTAL - 1)}")
-              TGT_LABEL="• Target ($TG% vs $PRIOR_NAME): \$$TARGET_FMT — $PCT% ($DELTA)"
+              TGT_LABEL="• Target ($TG% MoM): \$$TARGET_FMT — $PCT% ($DELTA)"
             fi
             LINES=("$HEAD" "$TGT_LABEL")
 
@@ -92,20 +89,20 @@ jobs:
               LINES+=("• vs $PRIOR_NAME (\$$(FORMAT $PRIOR_TOTAL)): $GA ($GP%)")
             fi
 
-            SVC_LINE="• Non-Membership Revenue: \$$(FORMAT $SERVICE) (\$$AVG_FMT/day"
+            SVC_LINE="• Non-Membership Rev: \$$(FORMAT $SERVICE) (\$$AVG_FMT/day"
             if [ -n "$PRIOR_MEMB" ] && [ -n "$PRIOR_DAYS" ]; then
               PSD=$(awk "BEGIN {printf \"%.2f\", ($PRIOR_TOTAL-$PRIOR_MEMB)/($PRIOR_DAYS-1)}")
               SVC_GROWTH=$(awk "BEGIN {printf \"%+.1f\", 100*($DAILY_AVG/$PSD - 1)}")
               SVC_LINE="$SVC_LINE, $SVC_GROWTH% vs $PRIOR_NAME"
             fi
-            MEMB_LINE="• Membership Revenue: \$$(FORMAT $MEMBERSHIP)"
+            MEMB_LINE="• Membership Rev: \$$(FORMAT $MEMBERSHIP)"
             if [ -n "$PRIOR_MEMB" ]; then
               MG=$(awk "BEGIN {printf \"%+.1f\", 100*($MEMBERSHIP/$PRIOR_MEMB - 1)}")
               MSIGN=$(awk "BEGIN {print ($MEMBERSHIP>=$PRIOR_MEMB)?\"+\":\"-\"}")
               MA="$MSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MEMBERSHIP>=$PRIOR_MEMB)?$MEMBERSHIP-$PRIOR_MEMB:$PRIOR_MEMB-$MEMBERSHIP}"))"
               MEMB_LINE="$MEMB_LINE ($MA, $MG% vs $PRIOR_NAME)"
             fi
-            LINES+=("$SVC_LINE)" "$MEMB_LINE")
+            LINES+=("$MEMB_LINE" "$SVC_LINE)")
 
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
