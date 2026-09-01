@@ -93,7 +93,14 @@ jobs:
               SVC_GROWTH=$(awk "BEGIN {printf \"%+.1f\", 100*($DAILY_AVG/$PSD - 1)}")
               SVC_LINE="$SVC_LINE, $SVC_GROWTH% vs $PRIOR_NAME"
             fi
-            LINES+=("$SVC_LINE)" "• Membership: \$$(FORMAT $MEMBERSHIP)")
+            MEMB_LINE="• Membership: \$$(FORMAT $MEMBERSHIP)"
+            if [ -n "$PRIOR_MEMB" ]; then
+              MG=$(awk "BEGIN {printf \"%+.1f\", 100*($MEMBERSHIP/$PRIOR_MEMB - 1)}")
+              MSIGN=$(awk "BEGIN {print ($MEMBERSHIP>=$PRIOR_MEMB)?\"+\":\"-\"}")
+              MA="$MSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MEMBERSHIP>=$PRIOR_MEMB)?$MEMBERSHIP-$PRIOR_MEMB:$PRIOR_MEMB-$MEMBERSHIP}"))"
+              MEMB_LINE="$MEMB_LINE ($MA, $MG% vs $PRIOR_NAME)"
+            fi
+            LINES+=("$SVC_LINE)" "$MEMB_LINE")
 
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
