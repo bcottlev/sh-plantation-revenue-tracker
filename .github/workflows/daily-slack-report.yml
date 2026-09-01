@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
+    inputs:
+      month:
+        description: 'Month to report as YYYY-MM (blank = current month)'
+        required: false
+        default: ''
 
 jobs:
   send-report:
@@ -14,71 +19,81 @@ jobs:
       - name: Send Revenue Report to Slack
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          INPUT_MONTH: ${{ github.event.inputs.month }}
         run: |
-          MONTH_FILE=august/index.html
-          MONTH_NAME=August
-          DAYS_IN_MONTH=31
-          MEMBERSHIP=12618
-          PRIOR_MONTH_NAME=July
-          PRIOR_TOTAL=29571.43
+          # ---- resolve month (override or today) ----
+          YM="${INPUT_MONTH:-$(date -u +%Y-%m)}"
+          YEAR=${YM%-*}; MON=${YM#*-}
+          MONTH_NAME=$(date -u -d "$YM-01" +%B)
+          MONTH_DIR=$(echo "$MONTH_NAME" | tr '[:upper:]' '[:lower:]')
+          MONTH_FILE="$MONTH_DIR/index.html"
+          DAYS_IN_MONTH=$(date -u -d "$YM-01 +1 month -1 day" +%d)
 
-          MTD=$(grep -oP "'2026-08-\d+': \K[\d.]+" $MONTH_FILE | awk '{s+=$1} END {print s}')
-          DAYS=$(grep -oP "'2026-08-\d+'" $MONTH_FILE | wc -l)
-          TARGET=$(grep -oP "const targetTotal = \K\d+" $MONTH_FILE)
-          DAYS_REM=$((DAYS_IN_MONTH - DAYS))
+          # ---- prior month ----
+          PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m)
+          PRIOR_NAME=$(date -u -d "$PRIOR_YM-01" +%B)
+          PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k] // empty' month_totals.json)
 
+          echo "Reporting $YM ($MONTH_NAME, $DAYS_IN_MONTH days) file=$MONTH_FILE prior=$PRIOR_YM=$PRIOR_TOTAL"
+
+          post() { curl -sS -X POST -H 'Content-type: application/json' --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"; }
           FORMAT() { printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'; }
 
-          DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - $MEMBERSHIP) / ($DAYS - 1)}")
-          MTD_FMT=$(FORMAT $MTD)
-          AVG_FMT=$(FORMAT $DAILY_AVG)
-          TARGET_FMT=$(FORMAT $TARGET)
-
-          post() {
-            curl -sS -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"
-          }
-
-          if [ "$DAYS_REM" -le 0 ]; then
-            PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
-            DELTA=$(awk "BEGIN {printf \"%.0f\", $MTD-$TARGET}")
-            GROWTH_PCT=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
-            SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
-            GROWTH_ABS="$SIGN$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
-            PRIOR_FMT=$(FORMAT $PRIOR_TOTAL)
-            MSG=$(printf '%s\n' \
-              "✅ *$MONTH_NAME Final*" \
-              "• Final Revenue: \$$MTD_FMT" \
-              "• Days Complete: $DAYS" \
-              "• Service Daily Avg: \$$AVG_FMT" \
-              "• EoM Target: \$$TARGET_FMT" \
-              "• Result: $PCT% of target (\$$DELTA)" \
-              "" \
-              "*Growth vs $PRIOR_MONTH_NAME:*" \
-              "• $PRIOR_MONTH_NAME: \$$PRIOR_FMT" \
-              "• Change: \$$GROWTH_ABS ($GROWTH_PCT%)" | jq -Rs .)
-            post "$MSG"
+          if [ ! -f "$MONTH_FILE" ]; then
+            echo "No tracker file for $YM - nothing to report."
             exit 0
           fi
 
-          PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
-          PACE_NEEDED=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
-          PROJ_FMT=$(FORMAT $PROJECTION)
-          PACE_FMT=$(FORMAT $PACE_NEEDED)
+          MTD=$(grep -oP "'$YM-\d+': \K[\d.]+" "$MONTH_FILE" | awk '{s+=$1} END {print s+0}')
+          DAYS=$(grep -oP "'$YM-\d+'" "$MONTH_FILE" | wc -l)
+          TARGET=$(grep -oP "const targetTotal = \K\d+" "$MONTH_FILE")
+          DAYS_REM=$((DAYS_IN_MONTH - DAYS))
 
+          if [ "$DAYS" -eq 0 ]; then
+            post "$(printf '%s' "📊 $MONTH_NAME tracker is live. No revenue entered yet." | jq -Rs .)"
+            exit 0
+          fi
+
+          # membership = day 01 entry; service avg excludes it
+          MEMBERSHIP=$(grep -oP "'$YM-01': \K[\d.]+" "$MONTH_FILE" || echo 0)
+          if [ "$DAYS" -gt 1 ]; then
+            DAILY_AVG=$(awk "BEGIN {printf \"%.0f\", ($MTD - $MEMBERSHIP) / ($DAYS - 1)}")
+          else
+            DAILY_AVG=0
+          fi
+
+          MTD_FMT=$(FORMAT $MTD); AVG_FMT=$(FORMAT $DAILY_AVG); TARGET_FMT=$(FORMAT $TARGET)
+
+          # ---- month complete ----
+          if [ "$DAYS_REM" -le 0 ]; then
+            PCT=$(awk "BEGIN {printf \"%.1f\", 100*$MTD/$TARGET}")
+            DELTA=$(awk "BEGIN {printf \"%+.0f\", $MTD-$TARGET}")
+            LINES=("✅ *$MONTH_NAME Final*" "• Final Revenue: \$$MTD_FMT" "• Days Complete: $DAYS" \
+                   "• Service Daily Avg: \$$AVG_FMT" "• EoM Target: \$$TARGET_FMT" "• Result: $PCT% of target ($DELTA)")
+            if [ -n "$PRIOR_TOTAL" ]; then
+              GP=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_TOTAL - 1)}")
+              SIGN=$(awk "BEGIN {print ($MTD>=$PRIOR_TOTAL)?\"+\":\"-\"}")
+              GA="$SIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_TOTAL)?$MTD-$PRIOR_TOTAL:$PRIOR_TOTAL-$MTD}"))"
+              LINES+=("" "*Growth vs $PRIOR_NAME:*" "• $PRIOR_NAME: \$$(FORMAT $PRIOR_TOTAL)" "• Change: $GA ($GP%)")
+            fi
+            post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
+            exit 0
+          fi
+
+          # ---- mid-month ----
+          PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
+          PACE=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
           TIERS=""
           for d in 500 600 700 800 900 1000; do
             V=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}")
-            TIERS="$TIERS\n• \$$d/day → \$$(FORMAT $V)"
+            TIERS="$TIERS"$'\n'"• \$$d/day → \$$(FORMAT $V)"
           done
-
-          MSG=$(printf '%s\n' \
-            "• MTD: \$$MTD_FMT (latest 8/$DAYS)" \
-            "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
-            "• Current Daily Avg: \$$AVG_FMT" \
-            "• Projected Close: \$$PROJ_FMT" \
-            "• EoM Target: \$$TARGET_FMT" \
-            "• Daily Pace Needed: \$$PACE_FMT to hit target" \
-            "" \
-            "Daily Average Scenarios:$(printf "$TIERS")" | jq -Rs .)
-          post "$MSG"
+          LINES=("• MTD: \$$MTD_FMT (latest $MON/$DAYS)" "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
+                 "• Current Daily Avg: \$$AVG_FMT" "• Projected Close: \$$(FORMAT $PROJECTION)" \
+                 "• EoM Target: \$$TARGET_FMT" "• Daily Pace Needed: \$$(FORMAT $PACE) to hit target")
+          if [ -n "$PRIOR_TOTAL" ]; then
+            PACEV=$(awk "BEGIN {printf \"%+.1f\", 100*(($MTD/$DAYS*$DAYS_IN_MONTH)/$PRIOR_TOTAL - 1)}")
+            LINES+=("• Pace vs $PRIOR_NAME: $PACEV%")
+          fi
+          LINES+=("" "Daily Average Scenarios:$TIERS")
+          post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
