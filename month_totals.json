@@ -1,6 +1,44 @@
 {
-  "2026-05": {"total": 28167.24},
-  "2026-06": {"total": 30686.00},
-  "2026-07": {"total": 29571.43, "membership": 12613.26, "days": 31},
-  "2026-08": {"total": 32427.79, "membership": 12618.10, "days": 31}
+  "2026-02": {
+    "total": 16629.28,
+    "membership": 13542.0,
+    "non_membership": 3087.28,
+    "active_days": 27
+  },
+  "2026-03": {
+    "total": 19588.93,
+    "membership": 14137.0,
+    "non_membership": 5451.93,
+    "active_days": 29
+  },
+  "2026-04": {
+    "total": 23170.46,
+    "membership": 14485.0,
+    "non_membership": 8685.46,
+    "active_days": 27
+  },
+  "2026-05": {
+    "total": 28015.24,
+    "membership": 15508.0,
+    "non_membership": 12507.24,
+    "active_days": 28
+  },
+  "2026-06": {
+    "total": 29673.31,
+    "membership": 16362.0,
+    "non_membership": 13311.31,
+    "active_days": 30
+  },
+  "2026-07": {
+    "total": 29561.93,
+    "membership": 16799.0,
+    "non_membership": 12762.93,
+    "active_days": 31
+  },
+  "2026-08": {
+    "total": 32832.53,
+    "membership": 17513.5,
+    "non_membership": 15319.03,
+    "active_days": 31
+  }
 }
