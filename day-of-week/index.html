@@ -146,6 +146,50 @@ footer{margin-top:40px;font-size:13px;color:var(--mute);max-width:64ch;line-heig
 footer p{margin:0 0 8px}
 .note-box{background:var(--skye-8);border-radius:8px;padding:12px 14px;color:var(--ink-70)}
 
+/* dark mode: Shadow navy base, Daisy and Skye for accents */
+body.dark{
+  --ink:#F2F5FA;
+  --ink-70:#C3CCDD;
+  --mute:#8C9AB5;
+  --line:#2E4070;
+  --white:#0F1B38;
+  --skye-8:#1C2D5A;
+  --skye-20:#2A3E6E;
+  --skye-45:#4F8FBF;
+}
+body.dark .tab{background:var(--daisy);color:#1C2D5A}
+body.dark .crumb,body.dark h1,body.dark .daylab,body.dark .val,body.dark .fig .n,body.dark .day h2,body.dark .eyebrow{color:var(--ink)}
+body.dark .colhead{color:var(--ink-70)}
+body.dark .dot{background:#F2F5FA;opacity:.42}
+body.dark .avgmark{background:var(--daisy)}
+body.dark .k-dot{background:#F2F5FA;opacity:.42}
+body.dark .k-bar{background:var(--daisy)}
+body.dark .dot.latest{background:var(--skye);border-color:#0F1B38;box-shadow:0 0 0 2px var(--skye),0 2px 8px rgba(0,0,0,.5)}
+body.dark .k-latest{border-color:#0F1B38}
+body.dark .seg button{background:transparent;border-color:var(--line);color:var(--ink)}
+body.dark .seg button:hover{border-color:var(--skye)}
+body.dark .seg button[aria-pressed="true"]{background:var(--daisy);border-color:var(--daisy);color:#1C2D5A}
+body.dark .note-box{background:var(--skye-8)}
+body.dark .rowline + .rowline,body.dark .ticks,body.dark .legend,body.dark .colhead{border-color:var(--skye-20)}
+
+/* theme switch */
+.theme{
+  display:flex;align-items:center;gap:12px;margin-top:34px;padding-top:18px;
+  border-top:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--ink-70);
+}
+.switch{
+  position:relative;width:46px;height:26px;border-radius:13px;border:0;cursor:pointer;
+  background:var(--line);transition:background .2s ease;padding:0;flex:none;
+}
+.switch::after{
+  content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:#fff;transition:left .2s ease;box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.switch[aria-checked="true"]{background:var(--daisy)}
+.switch[aria-checked="true"]::after{left:23px;background:#1C2D5A}
+.switch:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
+body{transition:background .2s ease,color .2s ease}
+
 @media (max-width:560px){
   .colhead,.rowline,.axis{grid-template-columns:36px 1fr 60px 60px;gap:6px}
   .val{font-size:13px}
@@ -171,7 +215,7 @@ footer p{margin:0 0 8px}
 
 <header>
   <h1>Which days actually earn</h1>
-  <p class="intro">Every trading day since the scenter opened. Each dot is one day. The navy bar marks the average.</p>
+  <p class="intro">Every trading day since the scenter opened. Each dot is one day. The vertical bar marks the average.</p>
   <p class="range" id="rangeline"></p>
   <p class="range latestline" id="latestline"></p>
 </header>
@@ -228,6 +272,10 @@ footer p{margin:0 0 8px}
 <footer>
   <p class="note-box" id="footnote"></p>
   <p>Source: MyTime revenue time series, net revenue after discounts and prepaids. Non-membership strips out membership dues, which bill on signup anniversaries rather than by day of week, so it reflects what the team drives on the floor.</p>
+  <div class="theme">
+    <button class="switch" id="themeswitch" role="switch" aria-checked="false" aria-label="Dark mode"></button>
+    <span id="themelabel">Dark mode</span>
+  </div>
 </footer>
 
 </div>
@@ -435,6 +483,18 @@ metseg.addEventListener("click", e => {
   met = b.dataset.met; press(metseg, b); render();
 });
 render();
+
+/* theme */
+(function(){
+  const sw = document.getElementById("themeswitch");
+  const apply = on => {
+    document.body.classList.toggle("dark", on);
+    sw.setAttribute("aria-checked", on ? "true" : "false");
+    document.getElementById("themelabel").textContent = on ? "Dark mode on" : "Dark mode";
+  };
+  apply(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  sw.addEventListener("click", () => apply(!document.body.classList.contains("dark")));
+})();
 </script>
 </body>
 </html>
