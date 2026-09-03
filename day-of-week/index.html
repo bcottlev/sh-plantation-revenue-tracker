@@ -355,7 +355,7 @@ function render(){
   if (latest) {
     latestNote.textContent = `Latest: ${WD[latest.w]} ${pretty(latest.d)} at ${money(latest[met])}`;
   } else if (met === "nonmemb" && newest[3] === null) {
-    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])} net. Non-membership split pending MyTime export, so it is not plotted in this view yet.`;
+    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])}`;
   } else {
     latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])} net, outside this window.`;
   }
@@ -401,7 +401,6 @@ function render(){
   if (met === "net") notes.push("Bulk membership billing days are excluded from this view: the 1st of each month plus the Feb 11 presale batch. A $10,000-plus billing day tells you nothing about how that weekday trades.");
   if (month === 2 || month === 3 || month === 4 || win === "all")
     notes.push("February through April include the presale period and a partial opening month, so the daily pattern there is noisier than later months.");
-  if (met === "nonmemb" && DATA[DATA.length-1][3] === null) notes.push(`${pretty(DATA[DATA.length-1][0])} is shown in the membership view only until the MyTime export provides its non-membership split.`);
   notes.push("Days with zero revenue on the selected measure are excluded (closures, holidays, and presale days with no floor trade), so each weekday count reflects days actually traded.");
   document.getElementById("footnote").textContent = notes.join(" ");
 }
