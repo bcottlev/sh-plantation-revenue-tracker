@@ -348,16 +348,24 @@ function render(){
   document.getElementById("rangeline").textContent =
     `${windowLabel()} · ${pretty(first)} to ${pretty(last)} · ${rows.length} trading days · ${met === "nonmemb" ? "non-membership revenue" : "net revenue incl. membership, batch billing days excluded"}`;
   document.getElementById("nline").textContent = `${rows.length} days plotted`;
-  const latest = rows[rows.length-1];
+  // Latest always means the most recent day in the data, whether or not it is in this view
+  const newest = DATA[DATA.length-1];
+  const latest = rows.find(r => r.d === newest[0]) || null;
   const latestNote = document.getElementById("latestline");
-  latestNote.textContent = `Latest: ${WD[latest.w]} ${pretty(latest.d)} at ${money(latest[met])}`;
+  if (latest) {
+    latestNote.textContent = `Latest: ${WD[latest.w]} ${pretty(latest.d)} at ${money(latest[met])}`;
+  } else if (met === "nonmemb" && newest[3] === null) {
+    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])} net. Non-membership split pending MyTime export, so it is not plotted in this view yet.`;
+  } else {
+    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])} net, outside this window.`;
+  }
 
   const pct = v => Math.max(0, v / max * 100);
   document.getElementById("rows").innerHTML = S.map(s => {
     if (!s) return "";
-    const isLatestRow = s.list.some(x => x.d === latest.d);
+    const isLatestRow = latest && s.list.some(x => x.d === latest.d);
     const dots = s.list.map(x =>
-      `<span class="dot${x.d === latest.d ? " latest" : ""}" style="left:${pct(x.v)}%" title="${pretty(x.d)} — ${money(x.v)}${x.d === latest.d ? " (latest)" : ""}"></span>`).join("");
+      `<span class="dot${latest && x.d === latest.d ? " latest" : ""}" style="left:${pct(x.v)}%" title="${pretty(x.d)} — ${money(x.v)}${latest && x.d === latest.d ? " (latest)" : ""}"></span>`).join("");
     return `<div class="rowline${WKND.includes(s.i) ? " wknd" : ""}${isLatestRow ? " islatest" : ""}">
       <span class="daylab">${s.day.slice(0,3)}</span>
       <span class="plot">
@@ -384,7 +392,7 @@ function render(){
         <span class="fig"><span class="n">${money(s.med)}</span><span class="l">Median</span></span>
         <span class="fig"><span class="n">${money(s.hi)}</span><span class="l">High · ${pretty(s.hiD)}</span></span>
         <span class="fig"><span class="n">${money(s.lo)}</span><span class="l">Low · ${pretty(s.loD)}</span></span>
-        ${s.list.some(x => x.d === latest.d) ? `<span class="fig latest"><span class="n">${money(latest[met])}</span><span class="l">Latest · ${pretty(latest.d)}</span></span>` : ""}
+        ${latest && s.list.some(x => x.d === latest.d) ? `<span class="fig latest"><span class="n">${money(latest[met])}</span><span class="l">Latest · ${pretty(latest.d)}</span></span>` : ""}
       </div>
       <p class="note">${paragraph(s, S, latest)}</p>
     </section>`).join("");
