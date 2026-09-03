@@ -246,8 +246,8 @@ body{transition:background .2s ease,color .2s ease}
     <div class="seg" id="winseg" role="group" aria-label="Time window">
       <button data-win="7">Last 7 days</button>
       <button data-win="30" aria-pressed="true">Last 30 days</button>
-      <button data-win="jun">Since June</button>
-      <button data-win="may">Since May</button>
+      <button data-win="60">Last 60 days</button>
+      <button data-win="90">Last 90 days</button>
       <button data-win="all">All 2026</button>
     </div>
   </div>
@@ -306,10 +306,8 @@ function filtered(){
   const rows = scoped();
   if (month !== null) return rows.filter(r => +r.d.slice(0,2) === month);
   if (win === "all") return rows;
-  if (win === "may") return rows.filter(r => toDate(r.d) >= new Date(YEAR,4,1));
-  if (win === "jun") return rows.filter(r => toDate(r.d) >= new Date(YEAR,5,1));
   const last = toDate(rows[rows.length-1].d);
-  const cut = new Date(last); cut.setDate(cut.getDate() - (win === "7" ? 6 : 29));
+  const cut = new Date(last); cut.setDate(cut.getDate() - (+win - 1));
   return rows.filter(r => toDate(r.d) >= cut);
 }
 
@@ -377,7 +375,7 @@ function paragraph(s, all, latest){
 
 function windowLabel(){
   if (month !== null) return MONTHS[month-1] + " " + YEAR;
-  return {7:"last 7 days", 30:"last 30 days", jun:"since June", may:"since May", all:"all 2026"}[win];
+  return win === "all" ? "all 2026" : `last ${win} days`;
 }
 
 function render(){
@@ -453,7 +451,7 @@ function render(){
 
   const notes = [];
   if (met === "net") notes.push("Bulk membership billing days are excluded from this view: the 1st of each month plus the Feb 11 presale batch. A $10,000-plus billing day tells you nothing about how that weekday trades.");
-  if (month === 2 || month === 3 || month === 4 || win === "all")
+  if (month === 2 || month === 3 || month === 4 || win === "all" || (month === null && +win >= 120))
     notes.push("February through April include the presale period and a partial opening month, so the daily pattern there is noisier than later months.");
   notes.push("Days with zero revenue on the selected measure are excluded (closures, holidays, and presale days with no floor trade), so each weekday count reflects days actually traded.");
   document.getElementById("footnote").textContent = notes.join(" ");
