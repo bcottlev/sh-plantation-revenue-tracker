@@ -56,7 +56,7 @@ h1{
 }
 
 /* controls */
-.controls{margin:28px 0 22px}
+.controls{margin:26px 0 8px}
 .ctl{margin-bottom:12px}
 .ctl .eyebrow{margin-bottom:7px;font-size:11px}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
@@ -71,7 +71,7 @@ h1{
 .seg button.thin{opacity:.55}
 
 /* chart panel on the 8% Skye tint */
-.chart{background:var(--skye-8);border-radius:12px;padding:20px 20px 12px}
+.chart{background:var(--skye-8);border-radius:12px;padding:20px 20px 12px;margin-top:22px}
 .colhead,.rowline,.axis{display:grid;grid-template-columns:44px 1fr 74px 74px;gap:10px}
 .colhead{
   padding-bottom:8px;margin-bottom:2px;border-bottom:1.5px solid var(--skye-20);
@@ -176,28 +176,6 @@ footer p{margin:0 0 8px}
   <p class="range latestline" id="latestline"></p>
 </header>
 
-<div class="controls">
-  <div class="ctl">
-    <p class="eyebrow">Time window</p>
-    <div class="seg" id="winseg" role="group" aria-label="Time window">
-      <button data-win="30">Last 30 days</button>
-      <button data-win="jun" aria-pressed="true">Since June</button>
-      <button data-win="may">Since May</button>
-      <button data-win="all">All 2026</button>
-    </div>
-  </div>
-  <div class="ctl">
-    <p class="eyebrow">Single month</p>
-    <div class="seg" id="monseg" role="group" aria-label="Single month"></div>
-  </div>
-  <div class="ctl">
-    <p class="eyebrow">Measure</p>
-    <div class="seg" id="metseg" role="group" aria-label="Revenue measure">
-      <button data-met="nonmemb" aria-pressed="true">Non-membership</button>
-      <button data-met="net">Including membership</button>
-    </div>
-  </div>
-</div>
 
 <div class="chart">
   <div class="colhead"><span></span><span></span><span>Average</span><span>High</span></div>
@@ -215,6 +193,30 @@ footer p{margin:0 0 8px}
     <span><i class="k-wd"></i>Mon–Thu range</span>
     <span><i class="k-wk"></i>Fri–Sun range</span>
     <span id="nline"></span>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="ctl">
+    <p class="eyebrow">Time window</p>
+    <div class="seg" id="winseg" role="group" aria-label="Time window">
+      <button data-win="7">Last 7 days</button>
+      <button data-win="30" aria-pressed="true">Last 30 days</button>
+      <button data-win="jun">Since June</button>
+      <button data-win="may">Since May</button>
+      <button data-win="all">All 2026</button>
+    </div>
+  </div>
+  <div class="ctl">
+    <p class="eyebrow">Single month</p>
+    <div class="seg" id="monseg" role="group" aria-label="Single month"></div>
+  </div>
+  <div class="ctl">
+    <p class="eyebrow">Measure</p>
+    <div class="seg" id="metseg" role="group" aria-label="Revenue measure">
+      <button data-met="nonmemb">Non-membership</button>
+      <button data-met="net" aria-pressed="true">Including membership</button>
+    </div>
   </div>
 </div>
 
@@ -237,7 +239,7 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const WKND = [4,5,6];
 const YEAR = 2026;
 
-let win = "jun", month = null, met = "nonmemb";
+let win = "30", month = null, met = "net";
 
 const money = n => "$" + Math.round(n).toLocaleString();
 const toDate = s => new Date(YEAR, +s.slice(0,2)-1, +s.slice(3,5));
@@ -259,7 +261,7 @@ function filtered(){
   if (win === "may") return rows.filter(r => toDate(r.d) >= new Date(YEAR,4,1));
   if (win === "jun") return rows.filter(r => toDate(r.d) >= new Date(YEAR,5,1));
   const last = toDate(rows[rows.length-1].d);
-  const cut = new Date(last); cut.setDate(cut.getDate() - 29);
+  const cut = new Date(last); cut.setDate(cut.getDate() - (win === "7" ? 6 : 29));
   return rows.filter(r => toDate(r.d) >= cut);
 }
 
@@ -327,7 +329,7 @@ function paragraph(s, all, latest){
 
 function windowLabel(){
   if (month !== null) return MONTHS[month-1] + " " + YEAR;
-  return {30:"last 30 days", jun:"since June", may:"since May", all:"all 2026"}[win];
+  return {7:"last 7 days", 30:"last 30 days", jun:"since June", may:"since May", all:"all 2026"}[win];
 }
 
 function render(){
