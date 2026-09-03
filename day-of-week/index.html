@@ -46,8 +46,10 @@ h1{
   font-size:clamp(34px,7.5vw,54px);line-height:1.02;letter-spacing:-.012em;
   margin:0 0 12px;color:var(--shadow);
 }
-.intro{color:var(--skye);font-weight:600;font-size:17px;line-height:1.4;margin:0;max-width:56ch}
-.range{color:var(--mute);font-size:13.5px;margin:8px 0 0;font-weight:500}
+h1{margin:0 0 6px;font-size:clamp(44px,10vw,64px);font-variant-numeric:tabular-nums}
+header .eyebrow{color:var(--skye);margin-bottom:6px}
+.compare{color:var(--ink-70);font-weight:600;font-size:15px;margin:0 0 10px}
+.range{color:var(--mute);font-size:13.5px;margin:0;font-weight:500}
 
 /* small tracked subheads, per brand book */
 .eyebrow{
@@ -71,7 +73,7 @@ h1{
 .seg button.thin{opacity:.55}
 
 /* chart panel on the 8% Skye tint */
-.chart{background:var(--skye-8);border-radius:12px;padding:20px 20px 12px;margin-top:22px}
+.chart{background:var(--skye-8);border-radius:12px;padding:20px 20px 12px;margin-top:18px}
 .colhead,.rowline,.axis{display:grid;grid-template-columns:44px 1fr 74px 74px;gap:10px}
 .colhead{
   padding-bottom:8px;margin-bottom:2px;border-bottom:1.5px solid var(--skye-20);
@@ -100,7 +102,6 @@ h1{
 }
 .rowline.islatest .daylab{color:var(--skye)}
 .k-latest{width:12px;height:12px;border-radius:50%;background:var(--skye);border:2px solid #fff;box-shadow:0 0 0 1.5px var(--skye)}
-.latestline{color:var(--skye);font-weight:600}
 .fig.latest .n{color:var(--skye)}
 .val{text-align:right;font-weight:700;font-size:15.5px;font-variant-numeric:tabular-nums;color:var(--shadow)}
 .val.high{font-weight:500;color:var(--ink-70)}
@@ -210,16 +211,15 @@ body{transition:background .2s ease,color .2s ease}
 
 <div class="bar">
   <div class="tab">Plantation</div>
-  <div class="crumb">Revenue by day of week <span>· 2026</span></div>
+  <div class="crumb">Daily Revenue Tracker <span>· 2026</span></div>
 </div>
 
 <header>
-  <h1>Daily Revenue Tracker</h1>
-  <p class="intro">Every trading day since the scenter opened. Each dot is one day. The vertical bar marks the average.</p>
+  <p class="eyebrow" id="latestline"></p>
+  <h1 id="latestval"></h1>
+  <p class="compare" id="compareline"></p>
   <p class="range" id="rangeline"></p>
-  <p class="range latestline" id="latestline"></p>
 </header>
-
 
 <div class="chart">
   <div class="colhead"><span></span><span></span><span>Average</span><span>High</span></div>
@@ -395,19 +395,23 @@ function render(){
   const max = Math.max(step, Math.ceil(rawMax / step) * step);
 
   const first = rows[0].d, last = rows[rows.length-1].d;
+  const wl = windowLabel();
   document.getElementById("rangeline").textContent =
-    `${windowLabel()} · ${pretty(first)} to ${pretty(last)} · ${rows.length} trading days · ${met === "nonmemb" ? "non-membership revenue" : "net revenue incl. membership, batch billing days excluded"}`;
+    `${wl.charAt(0).toUpperCase() + wl.slice(1)} · ${pretty(first)} – ${pretty(last)} · ${rows.length} days · ${met === "nonmemb" ? "non-membership" : "incl. membership"}`;
   document.getElementById("nline").textContent = `${rows.length} days plotted`;
+
   // Latest always means the most recent day in the data, whether or not it is in this view
   const newest = DATA[DATA.length-1];
   const latest = rows.find(r => r.d === newest[0]) || null;
-  const latestNote = document.getElementById("latestline");
-  if (latest) {
-    latestNote.textContent = `Latest: ${WD[latest.w]} ${pretty(latest.d)} at ${money(latest[met])}`;
-  } else if (met === "nonmemb" && newest[3] === null) {
-    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])}`;
+  document.getElementById("latestline").textContent = `Latest · ${WD[newest[1]]}, ${pretty(newest[0])}`;
+  document.getElementById("latestval").textContent = money(latest ? latest[met] : newest[2]);
+  const cmp = document.getElementById("compareline");
+  const wdStat = latest ? S[latest.w] : null;
+  if (latest && wdStat && wdStat.n > 1) {
+    const d = (latest[met] - wdStat.avg) / Math.max(wdStat.avg,1) * 100;
+    cmp.textContent = `${WD[latest.w]} average ${money(wdStat.avg)} · ${d >= 0 ? "+" : "−"}${Math.round(Math.abs(d))}%${latest[met] >= wdStat.hi ? " · new high" : ""}`;
   } else {
-    latestNote.textContent = `Latest: ${WD[newest[1]]} ${pretty(newest[0])} at ${money(newest[2])} net, outside this window.`;
+    cmp.textContent = "";
   }
 
   const pct = v => Math.max(0, v / max * 100);
