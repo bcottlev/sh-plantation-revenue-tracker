@@ -123,7 +123,7 @@ header .eyebrow{color:var(--skye);margin-bottom:6px}
 
 /* per-day sections */
 .days{margin-top:40px}
-.day{padding:22px 0;border-top:1px solid var(--line)}
+.day{padding:18px 0;border-top:1px solid var(--line)}
 .day:last-child{border-bottom:1px solid var(--line)}
 .day h2{
   font-family:Fraunces,"Cooper Light",Georgia,serif;font-weight:400;
@@ -135,7 +135,7 @@ header .eyebrow{color:var(--skye);margin-bottom:6px}
   background:var(--daisy);margin-left:10px;vertical-align:middle;
 }
 .rank{font-size:13px;font-weight:500;color:var(--mute);margin:0 0 14px}
-.figs{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:14px}
+.figs{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:0}
 .fig .n{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--shadow)}
 .fig .l{
   display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
@@ -265,7 +265,7 @@ body{transition:background .2s ease,color .2s ease}
 </div>
 
 <div class="days">
-  <p class="eyebrow">By day, strongest first</p>
+  <p class="eyebrow">By day · latest first, then strongest</p>
   <div id="days"></div>
 </div>
 
@@ -331,48 +331,6 @@ function summarise(rows){
 
 function niceStep(v){ return v > 2000 ? 500 : v > 900 ? 300 : v > 400 ? 200 : 100; }
 
-function paragraph(s, all, latest){
-  const ranked = all.filter(Boolean).slice().sort((a,b) => b.avg - a.avg);
-  const rank = ranked.findIndex(x => x.i === s.i) + 1;
-  const overall = ranked.reduce((a,b) => a + b.avg, 0) / ranked.length;
-  const gap = overall ? (s.avg - overall) / overall * 100 : 0;
-  const p = [];
-
-  if (s.n === 1) {
-    p.push(`Only one ${s.day} in this window, ${money(s.avg)} on ${pretty(s.hiD)}. Not enough to call a pattern.`);
-    return p.join(" ");
-  }
-
-  const labels = ["","strongest","second strongest","third strongest","fourth strongest","third weakest","second weakest"];
-  const place = rank === 1 ? "the strongest day of the week"
-    : rank === ranked.length ? "the weakest day of the week"
-    : "the " + labels[rank] + " day";
-  p.push(`${s.day} averages ${money(s.avg)} across ${s.n} days in this window, ${place}. That runs ${Math.abs(gap) < 3 ? "roughly level with" : (gap > 0 ? "about " + Math.round(gap) + "% above" : "about " + Math.round(Math.abs(gap)) + "% below")} the all-week average of ${money(overall)}.`);
-
-  const skew = s.med - s.avg;
-  if (Math.abs(skew) / Math.max(s.avg,1) > 0.09) {
-    p.push(skew > 0
-      ? `The median of ${money(s.med)} sits above the average, so a few weak ${s.day}s are dragging the mean down. A typical one is better than the headline number suggests.`
-      : `The median of ${money(s.med)} sits below the average, so a handful of big ${s.day}s are lifting the mean. Most land lower than the average implies.`);
-  } else {
-    p.push(`The median of ${money(s.med)} is close to the average, so ${s.day}s behave consistently.`);
-  }
-
-  p.push(`Best was ${money(s.hi)} on ${pretty(s.hiD)}; worst was ${money(s.lo)} on ${pretty(s.loD)}, a spread of ${money(s.hi - s.lo)}.`);
-
-  if (s.lo < s.avg * 0.15) {
-    p.push(`That low looks like a closure or holiday rather than a slow ${s.day}, so read the range from the next dot up.`);
-  }
-  if (s.hi >= s.avg * 1.35) {
-    p.push(`The ${pretty(s.hiD)} result proves the ceiling: ${money(s.hi - s.avg)} more than a normal ${s.day}, on the same hours and the same room.`);
-  }
-  if (latest && s.list.some(x => x.d === latest.d)) {
-    const v = latest[met], d = (v - s.avg) / Math.max(s.avg,1) * 100;
-    p.push(`Latest ${s.day}, ${pretty(latest.d)}, came in at ${money(v)}: ${Math.abs(d) < 3 ? "right on" : (d > 0 ? Math.round(d) + "% above" : Math.round(Math.abs(d)) + "% below")} the ${s.day} average${v >= s.hi ? ", a new high" : ""}.`);
-  }
-  return p.join(" ");
-}
-
 function windowLabel(){
   if (month !== null) return MONTHS[month-1] + " " + YEAR;
   return win === "all" ? "all 2026" : `last ${win} days`;
@@ -434,8 +392,9 @@ function render(){
   for (let v = 0; v <= max; v += step) t += `<span style="left:${pct(v)}%">${v ? "$" + v.toLocaleString() : "$0"}</span>`;
   document.getElementById("ticks").innerHTML = t;
 
+  const latestW = latest ? latest.w : newest[1];
   document.getElementById("days").innerHTML = live
-    .slice().sort((a,b) => b.avg - a.avg)
+    .slice().sort((a,b) => (b.i === latestW) - (a.i === latestW) || b.avg - a.avg)
     .map(s => `<section class="day${WKND.includes(s.i) ? " wknd" : ""}">
       <h2>${s.day}</h2>
       <p class="rank">${s.n} ${s.n === 1 ? "day" : "days"} in this window</p>
@@ -446,7 +405,6 @@ function render(){
         <span class="fig"><span class="n">${money(s.lo)}</span><span class="l">Low · ${pretty(s.loD)}</span></span>
         ${latest && s.list.some(x => x.d === latest.d) ? `<span class="fig latest"><span class="n">${money(latest[met])}</span><span class="l">Latest · ${pretty(latest.d)}</span></span>` : ""}
       </div>
-      <p class="note">${paragraph(s, S, latest)}</p>
     </section>`).join("");
 
   const notes = [];
