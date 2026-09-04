@@ -265,7 +265,7 @@ body{transition:background .2s ease,color .2s ease}
 </div>
 
 <div class="days">
-  <p class="eyebrow">By day · latest first, then strongest</p>
+  <p class="eyebrow">By day · latest first, then what comes next</p>
   <div id="days"></div>
 </div>
 
@@ -392,9 +392,10 @@ function render(){
   for (let v = 0; v <= max; v += step) t += `<span style="left:${pct(v)}%">${v ? "$" + v.toLocaleString() : "$0"}</span>`;
   document.getElementById("ticks").innerHTML = t;
 
+  // latest weekday first, then the days that follow it in calendar order
   const latestW = latest ? latest.w : newest[1];
   document.getElementById("days").innerHTML = live
-    .slice().sort((a,b) => (b.i === latestW) - (a.i === latestW) || b.avg - a.avg)
+    .slice().sort((a,b) => ((a.i - latestW + 7) % 7) - ((b.i - latestW + 7) % 7))
     .map(s => `<section class="day${WKND.includes(s.i) ? " wknd" : ""}">
       <h2>${s.day}</h2>
       <p class="rank">${s.n} ${s.n === 1 ? "day" : "days"} in this window</p>
