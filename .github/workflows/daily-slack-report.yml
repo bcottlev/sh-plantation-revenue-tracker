@@ -119,9 +119,14 @@ jobs:
           PROJECTION=$(awk "BEGIN {printf \"%.0f\", $MTD + ($DAILY_AVG * $DAYS_REM)}")
           PACE=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
           TIERS=""
+          HIT=0
           for d in 500 600 700 800 900 1000; do
             V=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}")
-            TIERS="$TIERS"$'\n'"• \$$d/day → \$$(FORMAT $V)"
+            if [ "$HIT" = "0" ] && [ "$(awk "BEGIN {print ($V>=$TARGET)}")" = "1" ]; then
+              TIERS="$TIERS"$'\n'"• *\$$d/day → \$$(FORMAT $V)*"; HIT=1
+            else
+              TIERS="$TIERS"$'\n'"• \$$d/day → \$$(FORMAT $V)"
+            fi
           done
           LATEST_VAL=$(grep -oP "'$YM-\d+': \K[\d.]+" "$MONTH_FILE" | tail -n 1)
           LATEST_DAY=$((10#$(grep -oP "'$YM-\K\d+" "$MONTH_FILE" | sort -n | tail -n 1)))
@@ -139,10 +144,10 @@ jobs:
               CMP=" ($PA, $PD% vs $(echo $PRIOR_NAME | cut -c1-3))"
             fi
           fi
-          LINES=("$MONTH_NAME · Day $DAYS of $DAYS_IN_MONTH, $DAYS_REM left" \
-                 "• Latest: $LATEST_DOW $MON/$LATEST_DAY \$$(FORMAT $LATEST_VAL)" \
-                 "• MTD: \$$MTD_FMT$CMP" \
-                 "• Avg: \$$AVG_FMT/day → projected close \$$(FORMAT $PROJECTION)" \
-                 "• Target: \$$TARGET_FMT · need \$$(FORMAT $PACE)/day")
-          LINES+=("" "Daily Average Scenarios:$TIERS")
+          LINES=("*$MONTH_NAME · Day $DAYS of $DAYS_IN_MONTH, $DAYS_REM left*" \
+                 "• Latest: $LATEST_DOW $MON/$LATEST_DAY *\$$(FORMAT $LATEST_VAL)*" \
+                 "• MTD: *\$$MTD_FMT*$CMP" \
+                 "• Avg: \$$AVG_FMT/day → projected close *\$$(FORMAT $PROJECTION)*" \
+                 "• Target: \$$TARGET_FMT · need *\$$(FORMAT $PACE)/day*")
+          LINES+=("" "*Daily Average Scenarios:*$TIERS")
           post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
