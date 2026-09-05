@@ -123,12 +123,24 @@ jobs:
             V=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}")
             TIERS="$TIERS"$'\n'"• \$$d/day → \$$(FORMAT $V)"
           done
-          LINES=("• MTD: \$$MTD_FMT (latest $MON/$DAYS)" "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
+          LATEST_VAL=$(grep -oP "'$YM-\d+': \K[\d.]+" "$MONTH_FILE" | tail -n 1)
+          LATEST_DOW=$(date -u -d "$YM-$(printf '%02d' $DAYS)" +%a)
+          LINES=("• Latest: $LATEST_DOW $MON/$DAYS \$$(FORMAT $LATEST_VAL)" \
+                 "• MTD: \$$MTD_FMT" "• Days Complete: $DAYS | Days Remaining: $DAYS_REM" \
                  "• Current Daily Avg: \$$AVG_FMT" "• Projected Close: \$$(FORMAT $PROJECTION)" \
                  "• EoM Target: \$$TARGET_FMT" "• Daily Pace Needed: \$$(FORMAT $PACE) to hit target")
-          if [ -n "$PRIOR_TOTAL" ]; then
-            PACEV=$(awk "BEGIN {printf \"%+.1f\", 100*(($MTD/$DAYS*$DAYS_IN_MONTH)/$PRIOR_TOTAL - 1)}")
-            LINES+=("• Pace vs $PRIOR_NAME: $PACEV%")
+          # same-day comparison against the prior month's tracker (straight-line run rate
+          # is misleading early in the month because the 1st carries the membership batch)
+          PRIOR_FILE="$(echo "$PRIOR_NAME" | tr '[:upper:]' '[:lower:]')/index.html"
+          if [ -f "$PRIOR_FILE" ]; then
+            LATEST_DAY=$((10#$(grep -oP "'$YM-\K\d+" "$MONTH_FILE" | sort -n | tail -n 1)))
+            PRIOR_MTD=$(grep -oP "'$PRIOR_YM-\d+': [\d.]+" "$PRIOR_FILE" | awk -F"[-': ]+" -v d="$LATEST_DAY" '{ if ($4+0 <= d+0) s+=$5 } END {print s+0}')
+            if [ "$(awk "BEGIN {print ($PRIOR_MTD>0)}")" = "1" ]; then
+              PD=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_MTD - 1)}")
+              PS=$(awk "BEGIN {print ($MTD>=$PRIOR_MTD)?\"+\":\"-\"}")
+              PA="$PS\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_MTD)?$MTD-$PRIOR_MTD:$PRIOR_MTD-$MTD}"))"
+              LINES+=("• vs $PRIOR_NAME through the $LATEST_DAY$(case $LATEST_DAY in 1|21|31) echo st;; 2|22) echo nd;; 3|23) echo rd;; *) echo th;; esac) (\$$(FORMAT $PRIOR_MTD)): $PA ($PD%)")
+            fi
           fi
           LINES+=("" "Daily Average Scenarios:$TIERS")
           post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
