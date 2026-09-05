@@ -23,7 +23,7 @@ jobs:
         run: |
           # ---- resolve month (override or today) ----
           YM="${INPUT_MONTH:-$(date -u +%Y-%m)}"
-          YEAR=${YM%-*}; MON=${YM#*-}
+          YEAR=${YM%-*}; MON=$((10#${YM#*-}))
           MONTH_NAME=$(date -u -d "$YM-01" +%B)
           MONTH_DIR=$(echo "$MONTH_NAME" | tr '[:upper:]' '[:lower:]')
           MONTH_FILE="$MONTH_DIR/index.html"
