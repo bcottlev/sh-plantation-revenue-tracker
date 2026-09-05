@@ -136,8 +136,7 @@ jobs:
               PD=$(awk "BEGIN {printf \"%+.1f\", 100*($MTD/$PRIOR_MTD - 1)}")
               PS=$(awk "BEGIN {print ($MTD>=$PRIOR_MTD)?\"+\":\"-\"}")
               PA="$PS\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$PRIOR_MTD)?$MTD-$PRIOR_MTD:$PRIOR_MTD-$MTD}"))"
-              SFX=$(case $LATEST_DAY in 1|21|31) echo st;; 2|22) echo nd;; 3|23) echo rd;; *) echo th;; esac)
-              CMP=" ($PA, $PD% vs $(echo $PRIOR_NAME | cut -c1-3) through the $LATEST_DAY$SFX)"
+              CMP=" ($PA, $PD% vs $(echo $PRIOR_NAME | cut -c1-3))"
             fi
           fi
           LINES=("$MONTH_NAME · Day $DAYS of $DAYS_IN_MONTH, $DAYS_REM left" \
