@@ -191,6 +191,25 @@ body.dark .rowline + .rowline,body.dark .ticks,body.dark .legend,body.dark .colh
 .switch:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
 body{transition:background .2s ease,color .2s ease}
 
+/* thresholds */
+:root{--bad:#C9503A;--bad-soft:rgba(201,80,58,.10);--great:#2E8B57;--great-soft:rgba(46,139,87,.12)}
+body.dark{--bad:#E8705A;--bad-soft:rgba(232,112,90,.16);--great:#5BC48A;--great-soft:rgba(91,196,138,.16)}
+.plot .zone{position:absolute;top:0;bottom:0;pointer-events:none}
+.plot .zone.bad{left:0;background:var(--bad-soft)}
+.plot .zone.great{right:0;background:var(--great-soft)}
+.plot .tline{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed;pointer-events:none;opacity:.7}
+.plot .tline.bad{border-color:var(--bad)}
+.plot .tline.great{border-color:var(--great)}
+.ticks span.tbad{color:var(--bad);font-weight:700}
+.ticks span.tgreat{color:var(--great);font-weight:700}
+body.style-dots .dot.bad,body.style-full .dot.bad{background:var(--bad);opacity:.85}
+body.dark.style-dots .dot.bad,body.dark.style-full .dot.bad{background:var(--bad)}
+body.style-dots .dot.great,body.style-full .dot.great{background:var(--great);opacity:.9}
+body.dark.style-dots .dot.great,body.dark.style-full .dot.great{background:var(--great)}
+.k-bad{width:9px;height:9px;border-radius:50%;background:var(--bad)}
+.k-great{width:9px;height:9px;border-radius:50%;background:var(--great)}
+.k-line{width:0;height:12px;border-left:2px dashed var(--bad)}
+
 @media (max-width:560px){
   .colhead,.rowline,.axis{grid-template-columns:36px 1fr 60px 60px;gap:6px}
   .val{font-size:13px}
@@ -234,6 +253,7 @@ body{transition:background .2s ease,color .2s ease}
     <span><i class="k-dot"></i>one day</span>
     <span><i class="k-bar"></i>average</span>
     <span><i class="k-latest"></i>latest day</span>
+    <span id="klegend"></span>
     <span><i class="k-wd"></i>Mon–Thu range</span>
     <span><i class="k-wk"></i>Fri–Sun range</span>
     <span id="nline"></span>
@@ -286,6 +306,8 @@ const DATA = [["02-01",6,511.0,0.0,0],["02-02",0,96.0,0.0,0],["02-03",1,0.0,0.0,
 const WD = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const WKND = [4,5,6];
+const BAD = 500, GREAT = 1000;
+let thresholdStyle = "full"; // lines | zones | dots | full
 const YEAR = 2026;
 
 let win = "30", month = null, met = "net";
@@ -356,6 +378,12 @@ function render(){
   document.getElementById("rangeline").textContent =
     `${wl.charAt(0).toUpperCase() + wl.slice(1)} · ${pretty(first)} – ${pretty(last)} · ${rows.length} days · ${met === "nonmemb" ? "non-membership" : "incl. membership"}`;
   document.getElementById("nline").textContent = `${rows.length} days plotted`;
+  document.body.classList.remove("style-lines","style-zones","style-dots","style-full");
+  document.body.classList.add("style-" + thresholdStyle);
+  document.getElementById("klegend").innerHTML =
+    (thresholdStyle === "dots" || thresholdStyle === "full")
+      ? `<span><i class="k-bad"></i>under $500</span> <span><i class="k-great"></i>$1,000+</span>`
+      : `<span><i class="k-line"></i>$500 floor</span> <span><i class="k-line" style="border-color:var(--great)"></i>$1,000 mark</span>`;
 
   // Latest always means the most recent day in the data, whether or not it is in this view
   const newest = DATA[DATA.length-1];
@@ -376,10 +404,15 @@ function render(){
     if (!s) return "";
     const isLatestRow = latest && s.list.some(x => x.d === latest.d);
     const dots = s.list.map(x =>
-      `<span class="dot${latest && x.d === latest.d ? " latest" : ""}" style="left:${pct(x.v)}%" title="${pretty(x.d)} — ${money(x.v)}${latest && x.d === latest.d ? " (latest)" : ""}"></span>`).join("");
+      `<span class="dot${latest && x.d === latest.d ? " latest" : ""}${x.v < BAD ? " bad" : x.v >= GREAT ? " great" : ""}" style="left:${pct(x.v)}%" title="${pretty(x.d)} — ${money(x.v)}${latest && x.d === latest.d ? " (latest)" : ""}"></span>`).join("");
+    const st = thresholdStyle;
+    const guides =
+      (st === "zones" || st === "full" ? `<span class="zone bad" style="width:${pct(BAD)}%"></span><span class="zone great" style="width:${100 - pct(GREAT)}%"></span>` : "") +
+      (st === "lines" || st === "full" ? `<span class="tline bad" style="left:${pct(BAD)}%"></span><span class="tline great" style="left:${pct(GREAT)}%"></span>` : "");
     return `<div class="rowline${WKND.includes(s.i) ? " wknd" : ""}${isLatestRow ? " islatest" : ""}">
       <span class="daylab">${s.day.slice(0,3)}</span>
       <span class="plot">
+        ${guides}
         <span class="span" style="left:${pct(s.lo)}%;width:${pct(s.hi) - pct(s.lo)}%"></span>
         ${dots}
         <span class="avgmark" style="left:${pct(s.avg)}%"></span>
@@ -390,7 +423,12 @@ function render(){
   }).join("");
 
   let t = "";
-  for (let v = 0; v <= max; v += step) t += `<span style="left:${pct(v)}%">${v ? "$" + v.toLocaleString() : "$0"}</span>`;
+  const tickVals = new Set(); for (let v = 0; v <= max; v += step) tickVals.add(v);
+  if (max >= BAD) tickVals.add(BAD); if (max >= GREAT) tickVals.add(GREAT);
+  [...tickVals].sort((a,b) => a-b).forEach(v => {
+    const cls = v === BAD ? ' class="tbad"' : v === GREAT ? ' class="tgreat"' : "";
+    t += `<span${cls} style="left:${pct(v)}%">${v ? "$" + v.toLocaleString() : "$0"}</span>`;
+  });
   document.getElementById("ticks").innerHTML = t;
 
   // latest weekday first, then the days that follow it in calendar order
