@@ -1,0 +1,24 @@
+name: Pull EOS desk roster
+
+on:
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read end-of-shift reports
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python3 pull_eos_desk.py
+      - name: Commit if changed
+        run: |
+          git config user.email "bcottlev@gmail.com"
+          git config user.name "GitHub Automation"
+          git add day-of-week/index.html
+          git diff --cached --quiet && echo "no change" || (git commit -m "Update EOS desk roster" && git push)
