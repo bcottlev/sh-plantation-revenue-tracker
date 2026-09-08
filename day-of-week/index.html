@@ -227,6 +227,21 @@ body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
 .dtable td.n{color:var(--mute);font-size:13px}
 .dtable td.b{font-weight:700}
 .dtable td.great{color:var(--great)}.dtable td.bad{color:var(--bad)}
+/* period table */
+.periods{margin-top:38px}
+.ptable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ptable th{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px;border-bottom:1.5px solid var(--line)}
+.ptable th:first-child,.ptable td:first-child{text-align:left}
+.ptable td{padding:10px 0;border-bottom:1px solid var(--line);text-align:right;font-size:15px;color:var(--ink)}
+.ptable td.name{font-weight:700;color:var(--shadow)}
+.ptable td.name .sub,.ptable td .sub{display:block;font-size:11.5px;color:var(--mute);font-weight:500}
+.ptable td.n{color:var(--mute);font-size:13px}
+.ptable td.b{font-weight:700}
+.ptable td.great{color:var(--great)}.ptable td.bad{color:var(--bad)}
+.ptable td.up{color:var(--great)}.ptable td.down{color:var(--bad)}
+.ptable tr.cur td{background:var(--skye-8)}
+@media (max-width:560px){.ptable td{font-size:13.5px;padding:8px 0}.ptable th{font-size:10px;letter-spacing:.1em}.ptable .lo{display:none}}
+
 @media (max-width:560px){.dtable td{font-size:13.5px;padding:9px 0}.dtable th{font-size:10px;letter-spacing:.1em}.dtable .med{display:none}.dtable td .sub{font-size:10.5px}}
 
 @media (max-width:560px){
@@ -310,6 +325,15 @@ body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
   <div id="days"></div>
 </div>
 
+<div class="periods">
+  <p class="eyebrow" id="ptitle-weeks"></p>
+  <div id="periods-weeks"></div>
+</div>
+<div class="periods">
+  <p class="eyebrow" id="ptitle-months"></p>
+  <div id="periods-months"></div>
+</div>
+
 <footer>
   <p class="note-box" id="footnote"></p>
   <p>Source: MyTime revenue time series, net revenue after discounts and prepaids. Non-membership strips out membership dues, which bill on signup anniversaries rather than by day of week, so it reflects what the team drives on the floor.</p>
@@ -328,6 +352,7 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const WKND = [4,5,6];
 const BAD = 500, GREAT = 1000;
 const cardStyle = "table";
+
 let thresholdStyle = "full"; // lines | zones | dots | full
 const YEAR = 2026;
 
@@ -374,6 +399,51 @@ function summarise(rows){
 }
 
 function niceStep(v){ return v > 2000 ? 500 : v > 900 ? 300 : v > 400 ? 200 : 100; }
+
+
+/* period table: daily averages and high-water marks by timeframe */
+function renderPeriods(periodStyle){
+  const rows = scoped().map(r => ({d:r.d, w:r.w, v:r[met], dt:toDate(r.d)}));
+  if (!rows.length) return;
+  const last = rows[rows.length-1].dt;
+  const stat = list => {
+    const vals = list.map(x => x.v); const hi = list.reduce((a,b) => b.v > a.v ? b : a); const lo = list.reduce((a,b) => b.v < a.v ? b : a);
+    return {n:list.length, avg:vals.reduce((a,b)=>a+b,0)/vals.length, hi:hi.v, hiD:hi.d, lo:lo.v, loD:lo.d};
+  };
+  const fmtRange = (a,b) => a.getMonth() === b.getMonth() ? `${pretty(a.toISOString().slice(5,10))}–${b.getDate()}` : `${pretty(a.toISOString().slice(5,10))} – ${pretty(b.toISOString().slice(5,10))}`;
+  let groups = [], title = "";
+  if (periodStyle === "weeks") {
+    title = "By week (Mon–Sun) · avg per day and high-water mark";
+    const by = new Map();
+    rows.forEach(r => { const k = new Date(r.dt); k.setDate(k.getDate() - r.w); const key = k.toISOString().slice(0,10); (by.get(key) || by.set(key, []).get(key)).push(r); });
+    [...by.entries()].sort((a,b) => b[0].localeCompare(a[0])).slice(0,10).forEach(([k,list]) => {
+      const start = new Date(k); const end = new Date(k); end.setDate(end.getDate()+6);
+      groups.push({label:`Wk of ${pretty(k.slice(5))}`, sub:fmtRange(list[0].dt, list[list.length-1].dt) + (list.length < 7 && end > last ? " · in progress" : ""), ...stat(list)});
+    });
+  } else {
+    title = "By month · avg per day and high-water mark";
+    const by = new Map();
+    rows.forEach(r => { const key = r.d.slice(0,2); (by.get(key) || by.set(key, []).get(key)).push(r); });
+    [...by.entries()].sort((a,b) => b[0].localeCompare(a[0])).forEach(([k,list]) => {
+      groups.push({label:MONTHS[+k-1], sub:(list[list.length-1].dt.getTime() === last.getTime() && new Date(last.getFullYear(), last.getMonth()+1, 0).getDate() !== last.getDate()) ? "in progress" : "", ...stat(list)});
+    });
+  }
+  // change vs the previous (older) period for chronological styles
+  const cls = v => v < BAD ? " bad" : v >= GREAT ? " great" : "";
+  document.getElementById("ptitle-" + periodStyle).textContent = title;
+  document.getElementById("periods-" + periodStyle).innerHTML = `<table class="ptable"><thead><tr><th>Period</th><th>Days</th><th>Avg/day</th><th>Change</th><th>High</th><th class="lo">Low</th></tr></thead><tbody>` +
+    groups.map((g,i) => {
+      const prev = groups[i+1];
+      const delta = prev ? (g.avg - prev.avg) / Math.max(prev.avg,1) * 100 : null;
+      return `<tr class="${i === 0 ? "cur" : ""}">
+        <td class="name">${g.label}${g.sub ? `<span class="sub">${g.sub}</span>` : ""}</td>
+        <td class="n">${g.n}</td>
+        <td class="b">${money(g.avg)}</td>
+        <td class="${delta === null ? "" : delta >= 0 ? "up" : "down"}">${delta === null ? "" : (delta >= 0 ? "+" : "−") + Math.round(Math.abs(delta)) + "%"}</td>
+        <td class="${cls(g.hi)}">${money(g.hi)}<span class="sub">${pretty(g.hiD)}</span></td>
+        <td class="lo${cls(g.lo)}">${money(g.lo)}<span class="sub">${pretty(g.loD)}</span></td>
+      </tr>`; }).join("") + `</tbody></table>`;
+}
 
 function windowLabel(){
   if (month !== null) return MONTHS[month-1] + " " + YEAR;
@@ -474,6 +544,7 @@ function render(){
   }
   document.getElementById("days").innerHTML = html;
 
+  renderPeriods("weeks"); renderPeriods("months");
   const notes = [];
   if (met === "net") notes.push("Bulk membership billing days are excluded from this view: the 1st of each month plus the Feb 11 presale batch. A $10,000-plus billing day tells you nothing about how that weekday trades.");
   if (month === 2 || month === 3 || month === 4 || win === "all" || (month === null && +win >= 120))
