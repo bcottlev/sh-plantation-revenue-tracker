@@ -121,27 +121,7 @@ header .eyebrow{color:var(--skye);margin-bottom:6px}
 .k-wk{width:14px;height:6px;border-radius:3px;background:var(--daisy)}
 .k-wd{width:14px;height:6px;border-radius:3px;background:var(--skye-45)}
 
-/* per-day sections */
-.days{margin-top:40px}
-.day{padding:18px 0;border-top:1px solid var(--line)}
-.day:last-child{border-bottom:1px solid var(--line)}
-.day h2{
-  font-family:Fraunces,"Cooper Light",Georgia,serif;font-weight:400;
-  font-variation-settings:"SOFT" 100,"opsz" 36;
-  font-size:26px;letter-spacing:-.01em;margin:0 0 2px;color:var(--shadow);
-}
-.day.wknd h2::after{
-  content:"";display:inline-block;width:10px;height:10px;border-radius:50%;
-  background:var(--daisy);margin-left:10px;vertical-align:middle;
-}
-.rank{font-size:13px;font-weight:500;color:var(--mute);margin:0 0 14px}
-.figs{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:0}
-.fig .n{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--shadow)}
-.fig .l{
-  display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mute);margin-top:2px;
-}
-.day p.note{font-size:16.5px;line-height:1.55;color:var(--ink-70);margin:0;max-width:66ch}
+/* per-day sections: see .dtable */
 
 footer{margin-top:40px;font-size:13px;color:var(--mute);max-width:64ch;line-height:1.5}
 footer p{margin:0 0 8px}
@@ -234,6 +214,21 @@ body.dark .tip{background:var(--daisy);color:#1C2D5A;box-shadow:0 4px 14px rgba(
 body.dark .tip::after{background:var(--daisy)}
 body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
 
+/* ---- day section variants ---- */
+/* A: table */
+.dtable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.dtable th{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px;border-bottom:1.5px solid var(--line)}
+.dtable th:first-child,.dtable td:first-child{text-align:left}
+.dtable td{padding:11px 0;border-bottom:1px solid var(--line);text-align:right;font-size:15px;color:var(--ink)}
+.dtable td.name{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--shadow)}
+.dtable td .sub{display:block;font-size:11.5px;color:var(--mute);font-weight:500;letter-spacing:0;text-transform:none}
+.dtable tr.islatest td{background:var(--skye-8)}
+.dtable tr.islatest td.name{color:var(--skye)}
+.dtable td.n{color:var(--mute);font-size:13px}
+.dtable td.b{font-weight:700}
+.dtable td.great{color:var(--great)}.dtable td.bad{color:var(--bad)}
+@media (max-width:560px){.dtable td{font-size:13.5px;padding:9px 0}.dtable th{font-size:10px;letter-spacing:.1em}.dtable .med{display:none}.dtable td .sub{font-size:10.5px}}
+
 @media (max-width:560px){
   .colhead,.rowline,.axis{grid-template-columns:36px 1fr 60px 60px;gap:6px}
   .val{font-size:13px}
@@ -311,7 +306,7 @@ body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
 </div>
 
 <div class="days">
-  <p class="eyebrow">By day · latest first, then what comes next</p>
+  <p class="eyebrow">By day · latest first, then the week ahead</p>
   <div id="days"></div>
 </div>
 
@@ -332,6 +327,7 @@ const WD = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunda
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const WKND = [4,5,6];
 const BAD = 500, GREAT = 1000;
+const cardStyle = "table";
 let thresholdStyle = "full"; // lines | zones | dots | full
 const YEAR = 2026;
 
@@ -459,19 +455,24 @@ function render(){
 
   // latest weekday first, then the days that follow it in calendar order
   const latestW = latest ? latest.w : newest[1];
-  document.getElementById("days").innerHTML = live
-    .slice().sort((a,b) => ((a.i - latestW + 7) % 7) - ((b.i - latestW + 7) % 7))
-    .map(s => `<section class="day${WKND.includes(s.i) ? " wknd" : ""}">
-      <h2>${s.day}</h2>
-      <p class="rank">${s.n} ${s.n === 1 ? "day" : "days"} in this window</p>
-      <div class="figs">
-        <span class="fig"><span class="n">${money(s.avg)}</span><span class="l">Average</span></span>
-        <span class="fig"><span class="n">${money(s.med)}</span><span class="l">Median</span></span>
-        <span class="fig"><span class="n">${money(s.hi)}</span><span class="l">High · ${pretty(s.hiD)}</span></span>
-        <span class="fig"><span class="n">${money(s.lo)}</span><span class="l">Low · ${pretty(s.loD)}</span></span>
-        ${latest && s.list.some(x => x.d === latest.d) ? `<span class="fig latest"><span class="n">${money(latest[met])}</span><span class="l">Latest · ${pretty(latest.d)}</span></span>` : ""}
-      </div>
-    </section>`).join("");
+  const ordered = live.slice().sort((a,b) => ((a.i - latestW + 7) % 7) - ((b.i - latestW + 7) % 7));
+  const isL = s => latest && s.i === latest.w;
+  const lv = s => (isL(s) ? latest[met] : null);
+  const cls = v => v < BAD ? " bad" : v >= GREAT ? " great" : "";
+  let html = "";
+  if (cardStyle === "table") {
+    html = `<table class="dtable"><thead><tr><th>Day</th><th>Days</th><th>Avg</th><th class="med">Median</th><th>High</th><th>Low</th><th>Latest</th></tr></thead><tbody>` +
+      ordered.map(s => `<tr class="${isL(s) ? "islatest" : ""}">
+        <td class="name">${s.day.slice(0,3)}</td>
+        <td class="n">${s.n}</td>
+        <td class="b">${money(s.avg)}</td>
+        <td class="med">${money(s.med)}</td>
+        <td class="${cls(s.hi)}">${money(s.hi)}<span class="sub">${pretty(s.hiD)}</span></td>
+        <td class="${cls(s.lo)}">${money(s.lo)}<span class="sub">${pretty(s.loD)}</span></td>
+        <td class="b">${isL(s) ? money(lv(s)) : ""}</td>
+      </tr>`).join("") + `</tbody></table>`;
+  }
+  document.getElementById("days").innerHTML = html;
 
   const notes = [];
   if (met === "net") notes.push("Bulk membership billing days are excluded from this view: the 1st of each month plus the Feb 11 presale batch. A $10,000-plus billing day tells you nothing about how that weekday trades.");
