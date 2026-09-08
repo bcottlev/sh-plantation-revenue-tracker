@@ -7,7 +7,7 @@ are listed separately from in-store front desk staff.
 """
 import os, re, sys, json, time, urllib.request, urllib.parse
 
-TOKEN = os.environ["SLACK_BOT_TOKEN"]
+TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
 CHANNEL = "C0A0WQTGTBK"          # plantation-end-of-shift
 VMA = {"shenna", "jo"}           # remote virtual member associates
 PAGE = "day-of-week/index.html"
@@ -22,6 +22,7 @@ msgs, cursor = [], None
 while True:
     res = api("conversations.history", channel=CHANNEL, limit=200, **({"cursor": cursor} if cursor else {}))
     if not res.get("ok"):
+        open("eos_error.txt","w").write(f"slack error: {res.get('error')} (token present: {bool(TOKEN)}, len {len(TOKEN)})\n")
         print("slack error:", res.get("error")); sys.exit(1)
     msgs += res.get("messages", [])
     cursor = res.get("response_metadata", {}).get("next_cursor")
