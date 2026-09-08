@@ -204,6 +204,9 @@ body.dark.style-dots .dot.great,body.dark.style-full .dot.great{background:var(-
   opacity:0;transition:opacity .12s ease;
 }
 .tip.show{opacity:1}
+.tip.below{transform:translate(-50%,12px)}
+.tip.below::after{bottom:auto;top:-5px}
+
 .tip::after{
   content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;
   background:var(--shadow);transform:translateX(-50%) rotate(45deg);
@@ -602,8 +605,10 @@ render();
     tip.innerHTML = `${WD[w]}, ${pretty(d)}${dot.dataset.latest ? " · latest" : ""}<span class="v${v < BAD ? " bad" : v >= GREAT ? " great" : ""}">${money(v)}</span>${deskLine}`;
     const cr = chart.getBoundingClientRect(), dr = dot.getBoundingClientRect();
     let x = dr.left + dr.width/2 - cr.left, y = dr.top - cr.top;
-    tip.style.left = x + "px"; tip.style.top = y + "px";
+    tip.classList.remove("below"); tip.style.left = x + "px"; tip.style.top = y + "px";
     tip.classList.add("show");
+    // flip below the dot when there is no room above it
+    if (tip.getBoundingClientRect().top < cr.top + 4) { tip.classList.add("below"); tip.style.top = (y + dr.height) + "px"; }
     // keep inside the panel horizontally
     const tr = tip.getBoundingClientRect();
     if (tr.left < cr.left + 6) tip.style.left = (x + (cr.left + 6 - tr.left)) + "px";
