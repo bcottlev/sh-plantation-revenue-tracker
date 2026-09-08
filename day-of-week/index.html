@@ -210,6 +210,30 @@ body.dark.style-dots .dot.great,body.dark.style-full .dot.great{background:var(-
 .k-great{width:9px;height:9px;border-radius:50%;background:var(--great)}
 .k-line{width:0;height:12px;border-left:2px dashed var(--bad)}
 
+/* hover / tap tooltip on dots */
+.chart{position:relative}
+.dot{cursor:pointer}
+.dot::before{content:"";position:absolute;inset:-7px}   /* bigger tap target */
+.dot:hover,.dot.active{opacity:1;transform:scale(1.35)}
+.tip{
+  position:absolute;z-index:5;pointer-events:none;
+  background:var(--shadow);color:#fff;border-radius:7px;padding:7px 10px;
+  font-size:12.5px;font-weight:600;line-height:1.3;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(28,45,90,.28);
+  transform:translate(-50%,calc(-100% - 12px));
+  opacity:0;transition:opacity .12s ease;
+}
+.tip.show{opacity:1}
+.tip::after{
+  content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;
+  background:var(--shadow);transform:translateX(-50%) rotate(45deg);
+}
+.tip .v{display:block;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+.tip .v.bad{color:#FFB3A6}.tip .v.great{color:#9FE3BE}
+body.dark .tip{background:var(--daisy);color:#1C2D5A;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+body.dark .tip::after{background:var(--daisy)}
+body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
+
 @media (max-width:560px){
   .colhead,.rowline,.axis{grid-template-columns:36px 1fr 60px 60px;gap:6px}
   .val{font-size:13px}
@@ -241,6 +265,7 @@ body.dark.style-dots .dot.great,body.dark.style-full .dot.great{background:var(-
 </header>
 
 <div class="chart">
+  <div class="tip" id="tip" role="tooltip"></div>
   <div class="colhead"><span></span><span></span><span>Average</span><span>High</span></div>
   <div id="rows"></div>
   <div class="axis">
@@ -360,6 +385,7 @@ function windowLabel(){
 }
 
 function render(){
+  const tipEl = document.getElementById("tip"); if (tipEl) tipEl.classList.remove("show");
   const rows = filtered();
   const S = summarise(rows);
   const live = S.filter(Boolean);
@@ -404,7 +430,7 @@ function render(){
     if (!s) return "";
     const isLatestRow = latest && s.list.some(x => x.d === latest.d);
     const dots = s.list.map(x =>
-      `<span class="dot${latest && x.d === latest.d ? " latest" : ""}${x.v < BAD ? " bad" : x.v >= GREAT ? " great" : ""}" style="left:${pct(x.v)}%" title="${pretty(x.d)} — ${money(x.v)}${latest && x.d === latest.d ? " (latest)" : ""}"></span>`).join("");
+      `<span class="dot${latest && x.d === latest.d ? " latest" : ""}${x.v < BAD ? " bad" : x.v >= GREAT ? " great" : ""}" style="left:${pct(x.v)}%" data-d="${x.d}" data-v="${x.v}" data-w="${s.i}"${latest && x.d === latest.d ? ' data-latest="1"' : ""}></span>`).join("");
     const st = thresholdStyle;
     const guides =
       (st === "zones" || st === "full" ? `<span class="zone bad" style="width:${pct(BAD)}%"></span><span class="zone great" style="width:${100 - pct(GREAT)}%"></span>` : "") +
@@ -483,6 +509,36 @@ metseg.addEventListener("click", e => {
   met = b.dataset.met; press(metseg, b); render();
 });
 render();
+
+/* dot tooltip */
+(function(){
+  const chart = document.querySelector(".chart"), tip = document.getElementById("tip"), rows = document.getElementById("rows");
+  let active = null;
+  function show(dot){
+    const v = +dot.dataset.v, d = dot.dataset.d, w = +dot.dataset.w;
+    tip.innerHTML = `${WD[w]}, ${pretty(d)}${dot.dataset.latest ? " · latest" : ""}<span class="v${v < BAD ? " bad" : v >= GREAT ? " great" : ""}">${money(v)}</span>`;
+    const cr = chart.getBoundingClientRect(), dr = dot.getBoundingClientRect();
+    let x = dr.left + dr.width/2 - cr.left, y = dr.top - cr.top;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+    tip.classList.add("show");
+    // keep inside the panel horizontally
+    const tr = tip.getBoundingClientRect();
+    if (tr.left < cr.left + 6) tip.style.left = (x + (cr.left + 6 - tr.left)) + "px";
+    if (tr.right > cr.right - 6) tip.style.left = (x - (tr.right - cr.right + 6)) + "px";
+    if (active && active !== dot) active.classList.remove("active");
+    active = dot; dot.classList.add("active");
+  }
+  function hide(){ tip.classList.remove("show"); if (active) { active.classList.remove("active"); active = null; } }
+  rows.addEventListener("mouseover", e => { const d = e.target.closest(".dot"); if (d) show(d); });
+  rows.addEventListener("mouseout", e => { const d = e.target.closest(".dot"); if (d && !e.relatedTarget?.closest?.(".dot")) hide(); });
+  rows.addEventListener("click", e => {
+    const d = e.target.closest(".dot");
+    if (!d) return hide();
+    if (active === d) hide(); else show(d);
+  });
+  document.addEventListener("click", e => { if (!e.target.closest("#rows")) hide(); });
+  window.addEventListener("resize", hide);
+})();
 
 /* theme */
 (function(){
