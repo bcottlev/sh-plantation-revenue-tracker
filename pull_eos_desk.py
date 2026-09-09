@@ -27,7 +27,7 @@ def history(channel):
     while True:
         res = api("conversations.history", channel=channel, limit=200, **({"cursor": cursor} if cursor else {}))
         if not res.get("ok"):
-            print(f"{channel}: slack error {res.get('error')}"); return None
+            print(f"{channel}: slack error {res.get('error')}"); status.append(f"{channel}: {res.get('error')}"); return None
         msgs += res.get("messages", [])
         cursor = res.get("response_metadata", {}).get("next_cursor")
         if not cursor: return msgs
@@ -75,6 +75,11 @@ def inject(s, const, data):
         return re.sub(rf"const {const} = \{{.*?\}};", line, s, count=1, flags=re.S)
     return s.replace("const DATA = ", line + "\nconst DATA = ", 1)
 
+status = []
+try:
+    who = api("auth.test"); status.append(f"bot: {who.get('user')} (app user id {who.get('user_id')}) in workspace {who.get('team')}")
+except Exception as e:
+    status.append(f"auth.test failed: {e}")
 s = open(PAGE).read()
 eos = history("C0A0WQTGTBK")
 if eos is not None:
@@ -83,4 +88,5 @@ lead = history("C0B241EHPP0")
 if lead is not None:
     r = manager_reports(lead); s = inject(s, "MGR", r); print(f"MGR: {len(r)} days")
 open(PAGE, "w").write(s)
+open("eos_status.txt", "w").write("\n".join(status) + "\n")
 if eos is None and lead is None: sys.exit(1)
