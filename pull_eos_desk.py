@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Read #plantation-end-of-shift and record who submitted a report each day.
+"""Read the two end-of-shift channels and embed who worked / what happened each day
+into day-of-week/index.html.
 
-Writes the roster into day-of-week/index.html as `const DESK = {...};` keyed by
-YYYY-MM-DD -> {"desk": [names], "vma": [names]}. VMAs (remote member associates)
-are listed separately from in-store front desk staff.
+  #plantation-end-of-shift (C0A0WQTGTBK): member associate reports -> DESK
+      {date: {"desk": [in-store names], "vma": [remote VMA names]}}
+  #broward-leadership (C0B241EHPP0): manager revenue reports -> MGR
+      {date: {"m": manager, "dogs": n, "add": n, "ret": $, "nm": n, "tc": n, "can": n, "ld": n, "tt": n, "net": $}}
+
+If a channel cannot be read (bot not a member), that block is left untouched.
 """
 import os, re, sys, json, time, urllib.request, urllib.parse
 
 TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
-CHANNEL = "C0A0WQTGTBK"          # plantation-end-of-shift
-VMA = {"shenna", "jo"}           # remote virtual member associates
 PAGE = "day-of-week/index.html"
+VMA = {"shenna", "jo"}
+ALIAS = {"Nina Mariel": "Nina", "Bryan Cottle": "Bryan"}
 
 def api(method, **params):
     q = urllib.parse.urlencode(params)
@@ -18,34 +22,65 @@ def api(method, **params):
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
 
-msgs, cursor = [], None
-while True:
-    res = api("conversations.history", channel=CHANNEL, limit=200, **({"cursor": cursor} if cursor else {}))
-    if not res.get("ok"):
-        open("eos_error.txt","w").write(f"slack error: {res.get('error')} (token present: {bool(TOKEN)}, len {len(TOKEN)})\n")
-        print("slack error:", res.get("error")); sys.exit(1)
-    msgs += res.get("messages", [])
-    cursor = res.get("response_metadata", {}).get("next_cursor")
-    if not cursor: break
-    time.sleep(1.2)
+def history(channel):
+    msgs, cursor = [], None
+    while True:
+        res = api("conversations.history", channel=channel, limit=200, **({"cursor": cursor} if cursor else {}))
+        if not res.get("ok"):
+            print(f"{channel}: slack error {res.get('error')}"); return None
+        msgs += res.get("messages", [])
+        cursor = res.get("response_metadata", {}).get("next_cursor")
+        if not cursor: return msgs
+        time.sleep(1.2)
 
-roster = {}
-for m in msgs:
-    t = m.get("text", "")
-    d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
-    n = re.search(r"Name:?\*?:?\s*<@[A-Z0-9]+\|([^>]+)>", t) or re.search(r"Name:?\*?:?\s*([A-Za-z][A-Za-z .'-]+)", t)
-    if not (d and n): continue
-    name = n.group(1).strip().rstrip(".")
-    first = name.split()[0]
-    entry = roster.setdefault(d.group(1), {"desk": [], "vma": []})
-    bucket = "vma" if first.lower() in VMA else "desk"
-    if first not in entry[bucket]: entry[bucket].append(first)
+def first(name):
+    name = ALIAS.get(name.strip(), name.strip()).rstrip(".")
+    return name.split()[0]
+
+def num(t, label):
+    m = re.search(label + r"[^\n]*?:\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)
+    return float(m.group(1).replace(",", "")) if m else 0.0
+
+def desk_roster(msgs):
+    out = {}
+    for m in msgs:
+        t = m.get("text", "")
+        d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
+        n = re.search(r"Name:?\*?:?\s*<@[A-Z0-9]+\|([^>]+)>", t) or re.search(r"Name:?\*?:?\s*([A-Za-z][A-Za-z .'-]+)", t)
+        if not (d and n): continue
+        f = first(n.group(1)); e = out.setdefault(d.group(1), {"desk": [], "vma": []})
+        b = "vma" if f.lower() in VMA else "desk"
+        if f not in e[b]: e[b].append(f)
+    return out
+
+def manager_reports(msgs):
+    best = {}
+    for m in msgs:
+        t = m.get("text", "")
+        d = re.search(r"Date of Report:?\s*(\d{4}-\d{2}-\d{2})", t)
+        if not d or "Net Revenue" not in t: continue
+        who = re.search(r"Submitted by:\s*(?:<@[A-Z0-9]+\|)?([A-Za-z][A-Za-z .'-]*)", t)
+        rec = {"m": first(who.group(1)) if who else "", "net": num(t, "Net Revenue"), "dogs": int(num(t, "Dog Visits")),
+               "add": int(num(t, "Add-ons Sold")), "ret": num(t, "Retail Sold"), "nm": int(num(t, "New Members")),
+               "tc": int(num(t, "Trial Conversions")), "can": int(num(t, "Cancellations")),
+               "ld": int(num(t, "New Leads")), "tt": int(num(t, "Trials Booked"))}
+        score = sum(1 for k in ("dogs", "add", "ret", "nm", "tc", "can", "ld", "tt") if rec[k])
+        key = d.group(1); ts = float(m.get("ts", 0))
+        if key not in best or (score, ts) > best[key][0]: best[key] = ((score, ts), rec)
+    return {k: v[1] for k, v in best.items()}
+
+def inject(s, const, data):
+    line = f"const {const} = " + json.dumps(dict(sorted(data.items())), separators=(",", ":")) + ";"
+    if f"const {const} = " in s:
+        return re.sub(rf"const {const} = \{{.*?\}};", line, s, count=1, flags=re.S)
+    return s.replace("const DATA = ", line + "\nconst DATA = ", 1)
 
 s = open(PAGE).read()
-new = "const DESK = " + json.dumps(dict(sorted(roster.items())), separators=(",", ":")) + ";"
-if "const DESK = " in s:
-    s = re.sub(r"const DESK = \{.*?\};", new, s, count=1, flags=re.S)
-else:
-    s = s.replace("const DATA = ", new + "\nconst DATA = ", 1)
+eos = history("C0A0WQTGTBK")
+if eos is not None:
+    r = desk_roster(eos); s = inject(s, "DESK", r); print(f"DESK: {len(r)} days")
+lead = history("C0B241EHPP0")
+if lead is not None:
+    r = manager_reports(lead); s = inject(s, "MGR", r); print(f"MGR: {len(r)} days")
 open(PAGE, "w").write(s)
-print(f"{len(msgs)} messages scanned, {len(roster)} days with reports, {min(roster)} to {max(roster)}")
+if eos is None and lead is None: sys.exit(1)
