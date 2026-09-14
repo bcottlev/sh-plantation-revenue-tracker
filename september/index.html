@@ -76,6 +76,7 @@
         }
         .daily-day { text-align: center; color: #888; }
         .daily-revenue { text-align: right; color: #4dd0e1; }
+            .sensitivity-note { font-size: 11px; color: #666; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -86,18 +87,18 @@
         <div class="card">
             <div class="metric">
                 <span class="label">Membership (September 1)</span>
-                <span class="value membership">$12,618</span>
+                <span class="value membership" id="membershipDisplay"></span>
             </div>
         </div>
 
         <div class="card">
             <div class="metric">
-                <span class="label">July Revenue (Final)</span>
-                <span class="value">$29,571</span>
+                <span class="label">August Revenue (Final)</span>
+                <span class="value" id="priorDisplay"></span>
             </div>
             <div class="metric">
-                <span class="label">Target (July baseline)</span>
-                <span class="value target">$32,529</span>
+                <span class="label">September Target</span>
+                <span class="value target" id="targetDisplay"></span>
             </div>
         </div>
 
@@ -117,6 +118,14 @@
             <div class="metric">
                 <span class="label">Status</span>
                 <span class="value target" id="baseStatus">→ On pace</span>
+            </div>
+            <div class="metric">
+                <span class="label">Pace to hit target</span>
+                <span class="value" id="paceTarget"></span>
+            </div>
+            <div class="metric">
+                <span class="label">Pace to match August</span>
+                <span class="value" id="pacePrior"></span>
             </div>
         </div>
 
@@ -152,13 +161,20 @@
         const mtdTotal = Object.values(dailyRevenue).reduce((a, b) => a + b, 0);
         const daysWithData = Object.keys(dailyRevenue).length;
         const daysCompleted = Math.max(...Object.keys(dailyRevenue).map(d => parseInt(d.split('-')[2])));
-        const membership = 12618.10;
+        const membership = dailyRevenue['2026-09-01'] || 0;
+        const priorTotal = 32832.53;   // August final (MyTime)
         const targetTotal = 34000;
         const daysInSeptember = 30;
         const daysRemaining = daysInSeptember - daysCompleted;
 
-        // Display MTD
+        // Display MTD and the two goals
         document.getElementById('mtdDisplay').textContent = '$' + Math.round(mtdTotal).toLocaleString();
+        document.getElementById('membershipDisplay').textContent = '$' + Math.round(membership).toLocaleString();
+        document.getElementById('priorDisplay').textContent = '$' + Math.round(priorTotal).toLocaleString();
+        document.getElementById('targetDisplay').textContent = '$' + targetTotal.toLocaleString();
+        const paceT = (targetTotal - mtdTotal) / daysRemaining, paceP = (priorTotal - mtdTotal) / daysRemaining;
+        document.getElementById('paceTarget').textContent = daysRemaining > 0 ? '$' + Math.round(paceT).toLocaleString() + '/day' : (mtdTotal >= targetTotal ? '✓ hit' : 'missed');
+        document.getElementById('pacePrior').textContent = daysRemaining > 0 ? '$' + Math.round(paceP).toLocaleString() + '/day' : (mtdTotal >= priorTotal ? '✓ matched' : 'missed');
 
         // Build daily table
         const tableContainer = document.getElementById('dailyTable');
@@ -167,7 +183,7 @@
         headerRow.innerHTML = '<div class="daily-day">Day</div><div class="daily-revenue">Revenue</div>';
         tableContainer.appendChild(headerRow);
 
-        for (let day = 1; day <= 31; day++) {
+        for (let day = 1; day <= daysInSeptember; day++) {
             const dateStr = `2026-09-${String(day).padStart(2, '0')}`;
             const revenue = dailyRevenue[dateStr];
             
@@ -207,6 +223,7 @@
             box.innerHTML = `
                 <div class="sensitivity-label">$${dailyRate}/day</div>
                 <div class="sensitivity-value">$${Math.round(projection).toLocaleString()}</div>
+                ${projection >= targetTotal ? '<div class="sensitivity-note">hits target</div>' : projection >= priorTotal ? '<div class="sensitivity-note">matches Aug</div>' : ''}
             `;
             gridContainer.appendChild(box);
         });

@@ -149,5 +149,9 @@ jobs:
                  "• MTD: *\$$MTD_FMT*$CMP" \
                  "• Avg: \$$AVG_FMT/day → projected close *\$$(FORMAT $PROJECTION)*" \
                  "• Target: \$$TARGET_FMT · need *\$$(FORMAT $PACE)/day*")
+          if [ -n "$PRIOR_TOTAL" ]; then
+            PACE_PRIOR=$(awk "BEGIN {printf \"%.0f\", ($PRIOR_TOTAL-$MTD)/$DAYS_REM}")
+            LINES+=("• Match $(echo $PRIOR_NAME | cut -c1-3): \$$(FORMAT $PRIOR_TOTAL) · need *\$$(FORMAT $PACE_PRIOR)/day*")
+          fi
           LINES+=("" "*Daily Average Scenarios:*$TIERS")
           post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
