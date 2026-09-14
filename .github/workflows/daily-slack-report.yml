@@ -49,7 +49,7 @@ jobs:
           fi
 
           MTD=$(grep -oP "'$YM-\d+': \K[\d.]+" "$MONTH_FILE" | awk '{s+=$1} END {print s+0}')
-          DAYS=$(grep -oP "'$YM-\d+'" "$MONTH_FILE" | wc -l)
+          DAYS=$(grep -oP "'$YM-\d+': " "$MONTH_FILE" | wc -l)
           TARGET=$(grep -oP "const targetTotal = \K\d+" "$MONTH_FILE")
           DAYS_REM=$((DAYS_IN_MONTH - DAYS))
 
