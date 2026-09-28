@@ -92,6 +92,12 @@ def manager_reports(msgs):
     return {k: v[1] for k, v in best.items()}
 
 def inject(s, const, data):
+    """Write into the multi-store page (DESK_BY_LOC / MGR_BY_LOC keyed by location) or the single-store page."""
+    multi = f"const {const}_BY_LOC = "
+    if multi in s:
+        m = re.search(rf"const {const}_BY_LOC = (\{{.*?\}});\n", s, re.S)
+        cur = json.loads(m.group(1)); cur["Plantation"] = dict(sorted(data.items()))
+        return s[:m.start(1)] + json.dumps(cur, separators=(",", ":")) + s[m.end(1):]
     line = f"const {const} = " + json.dumps(dict(sorted(data.items())), separators=(",", ":")) + ";"
     if f"const {const} = " in s:
         return re.sub(rf"const {const} = \{{.*?\}};", line, s, count=1, flags=re.S)
