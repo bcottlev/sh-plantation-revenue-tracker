@@ -20,5 +20,5 @@ jobs:
         run: |
           git config user.email "bcottlev@gmail.com"
           git config user.name "GitHub Automation"
-          git add day-of-week/index.html eos_status.txt
+          git add day-of-week/index.html eos_status.txt eos_sample.json
           git diff --cached --quiet && echo "no change" || (git commit -m "Update EOS desk roster" && git push)

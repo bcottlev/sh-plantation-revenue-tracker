@@ -82,11 +82,16 @@ except Exception as e:
     status.append(f"auth.test failed: {e}")
 s = open(PAGE).read()
 eos = history("C0A0WQTGTBK")
+if eos:
+    samp = [{k: m.get(k) for k in ("ts","subtype","text","blocks","user","bot_id","username")} for m in eos[:2]]
+    open("eos_sample.json","w").write(json.dumps(samp, indent=1)[:12000])
 if eos is not None:
-    r = desk_roster(eos); s = inject(s, "DESK", r); print(f"DESK: {len(r)} days")
+    r = desk_roster(eos); print(f"DESK: {len(r)} days")
+    if r: s = inject(s, "DESK", r)
 lead = history("C0B241EHPP0")
 if lead is not None:
-    r = manager_reports(lead); s = inject(s, "MGR", r); print(f"MGR: {len(r)} days")
+    r = manager_reports(lead); print(f"MGR: {len(r)} days")
+    if r: s = inject(s, "MGR", r)
 open(PAGE, "w").write(s)
 open("eos_status.txt", "w").write("\n".join(status) + "\n")
 if eos is None and lead is None: sys.exit(1)
