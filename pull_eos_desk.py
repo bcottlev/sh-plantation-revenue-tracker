@@ -52,8 +52,12 @@ def mention_name(t, label):
     return m.group(1) if m else None
 
 def first(name):
-    name = ALIAS.get(name.strip(), name.strip()).rstrip(".")
-    return name.split()[0]
+    name = name.strip()
+    if "," in name:                      # "Agustin, Jo" -> "Jo"
+        parts = [x.strip() for x in name.split(",") if x.strip()]
+        name = parts[1] if len(parts) > 1 else parts[0]
+    name = ALIAS.get(name, name).rstrip(".")
+    return name.split()[0].strip(",.")
 
 def num(t, label):
     m = re.search(label + r"[^\n]*?:\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)
@@ -75,7 +79,7 @@ def manager_reports(msgs):
     best = {}
     for m in msgs:
         t = m.get("text", "")
-        d = re.search(r"Date of Report:?\s*(\d{4}-\d{2}-\d{2})", t)
+        d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
         if not d or "Net Revenue" not in t: continue
         who = mention_name(t, r"Submitted by:?\*?:?\*?")
         rec = {"m": first(who) if who else "", "net": num(t, "Net Revenue"), "dogs": int(num(t, "Dog Visits")),
