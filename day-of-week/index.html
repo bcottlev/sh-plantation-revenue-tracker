@@ -256,6 +256,10 @@ body.dark .tip .mgr .ops{color:rgba(28,45,90,.7)}
 body.dark .tip .who{border-top-color:rgba(28,45,90,.25)}
 body.dark .tip .who.none{color:rgba(28,45,90,.65)}
 body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
+.rowline.empty .daylab{color:var(--mute)}
+.rowline.empty .val{color:var(--mute);font-weight:500}
+.plot .closed{position:absolute;left:0;top:7px;font-size:12px;color:var(--mute);font-weight:500}
+.dtable tr.empty td{color:var(--mute);font-weight:500;text-align:left}
 
 @media (max-width:560px){#portfolio-table{overflow-x:auto}#portfolio .ptable td,#portfolio .ptable th{padding-left:3px;padding-right:3px;font-size:12px}.ptable td{font-size:13.5px;padding:8px 0}.ptable th{font-size:10px;letter-spacing:.1em}.ptable .lo{display:none}}
 
@@ -544,8 +548,12 @@ function render(){
   }
 
   const pct = v => Math.max(0, v / max * 100);
-  document.getElementById("rows").innerHTML = S.map(s => {
-    if (!s) return "";
+  document.getElementById("rows").innerHTML = S.map((s, i) => {
+    if (!s) return `<div class="rowline empty${WKND.includes(i) ? " wknd" : ""}">
+      <span class="daylab">${WD[i].slice(0,3)}</span>
+      <span class="plot"><span class="closed">no trading days in this window</span></span>
+      <span class="val">—</span><span class="val high">—</span>
+    </div>`;
     const isLatestRow = latest && s.list.some(x => x.d === latest.d);
     const dots = s.list.map(x =>
       `<span class="dot${latest && x.d === latest.d ? " latest" : ""}${x.v < BAD ? " bad" : x.v >= GREAT ? " great" : ""}" style="left:${pct(x.v)}%" data-d="${x.d}" data-v="${x.v}" data-w="${s.i}"${latest && x.d === latest.d ? ' data-latest="1"' : ""}></span>`).join("");
@@ -577,14 +585,15 @@ function render(){
 
   // latest weekday first, then the days that follow it in calendar order
   const latestW = latest ? latest.w : newest[1];
-  const ordered = live.slice().sort((a,b) => ((a.i - latestW + 7) % 7) - ((b.i - latestW + 7) % 7));
+  const ordered = S.map((x, i) => x || {i, day: WD[i], empty: true})
+    .sort((a,b) => ((a.i - latestW + 7) % 7) - ((b.i - latestW + 7) % 7));
   const isL = s => latest && s.i === latest.w;
   const lv = s => (isL(s) ? latest[met] : null);
   const cls = v => v < BAD ? " bad" : v >= GREAT ? " great" : "";
   let html = "";
   if (cardStyle === "table") {
     html = `<table class="dtable"><thead><tr><th>Day</th><th>Days</th><th>Avg</th><th class="med">Median</th><th>High</th><th>Low</th><th>Latest</th></tr></thead><tbody>` +
-      ordered.map(s => `<tr class="${isL(s) ? "islatest" : ""}">
+      ordered.map(s => s.empty ? `<tr class="empty"><td class="name">${s.day.slice(0,3)}</td><td class="n" colspan="6">no trading days in this window</td></tr>` : `<tr class="${isL(s) ? "islatest" : ""}">
         <td class="name">${s.day.slice(0,3)}</td>
         <td class="n">${s.n}</td>
         <td class="b">${money(s.avg)}</td>
