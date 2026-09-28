@@ -33,6 +33,24 @@ def history(channel):
         if not cursor: return msgs
         time.sleep(1.2)
 
+_users = {}
+def user_name(uid):
+    if uid not in _users:
+        try:
+            u = api("users.info", user=uid)
+            p = (u.get("user") or {}).get("profile") or {}
+            _users[uid] = p.get("real_name") or p.get("display_name") or (u.get("user") or {}).get("real_name") or uid
+        except Exception:
+            _users[uid] = uid
+    return _users[uid]
+
+def mention_name(t, label):
+    """Name after a label: either <@U..|Name>, a bare <@U..> (resolved via users.info), or plain text."""
+    m = re.search(label + r"\s*<@([A-Z0-9]+)(?:\|([^>]+))?>", t)
+    if m: return m.group(2) or user_name(m.group(1))
+    m = re.search(label + r"\s*([A-Za-z][A-Za-z .'-]+)", t)
+    return m.group(1) if m else None
+
 def first(name):
     name = ALIAS.get(name.strip(), name.strip()).rstrip(".")
     return name.split()[0]
@@ -46,9 +64,9 @@ def desk_roster(msgs):
     for m in msgs:
         t = m.get("text", "")
         d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
-        n = re.search(r"Name:?\*?:?\s*<@[A-Z0-9]+\|([^>]+)>", t) or re.search(r"Name:?\*?:?\s*([A-Za-z][A-Za-z .'-]+)", t)
+        n = mention_name(t, r"Name:?\*?:?\*?")
         if not (d and n): continue
-        f = first(n.group(1)); e = out.setdefault(d.group(1), {"desk": [], "vma": []})
+        f = first(n); e = out.setdefault(d.group(1), {"desk": [], "vma": []})
         b = "vma" if f.lower() in VMA else "desk"
         if f not in e[b]: e[b].append(f)
     return out
@@ -59,8 +77,8 @@ def manager_reports(msgs):
         t = m.get("text", "")
         d = re.search(r"Date of Report:?\s*(\d{4}-\d{2}-\d{2})", t)
         if not d or "Net Revenue" not in t: continue
-        who = re.search(r"Submitted by:\s*(?:<@[A-Z0-9]+\|)?([A-Za-z][A-Za-z .'-]*)", t)
-        rec = {"m": first(who.group(1)) if who else "", "net": num(t, "Net Revenue"), "dogs": int(num(t, "Dog Visits")),
+        who = mention_name(t, r"Submitted by:?\*?:?\*?")
+        rec = {"m": first(who) if who else "", "net": num(t, "Net Revenue"), "dogs": int(num(t, "Dog Visits")),
                "add": int(num(t, "Add-ons Sold")), "ret": num(t, "Retail Sold"), "nm": int(num(t, "New Members")),
                "tc": int(num(t, "Trial Conversions")), "can": int(num(t, "Cancellations")),
                "ld": int(num(t, "New Leads")), "tt": int(num(t, "Trials Booked"))}
@@ -82,9 +100,6 @@ except Exception as e:
     status.append(f"auth.test failed: {e}")
 s = open(PAGE).read()
 eos = history("C0A0WQTGTBK")
-if eos:
-    samp = [{k: m.get(k) for k in ("ts","subtype","text","blocks","user","bot_id","username")} for m in eos[:2]]
-    open("eos_sample.json","w").write(json.dumps(samp, indent=1)[:12000])
 if eos is not None:
     r = desk_roster(eos); print(f"DESK: {len(r)} days")
     if r: s = inject(s, "DESK", r)
