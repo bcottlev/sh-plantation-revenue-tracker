@@ -394,19 +394,16 @@ const money = n => "$" + Math.round(n).toLocaleString();
 const toDate = s => new Date(YEAR, +s.slice(0,2)-1, +s.slice(3,5));
 const pretty = s => toDate(s).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 
-function scoped(){
-  const all = DATA.map(r => ({d:r[0], w:r[1], net:r[2], nonmemb:r[3], batch:r[4] === 1}));
-  // Bulk membership billing days (the 1st, plus the February presale batch) say nothing
-  // about how a weekday trades, so they are dropped from the membership view.
-  // Days with zero revenue on the selected measure (closures, holidays, presale days
-  // with no floor trade) are dropped from both views.
+function scoped(src){
+  const all = (src || DATA).map(r => ({d:r[0], w:r[1], net:r[2], nonmemb:r[3], batch:r[4] === 1}));
   // A day with no floor revenue is not a trading day (closed day with anniversary dues only),
   // so it is dropped from both views; batch billing days are dropped from the membership view.
   return all.filter(r => r.nonmemb > 0 && (met === "net" ? !r.batch : true));
 }
 
-function filtered(){
-  const rows = scoped();
+function filtered(src){
+  const rows = scoped(src);
+  if (!rows.length) return rows;
   if (month !== null) return rows.filter(r => +r.d.slice(0,2) === month);
   if (win === "all") return rows;
   const last = toDate(rows[rows.length-1].d);
@@ -515,7 +512,8 @@ function render(){
     document.getElementById("rangeline").textContent = "No trading days in this window.";
     return;
   }
-  const rawMax = Math.max(...live.map(s => s.hi));
+  // one axis for every store, so switching location keeps the scale fixed and the stores compare directly
+  const rawMax = Math.max(...LOCS.flatMap(l => filtered(DATA_BY_LOC[l]).map(r => r[met])), ...live.map(s => s.hi));
   const step = niceStep(rawMax);
   const max = Math.max(step, Math.ceil(rawMax / step) * step);
 
