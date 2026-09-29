@@ -406,7 +406,10 @@ function scoped(src){
   const all = (src || DATA).map(r => ({d:r[0], w:r[1], net:r[2], nonmemb:r[3], batch:r[4] === 1}));
   // A day with no floor revenue is not a trading day (closed day with anniversary dues only),
   // so it is dropped from both views; batch billing days are dropped from the membership view.
-  return all.filter(r => r.nonmemb > 0 && (met === "net" ? !r.batch : true));
+  // nonmemb === null means the split is not known yet (a day entered by hand, before the MyTime export);
+  // keep it in the membership view, but it cannot be plotted in the non-membership view.
+  const trading = r => r.nonmemb === null ? (met === "net" && r.net > 0) : r.nonmemb > 0;
+  return all.filter(r => trading(r) && (met === "net" ? !r.batch : true));
 }
 
 function filtered(src){
@@ -491,7 +494,7 @@ function renderPortfolio(){
   const cls = v => v < BAD ? " bad" : v >= GREAT ? " great" : "";
   const rowsHtml = LOCS.map(l => {
     const all = (DATA_BY_LOC[l] || []).map(r => ({d:r[0], w:r[1], net:r[2], nonmemb:r[3], batch:r[4] === 1}))
-      .filter(r => r.nonmemb > 0 && (met === "net" ? !r.batch : true));
+      .filter(r => (r.nonmemb === null ? (met === "net" && r.net > 0) : r.nonmemb > 0) && (met === "net" ? !r.batch : true));
     if (!all.length) return "";
     const last = toDate(all[all.length-1].d); const cut = new Date(last); cut.setDate(cut.getDate() - 29);
     const win = all.filter(r => toDate(r.d) >= cut);
