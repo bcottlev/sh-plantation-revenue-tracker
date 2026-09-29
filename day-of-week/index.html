@@ -284,7 +284,7 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 <div class="wrap">
 
 <div class="bar">
-  <div class="tab" id="loctab">Boynton Beach</div>
+  <div class="tab" id="loctab"></div>
   <div class="crumb">Daily Revenue Tracker <span>· 2026</span></div>
 </div>
 
@@ -385,6 +385,7 @@ const DATA_BY_LOC = {"Boynton Beach":[["03-01",6,8696.58,309.8,1],["03-02",0,368
 const LOCS = Object.keys(DATA_BY_LOC);
 const DEFAULT_LOC = "Plantation";
 let loc = LOCS.includes(DEFAULT_LOC) ? DEFAULT_LOC : LOCS[0];
+document.getElementById("loctab").textContent = loc;
 let DATA = DATA_BY_LOC[loc], DESK = DESK_BY_LOC[loc] || {}, MGR = MGR_BY_LOC[loc] || {};
 const WD = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
