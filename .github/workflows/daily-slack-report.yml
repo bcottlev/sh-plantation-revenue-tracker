@@ -109,7 +109,13 @@ jobs:
               MA="$MSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MEMBERSHIP>=$PRIOR_MEMB)?$MEMBERSHIP-$PRIOR_MEMB:$PRIOR_MEMB-$MEMBERSHIP}"))"
               MEMB_LINE="$MEMB_LINE ($MA, $MG% vs $PRIOR_NAME)"
             fi
-            LINES+=("$MEMB_LINE" "$SVC_LINE)")
+            if [ "$MEMB_EXACT" = "1" ]; then
+              LINES+=("$MEMB_LINE" "$SVC_LINE)")
+            else
+              # only the 1st-of-month batch is known until the MyTime export is reconciled;
+              # anniversary dues (~30% of membership) are still inside the service figure
+              LINES+=("• Membership / non-membership split: pending MyTime reconciliation")
+            fi
 
             post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
             exit 0
