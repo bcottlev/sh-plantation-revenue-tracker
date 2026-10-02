@@ -40,5 +40,11 @@
     "membership": 17513.5,
     "non_membership": 15319.03,
     "active_days": 31
+  },
+  "2026-09": {
+    "total": 29480.46,
+    "membership": 17528.5,
+    "non_membership": 11951.96,
+    "active_days": 29
   }
 }
