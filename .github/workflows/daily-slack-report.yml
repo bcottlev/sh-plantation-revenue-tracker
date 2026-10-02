@@ -159,5 +159,12 @@ jobs:
             PACE_PRIOR=$(awk "BEGIN {printf \"%.0f\", ($PRIOR_TOTAL-$MTD)/$DAYS_REM}")
             LINES+=("• Match $(echo $PRIOR_NAME | cut -c1-3): \$$(FORMAT $PRIOR_TOTAL) · need *\$$(FORMAT $PACE_PRIOR)/day*")
           fi
+          # the record month, when it is not the prior month
+          BEST_YM=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)]|max_by(.value.total)|.key // empty' month_totals.json)
+          if [ -n "$BEST_YM" ] && [ "$BEST_YM" != "$PRIOR_YM" ]; then
+            BEST_NAME=$(date -u -d "$BEST_YM-01" +%b)
+            PACE_BEST=$(awk "BEGIN {printf \"%.0f\", ($BEST_PRIOR-$MTD)/$DAYS_REM}")
+            LINES+=("• Match $BEST_NAME (record): \$$(FORMAT $BEST_PRIOR) · need *\$$(FORMAT $PACE_BEST)/day*")
+          fi
           LINES+=("" "*Daily Average Scenarios:*$TIERS")
           post "$(printf '%s\n' "${LINES[@]}" | jq -Rs .)"
