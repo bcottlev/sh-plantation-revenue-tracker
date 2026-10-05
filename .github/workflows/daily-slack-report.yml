@@ -9,10 +9,18 @@ on:
         description: 'Month to report as YYYY-MM (blank = current month)'
         required: false
         default: ''
+      store:
+        description: 'Store slug: plantation, pbg-east, pbg-northlake, cooper-city (blank = all)'
+        required: false
+        default: ''
 
 jobs:
   send-report:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        store: [plantation, pbg-east, pbg-northlake, cooper-city]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,23 +28,35 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           INPUT_MONTH: ${{ github.event.inputs.month }}
+          INPUT_STORE: ${{ github.event.inputs.store }}
+          STORE: ${{ matrix.store }}
         run: |
+          # ---- which store (a dispatch can name one; the schedule runs every store that has a tracker) ----
+          if [ -n "$INPUT_STORE" ] && [ "$INPUT_STORE" != "$STORE" ]; then echo "skip $STORE"; exit 0; fi
+          case "$STORE" in
+            plantation)    STORE_NAME="Plantation";    STORE_DIR="" ;;
+            pbg-east)      STORE_NAME="PBG East";      STORE_DIR="stores/pbg-east/" ;;
+            pbg-northlake) STORE_NAME="PBG Northlake"; STORE_DIR="stores/pbg-northlake/" ;;
+            cooper-city)   STORE_NAME="Cooper City";   STORE_DIR="stores/cooper-city/" ;;
+          esac
+          TOTALS="${STORE_DIR}month_totals.json"; [ -f "$TOTALS" ] || echo '{}' > "$TOTALS"
+
           # ---- resolve month (override or today) ----
           YM="${INPUT_MONTH:-$(date -u +%Y-%m)}"
           YEAR=${YM%-*}; MON=$((10#${YM#*-}))
           MONTH_NAME=$(date -u -d "$YM-01" +%B)
           MONTH_DIR=$(echo "$MONTH_NAME" | tr '[:upper:]' '[:lower:]')
-          MONTH_FILE="$MONTH_DIR/index.html"
+          MONTH_FILE="${STORE_DIR}${MONTH_DIR}/index.html"
           DAYS_IN_MONTH=$(date -u -d "$YM-01 +1 month -1 day" +%d)
 
           # ---- prior month ----
           PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m)
           PRIOR_NAME=$(date -u -d "$PRIOR_YM-01" +%B)
-          PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k].total // empty' month_totals.json)
-          PRIOR_MEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].membership // empty' month_totals.json)
-          PRIOR_DAYS=$(jq -r --arg k "$PRIOR_YM" '.[$k].active_days // empty' month_totals.json)
-          PRIOR_NONMEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].non_membership // empty' month_totals.json)
-          BEST_PRIOR=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)|.value.total]|max // 0' month_totals.json)
+          PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k].total // empty' "$TOTALS")
+          PRIOR_MEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].membership // empty' "$TOTALS")
+          PRIOR_DAYS=$(jq -r --arg k "$PRIOR_YM" '.[$k].active_days // empty' "$TOTALS")
+          PRIOR_NONMEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].non_membership // empty' "$TOTALS")
+          BEST_PRIOR=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)|.value.total]|max // 0' "$TOTALS")
 
           echo "Reporting $YM ($MONTH_NAME, $DAYS_IN_MONTH days) file=$MONTH_FILE prior=$PRIOR_YM=$PRIOR_TOTAL"
 
@@ -54,12 +74,12 @@ jobs:
           DAYS_REM=$((DAYS_IN_MONTH - DAYS))
 
           if [ "$DAYS" -eq 0 ]; then
-            post "$(printf '%s' "📊 $MONTH_NAME tracker is live. No revenue entered yet." | jq -Rs .)"
+            post "$(printf '%s' "📊 $STORE_NAME · $MONTH_NAME tracker is live. No revenue entered yet." | jq -Rs .)"
             exit 0
           fi
 
           # membership = day 01 entry; service avg excludes it
-          MEMBERSHIP=$(jq -r --arg k "$YM" '.[$k].membership // empty' month_totals.json)
+          MEMBERSHIP=$(jq -r --arg k "$YM" '.[$k].membership // empty' "$TOTALS")
           MEMB_EXACT=1
           if [ -z "$MEMBERSHIP" ]; then
             MEMBERSHIP=$(grep -oP "'$YM-01': \K[\d.]+" "$MONTH_FILE" || echo 0)
@@ -80,7 +100,7 @@ jobs:
             DELTA="$DSIGN\$$(FORMAT $(awk "BEGIN {printf \"%.0f\", ($MTD>=$TARGET)?$MTD-$TARGET:$TARGET-$MTD}"))"
             SERVICE=$(awk "BEGIN {printf \"%.2f\", $MTD-$MEMBERSHIP}")
 
-            HEAD="✅ *$MONTH_NAME Final: \$$MTD_FMT*"
+            HEAD="✅ *$STORE_NAME · $MONTH_NAME Final: \$$MTD_FMT*"
             TGT_LABEL="• Target: \$$TARGET_FMT — $PCT% ($DELTA)"
             if [ -n "$PRIOR_TOTAL" ]; then
               TG=$(awk "BEGIN {printf \"%+.0f\", 100*($TARGET/$PRIOR_TOTAL - 1)}")
@@ -140,7 +160,7 @@ jobs:
           # same-day comparison against the prior month's tracker (straight-line run rate
           # is misleading early in the month because the 1st carries the membership batch)
           CMP=""
-          PRIOR_FILE="$(echo "$PRIOR_NAME" | tr '[:upper:]' '[:lower:]')/index.html"
+          PRIOR_FILE="${STORE_DIR}$(echo "$PRIOR_NAME" | tr '[:upper:]' '[:lower:]')/index.html"
           if [ -f "$PRIOR_FILE" ]; then
             PRIOR_MTD=$(grep -oP "'$PRIOR_YM-\d+': [\d.]+" "$PRIOR_FILE" | awk -F"[-': ]+" -v d="$LATEST_DAY" '{ if ($4+0 <= d+0) s+=$5 } END {print s+0}')
             if [ "$(awk "BEGIN {print ($PRIOR_MTD>0)}")" = "1" ]; then
@@ -150,7 +170,7 @@ jobs:
               CMP=" ($PA, $PD% vs $(echo $PRIOR_NAME | cut -c1-3))"
             fi
           fi
-          LINES=("*$MONTH_NAME · Day $DAYS of $DAYS_IN_MONTH, $DAYS_REM left*" \
+          LINES=("*$STORE_NAME · $MONTH_NAME · Day $DAYS of $DAYS_IN_MONTH, $DAYS_REM left*" \
                  "• Latest: $LATEST_DOW $MON/$LATEST_DAY *\$$(FORMAT $LATEST_VAL)*" \
                  "• MTD: *\$$MTD_FMT*$CMP" \
                  "• Avg: \$$AVG_FMT/day → projected close *\$$(FORMAT $PROJECTION)*" \
@@ -160,7 +180,7 @@ jobs:
             LINES+=("• Match $(echo $PRIOR_NAME | cut -c1-3): \$$(FORMAT $PRIOR_TOTAL) · need *\$$(FORMAT $PACE_PRIOR)/day*")
           fi
           # the record month, when it is not the prior month
-          BEST_YM=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)]|max_by(.value.total)|.key // empty' month_totals.json)
+          BEST_YM=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)]|max_by(.value.total)|.key // empty' "$TOTALS")
           if [ -n "$BEST_YM" ] && [ "$BEST_YM" != "$PRIOR_YM" ]; then
             BEST_NAME=$(date -u -d "$BEST_YM-01" +%b)
             PACE_BEST=$(awk "BEGIN {printf \"%.0f\", ($BEST_PRIOR-$MTD)/$DAYS_REM}")
