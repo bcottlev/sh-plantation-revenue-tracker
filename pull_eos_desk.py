@@ -60,7 +60,7 @@ def first(name):
     return name.split()[0].strip(",.")
 
 def num(t, label):
-    m = re.search(label + r"[^\n]*?:\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)
+    m = re.search(label + r"\*?:?\*?:?\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)
     return float(m.group(1).replace(",", "")) if m else 0.0
 
 def desk_roster(msgs):
@@ -70,9 +70,12 @@ def desk_roster(msgs):
         d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
         n = mention_name(t, r"Name:?\*?:?\*?")
         if not (d and n): continue
-        f = first(n); e = out.setdefault(d.group(1), {"desk": [], "vma": []})
+        f = first(n); e = out.setdefault(d.group(1), {"desk": [], "vma": [], "stats": {}})
         b = "vma" if f.lower() in VMA else "desk"
         if f not in e[b]: e[b].append(f)
+        # per-person productivity from the form: outreach, leads, deals closed, appointments booked
+        st = e["stats"].setdefault(f, {"o": 0, "l": 0, "d": 0, "a": 0})
+        st["o"] += int(num(t, r"Outreach")); st["l"] += int(num(t, r"Leads")); st["d"] += int(num(t, r"Deals Closed")); st["a"] += int(num(t, r"Appointments Booked"))
     return out
 
 def manager_reports(msgs):
