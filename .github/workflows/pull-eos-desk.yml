@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '30 7 * * *'
   workflow_dispatch:
+  push:
+    paths:
+      - pull_eos_desk.py
+      - .github/workflows/pull-eos-desk.yml
 
 jobs:
   pull:
