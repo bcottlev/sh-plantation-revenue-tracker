@@ -258,6 +258,29 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 .plot .closed{position:absolute;left:0;top:7px;font-size:12px;color:var(--mute);font-weight:500}
 .dtable tr.empty td{color:var(--mute);font-weight:500;text-align:left}
 
+/* outreach volume: stacked daily bars by person */
+.ochart{padding:18px 20px 14px}
+.obars{display:flex;align-items:flex-end;gap:3px;height:150px;padding-top:16px}
+.obar{flex:1 1 0;height:100%;display:flex;flex-direction:column-reverse;justify-content:flex-start;min-width:4px;position:relative;cursor:pointer}
+.obar .seg{width:100%}
+.obar:hover .seg{filter:brightness(1.12)}
+.obar .lab{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--mute);font-weight:600;white-space:nowrap}
+.obar .tot{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;color:var(--ink-70)}
+.obar.wk .seg{opacity:.85}
+.obars-wrap{padding:18px 0 22px}
+#olegend{margin-top:12px}
+#olegend i{width:12px;height:12px;border-radius:3px;opacity:1}
+.otable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:14px}
+.otable th{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px;border-bottom:1.5px solid var(--line)}
+.otable th:first-child,.otable td:first-child{text-align:left}
+.otable td{padding:9px 0;border-bottom:1px solid var(--line);text-align:right;font-size:14.5px;color:var(--ink)}
+.otable td.name{font-weight:700;color:var(--shadow)}
+.otable td.name .sub{display:block;font-size:11px;color:var(--mute);font-weight:500}
+.otable td.b{font-weight:700}
+.otable td.n{color:var(--mute);font-size:13px}
+.otable tr.total td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
+@media (max-width:560px){.obars{height:110px;gap:2px}.obar .lab{font-size:8px}.obar .tot{display:none}.otable td{font-size:13px}.otable .conv{display:none}}
+
 @media (max-width:560px){#themelabel{display:none}#portfolio-table{overflow-x:auto}#portfolio .ptable td,#portfolio .ptable th{padding-left:3px;padding-right:3px;font-size:12px}.ptable td{font-size:13.5px;padding:8px 0}.ptable th{font-size:10px;letter-spacing:.1em}.ptable .lo{display:none}}
 
 @media (max-width:560px){.dtable td{font-size:13.5px;padding:9px 0}.dtable th{font-size:10px;letter-spacing:.1em}.dtable .med{display:none}.dtable td .sub{font-size:10.5px}}
@@ -363,6 +386,15 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
   <div id="periods-months"></div>
 </div>
 
+<div class="periods" id="outreach">
+  <p class="eyebrow" id="otitle"></p>
+  <div class="chart ochart">
+    <div id="obars"></div>
+    <div class="legend" id="olegend"></div>
+  </div>
+  <div id="otable"></div>
+</div>
+
 <div class="periods" id="portfolio">
   <p class="eyebrow">All locations · last 30 days · avg per weekday, with high</p>
   <div id="portfolio-table"></div>
@@ -388,6 +420,7 @@ const WD = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunda
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const WKND = [4,5,6];
 const BAD = 500, GREAT = 1000;
+const VMA_SET = new Set(["shenna", "jo", "jobeelyn"]);
 const cardStyle = "table";
 
 let thresholdStyle = "full"; // lines | zones | dots | full
@@ -504,6 +537,42 @@ function renderPortfolio(){
     `<table class="ptable"><thead><tr><th>Location</th>${WD.map(w => `<th>${w.slice(0,3)}</th>`).join("")}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
 }
 
+
+/* outreach: daily stacked bars by person over the selected window, with per-person totals */
+const OCOLORS = ["#33A3DC","#FFE73F","#2E8B57","#C9503A","#8B5CF6","#F59E0B","#0EA5A4","#EC4899"];
+function renderOutreach(){
+  const box = document.getElementById("outreach");
+  const days = filtered();                           // same window start as the chart
+  const deskKeys = Object.keys(DESK).sort();
+  if (!days.length || !deskKeys.length) { box.style.display = "none"; return; }
+  const start = toDate(days[0].d), end = new Date(Math.max(toDate(days[days.length-1].d), toDate(deskKeys[deskKeys.length-1].slice(5))));
+  const keys = []; for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate()+1)) keys.push(`${YEAR}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`);
+  const people = {};                                 // name -> {o,l,d,a,days}
+  const perDay = keys.map(k => { const who = DESK[k]; const st = (who && who.stats) || {}; return {k, d: k.slice(5), st}; });
+  perDay.forEach(x => Object.entries(x.st).forEach(([n, v]) => { const p = people[n] = people[n] || {o:0,l:0,d:0,a:0,days:0}; p.o += v.o||0; p.l += v.l||0; p.d += v.d||0; p.a += v.a||0; if (v.o) p.days++; }));
+  const names = Object.keys(people).sort((a,b) => people[b].o - people[a].o);
+  if (!names.length) { box.style.display = "none"; return; }
+  box.style.display = "";
+  const color = {}; names.forEach((n,i) => color[n] = OCOLORS[i % OCOLORS.length]);
+  const dayTot = perDay.map(x => Object.values(x.st).reduce((a,v) => a + (v.o||0), 0));
+  const max = Math.max(1, ...dayTot);
+  document.getElementById("otitle").textContent = `Outreach · ${windowLabel()} · calls, texts and emails logged in end-of-shift reports`;
+  document.getElementById("obars").innerHTML = `<div class="obars-wrap"><div class="obars">` + perDay.map((x, i) => {
+    const segs = names.filter(n => x.st[n] && x.st[n].o).map(n => `<span class="seg" style="height:${x.st[n].o / max * 100}%;background:${color[n]}" title="${n}: ${x.st[n].o}"></span>`).join("");
+    const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6;
+    const lab = perDay.length <= 16 ? pretty(x.d) : (perDay.length <= 40 ? (dt.getDate() % 5 === 0 || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
+    return `<div class="obar${wk ? " wk" : ""}" title="${WD[(dt.getDay()+6)%7]} ${pretty(x.d)}: ${dayTot[i]} outreach">${segs}${dayTot[i] && perDay.length <= 45 ? `<span class="tot">${dayTot[i]}</span>` : ""}<span class="lab">${lab}</span></div>`;
+  }).join("") + `</div></div>`;
+  document.getElementById("olegend").innerHTML = names.map(n => `<span><i style="background:${color[n]}"></i>${n}</span>`).join("") + `<span>${dayTot.reduce((a,b)=>a+b,0).toLocaleString()} total · ${perDay.filter((x,i)=>dayTot[i]).length} days with reports</span>`;
+  const grand = names.reduce((a,n) => a + people[n].o, 0), gb = names.reduce((a,n) => a + people[n].a, 0);
+  document.getElementById("otable").innerHTML = `<table class="otable"><thead><tr><th>Person</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Leads</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
+    names.map(n => { const p = people[n]; return `<tr>
+      <td class="name">${n}<span class="sub">${VMA_SET.has(n.toLowerCase()) ? "VMA" : "Desk"}</span></td>
+      <td class="n">${p.days}</td><td class="b">${p.o.toLocaleString()}</td><td>${p.days ? Math.round(p.o / p.days) : 0}</td>
+      <td>${p.l}</td><td class="b">${p.a}</td><td class="conv">${p.o ? (p.a / p.o * 100).toFixed(1) : "0.0"}</td></tr>`; }).join("") +
+    `<tr class="total"><td class="name">All</td><td class="n"></td><td>${grand.toLocaleString()}</td><td></td><td>${names.reduce((a,n)=>a+people[n].l,0)}</td><td>${gb}</td><td class="conv">${grand ? (gb / grand * 100).toFixed(1) : "0.0"}</td></tr></tbody></table>`;
+}
+
 function windowLabel(){
   if (month !== null) return MONTHS[month-1] + " " + YEAR;
   return win === "all" ? "all 2026" : `last ${win} days`;
@@ -609,7 +678,7 @@ function render(){
   }
   document.getElementById("days").innerHTML = html;
 
-  renderPeriods("weeks"); renderPeriods("months"); renderPortfolio();
+  renderPeriods("weeks"); renderPeriods("months"); renderOutreach(); renderPortfolio();
   const notes = [];
   if (met === "net") notes.push("Bulk membership billing days (the 1st of each month and any presale batch) are excluded from this view. A $10,000-plus billing day tells you nothing about how that weekday trades.");
   if (month === 2 || month === 3 || month === 4 || win === "all" || (month === null && +win >= 120))
@@ -671,8 +740,11 @@ render();
   function show(dot){
     const v = +dot.dataset.v, d = dot.dataset.d, w = +dot.dataset.w;
     const key = `${YEAR}-${d}`, who = DESK[key];
+    const st = (who && who.stats) || {};
+    const tag = n => { const x = st[n]; return x && x.o ? `${n} ${x.o}${x.a ? " · " + x.a + " bkd" : ""}` : n; };
+    const tot = Object.values(st).reduce((a, x) => a + (x.o || 0), 0), bkd = Object.values(st).reduce((a, x) => a + (x.a || 0), 0);
     const deskLine = !who ? `<span class="who none">no end-of-shift report</span>`
-      : `<span class="who">${who.desk.length ? "Desk: " + who.desk.join(", ") : "Desk: no report"}${who.vma.length ? `<span class="vma">VMA: ${who.vma.join(", ")}</span>` : ""}</span>`;
+      : `<span class="who">${who.desk.length ? "Desk: " + who.desk.map(tag).join(", ") : "Desk: no report"}${who.vma.length ? `<span class="vma">VMA: ${who.vma.map(tag).join(", ")}</span>` : ""}${tot ? `<span class="vma">Outreach ${tot}${bkd ? " · " + bkd + " booked" : ""}</span>` : ""}</span>`;
     const mg = MGR[key];
     const mgrLine = !mg ? "" : `<span class="mgr">${mg.m ? "Manager: " + mg.m : "Manager report"}<span class="ops">${mg.dogs} dogs · ${mg.add} add-ons${mg.dogs ? " (" + (mg.add / mg.dogs).toFixed(1) + "/dog)" : ""}${mg.nm ? " · +" + mg.nm + " member" + (mg.nm > 1 ? "s" : "") : ""}${mg.can ? " · " + mg.can + " cancel" + (mg.can > 1 ? "s" : "") : ""}${mg.ret ? " · retail " + money(mg.ret) : ""}</span></span>`;
     tip.innerHTML = `${WD[w]}, ${pretty(d)}${dot.dataset.latest ? " · latest" : ""}<span class="v${v < BAD ? " bad" : v >= GREAT ? " great" : ""}">${money(v)}</span>${mgrLine}${deskLine}`;
