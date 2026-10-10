@@ -60,7 +60,7 @@ def first(name):
     return name.split()[0].strip(",.")
 
 def num(t, label):
-    m = re.search(label + r"\*?:?\*?:?\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)
+    m = re.search(label + r"[^\n:]*\*?:\*?\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", t)   # "*Label (note)*: 12" and "*Label:*12" both parse
     return float(m.group(1).replace(",", "")) if m else 0.0
 
 def desk_roster(msgs):
