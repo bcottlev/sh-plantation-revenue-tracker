@@ -234,6 +234,16 @@ body.dark .tip .v.bad{color:#B3230C}body.dark .tip .v.great{color:#0E6B3C}
 .dtable td.great{color:var(--great)}.dtable td.bad{color:var(--bad)}
 /* period table */
 .periods{margin-top:38px}
+.fold{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;padding:6px 0;border-radius:6px}
+.fold::before{content:"";width:0;height:0;border-left:7px solid currentColor;border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;opacity:.6;transition:transform .15s;flex:none}
+.fold[aria-expanded="true"]::before{transform:rotate(90deg)}
+.fold:hover{color:var(--skye)}.fold:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
+.fold::after{content:"show";margin-left:auto;font-size:10px;letter-spacing:.12em;opacity:.55;font-weight:600}
+.fold[aria-expanded="true"]::after{content:"hide"}
+.fold.sub{margin-top:14px;font-size:11px}
+.fbody.closed{display:none}
+.days:has(> .fold[aria-expanded="false"]),.periods:has(> .fold[aria-expanded="false"]){margin-top:14px}
+.fold{border-bottom:1px solid var(--line)}
 .ptable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .ptable th{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px;border-bottom:1.5px solid var(--line)}
 .ptable th:first-child,.ptable td:first-child{text-align:left}
@@ -403,32 +413,34 @@ body.dark .tip b{color:#1C2D5A}
     <div id="obars"></div>
     <div class="legend" id="olegend"></div>
   </div>
-  <div id="otable"></div>
+  <p class="eyebrow fold sub" role="button" tabindex="0" aria-controls="otable" aria-expanded="false">Per-person table</p>
+  <div id="otable" class="fbody"></div>
   <p class="eyebrow" id="stitle" style="margin-top:28px"></p>
   <div class="chart ochart">
     <div id="sbars"></div>
     <div class="legend" id="slegend"></div>
   </div>
-  <div id="stable"></div>
+  <p class="eyebrow fold sub" role="button" tabindex="0" aria-controls="stable" aria-expanded="false">Role table</p>
+  <div id="stable" class="fbody"></div>
 </div>
 
 <div class="days">
-  <p class="eyebrow">By day · latest first, then the week ahead</p>
-  <div id="days"></div>
+  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="days" aria-expanded="false">By day · latest first, then the week ahead</p>
+  <div id="days" class="fbody"></div>
 </div>
 
 <div class="periods">
-  <p class="eyebrow" id="ptitle-weeks"></p>
-  <div id="periods-weeks"></div>
+  <p class="eyebrow fold" id="ptitle-weeks" role="button" tabindex="0" aria-controls="periods-weeks" aria-expanded="false"></p>
+  <div id="periods-weeks" class="fbody"></div>
 </div>
 <div class="periods">
-  <p class="eyebrow" id="ptitle-months"></p>
-  <div id="periods-months"></div>
+  <p class="eyebrow fold" id="ptitle-months" role="button" tabindex="0" aria-controls="periods-months" aria-expanded="false"></p>
+  <div id="periods-months" class="fbody"></div>
 </div>
 
 <div class="periods" id="portfolio">
-  <p class="eyebrow">All locations · last 30 days · avg per weekday, with high</p>
-  <div id="portfolio-table"></div>
+  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="portfolio-table" aria-expanded="false">All locations · last 30 days · avg per weekday, with high</p>
+  <div id="portfolio-table" class="fbody"></div>
 </div>
 
 <footer>
@@ -572,7 +584,22 @@ function renderPortfolio(){
 /* outreach: daily stacked bars by person over the selected window, with per-person totals */
 const OCOLORS = ["#33A3DC","#FFE73F","#2E8B57","#C9503A","#8B5CF6","#F59E0B","#0EA5A4","#EC4899"];
 let OUTREACH_PEOPLE = {}, SPLIT_BY_DAY = {}, OUTREACH_DAYS = {};
-let OSORT = {k:"o", dir:"desc"};                    // per-person table sort
+let OSORT = {k:"o", dir:"desc"};
+// ---- collapsible sections: tables start closed; the choice is remembered per browser ----
+(function(){
+  const key = id => "dow.fold." + id;
+  const folds = [...document.querySelectorAll(".fold[aria-controls]")];
+  function set(f, open, save){
+    const body = document.getElementById(f.getAttribute("aria-controls")); if (!body) return;
+    f.setAttribute("aria-expanded", open ? "true" : "false"); body.classList.toggle("closed", !open);
+    if (save) { try { localStorage.setItem(key(body.id), open ? "1" : "0"); } catch (e) {} }
+  }
+  folds.forEach(f => { let open = false; try { open = localStorage.getItem(key(f.getAttribute("aria-controls"))) === "1"; } catch (e) {} set(f, open, false); });
+  folds.forEach(f => {
+    f.addEventListener("click", () => set(f, f.getAttribute("aria-expanded") !== "true", true));
+    f.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f.click(); } });
+  });
+})();                    // per-person table sort
 document.getElementById("otable").addEventListener("click", e => {
   const th = e.target.closest("th[data-sort]"); if (!th) return;
   const k = th.dataset.sort;
