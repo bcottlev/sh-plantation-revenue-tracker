@@ -598,21 +598,22 @@ function renderOutreach(){
   SPLIT_BY_DAY = Object.fromEntries(split.map(x => [x.d, x]));
   const SC = {MA:"#1C2D5A", VMA:"#33A3DC"};
   const RL = {VMA:"VMA (remote)", MA:"MA (in-store)"};
-  document.getElementById("stitle").textContent = `Outreach by role · ${windowLabel()} · VMA remote and MA in-store on their own scales, same days`;
+  document.getElementById("stitle").textContent = `Outreach by role · ${windowLabel()} · VMA remote vs MA in-store, same days, same scale`;
+  const smax = Math.max(1, ...split.map(x => Math.max(x.MA.o, x.VMA.o)));   // one scale for both tracks
   const track = (r, last) => {
-    const vals = split.map(x => x[r].o), rmax = Math.max(1, ...vals), rtot = vals.reduce((a,b)=>a+b,0), rdays = vals.filter(Boolean).length;
+    const vals = split.map(x => x[r].o), rpk = Math.max(0, ...vals), rmax = smax, rtot = vals.reduce((a,b)=>a+b,0), rdays = vals.filter(Boolean).length;
     const bars = split.map((x, i) => {
       const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6, v = x[r].o;
       const lab = !last ? "" : (split.length <= 16 ? pretty(x.d) : (split.length <= 40 ? ((dt.getDate() % 5 === 0 && dt.getDate() < 30) || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : "")));
-      return `<div class="obar sbar${wk ? " wk" : ""}${v === rmax && v ? " peak" : ""}" data-day="${x.d}" data-role="${r}">` +
+      return `<div class="obar sbar${wk ? " wk" : ""}${v === rpk && v ? " peak" : ""}" data-day="${x.d}" data-role="${r}">` +
         (v ? `<span class="seg" data-role="${r}" data-day="${x.d}" style="height:${v / rmax * 100}%;background:${SC[r]}"></span>` : "") +
         `${v && split.length <= 45 ? `<span class="tot">${v}</span>` : ""}<span class="lab">${lab}</span></div>`;
     }).join("");
-    return `<div class="track${last ? " last" : ""}"><div class="tlab"><span><i class="${r.toLowerCase()}" style="background:${SC[r]}"></i><b>${RL[r]}</b></span><span>${rtot.toLocaleString()} total · ${rdays ? Math.round(rtot/rdays) : 0}/day avg · peak ${rmax === 1 && !rtot ? 0 : rmax}</span></div><div class="taxis"><span>${rmax === 1 && !rtot ? 0 : rmax}</span><span>0</span></div><div class="obars">${bars}</div></div>`;
+    return `<div class="track${last ? " last" : ""}"><div class="tlab"><span><i class="${r.toLowerCase()}" style="background:${SC[r]}"></i><b>${RL[r]}</b></span><span>${rtot.toLocaleString()} total · ${rdays ? Math.round(rtot/rdays) : 0}/day avg · peak ${rpk}</span></div><div class="taxis"><span>${smax}</span><span>0</span></div><div class="obars">${bars}</div></div>`;
   };
   document.getElementById("sbars").innerHTML = `<div class="tracks">${track("VMA", false)}${track("MA", true)}</div>`;
   const tMA = split.reduce((a,x) => a + x.MA.o, 0), tVMA = split.reduce((a,x) => a + x.VMA.o, 0), bMA = split.reduce((a,x) => a + x.MA.a, 0), bVMA = split.reduce((a,x) => a + x.VMA.a, 0);
-  document.getElementById("slegend").innerHTML = `<span>${(tMA+tVMA).toLocaleString()} total · VMA ${(tMA+tVMA) ? Math.round(tVMA/(tMA+tVMA)*100) : 0}% · MA ${(tMA+tVMA) ? Math.round(tMA/(tMA+tVMA)*100) : 0}%</span><span>Each row has its own scale — compare shapes across days, not bar heights between rows</span>`;
+  document.getElementById("slegend").innerHTML = `<span>${(tMA+tVMA).toLocaleString()} total · VMA ${(tMA+tVMA) ? Math.round(tVMA/(tMA+tVMA)*100) : 0}% · MA ${(tMA+tVMA) ? Math.round(tMA/(tMA+tVMA)*100) : 0}%</span><span>Both rows on the same 0–${smax.toLocaleString()} scale — bar heights compare directly</span>`;
   const dMA = split.filter(x => x.MA.o).length, dVMA = split.filter(x => x.VMA.o).length;
   document.getElementById("stable").innerHTML = `<table class="otable"><thead><tr><th>Role</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Share</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
     [["MA (in-store)", dMA, tMA, bMA], ["VMA (remote)", dVMA, tVMA, bVMA]].map(([n,d,o,a]) => `<tr><td class="name">${n}</td><td class="n">${d}</td><td class="b">${o.toLocaleString()}</td><td>${d ? Math.round(o/d) : 0}</td><td>${(tMA+tVMA) ? Math.round(o/(tMA+tVMA)*100) : 0}%</td><td class="b">${a}</td><td class="conv">${o ? (a/o*100).toFixed(1) : "0.0"}</td></tr>`).join("") +
