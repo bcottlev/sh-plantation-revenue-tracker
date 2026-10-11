@@ -50,7 +50,7 @@ jobs:
           DAYS_IN_MONTH=$(date -u -d "$YM-01 +1 month -1 day" +%d)
 
           # ---- comparison month: the prior month, unless the tracker declares `const compareMonth = 'YYYY-MM'` ----
-          PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m)
+          PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m); LAST_YM="$PRIOR_YM"
           if [ -f "$MONTH_FILE" ]; then
             OVR=$(grep -oP "compareMonth\s*=\s*'\K\d{4}-\d{2}" "$MONTH_FILE" | head -1)
             [ -n "$OVR" ] && PRIOR_YM="$OVR"
@@ -182,6 +182,14 @@ jobs:
           if [ -n "$PRIOR_TOTAL" ]; then
             PACE_PRIOR=$(awk "BEGIN {printf \"%.0f\", ($PRIOR_TOTAL-$MTD)/$DAYS_REM}")
             LINES+=("• Match $(echo $PRIOR_NAME | cut -c1-3): \$$(FORMAT $PRIOR_TOTAL) · need *\$$(FORMAT $PACE_PRIOR)/day*")
+          fi
+          # the month just closed, as a reference, when the comparison was overridden
+          if [ "$LAST_YM" != "$PRIOR_YM" ]; then
+            LAST_TOTAL=$(jq -r --arg k "$LAST_YM" '.[$k].total // empty' "$TOTALS")
+            if [ -n "$LAST_TOTAL" ]; then
+              PACE_LAST=$(awk "BEGIN {printf \"%.0f\", ($LAST_TOTAL-$MTD)/$DAYS_REM}")
+              LINES+=("• Match $(date -u -d "$LAST_YM-01" +%b): \$$(FORMAT $LAST_TOTAL) · need *\$$(FORMAT $PACE_LAST)/day*")
+            fi
           fi
           # the record month, when it is not the prior month
           BEST_YM=$(jq -r --arg k "$YM" '[to_entries[]|select(.key!=$k)]|max_by(.value.total)|.key // empty' "$TOTALS")
