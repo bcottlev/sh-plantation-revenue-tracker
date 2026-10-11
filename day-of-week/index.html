@@ -62,7 +62,9 @@ header .eyebrow{color:var(--skye);margin-bottom:6px}
 .ctlrow{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}.ctlrow .ctl{flex:0 1 auto}.ctlrow .ctl:last-child{margin-left:auto}
 @media (max-width:560px){.ctlrow{gap:12px}.ctlrow .ctl:last-child{margin-left:0}}
 .locctl{margin:4px 0 0}
-.locctl .seg button{font-size:14px;padding:8px 15px}
+.locctl .seg{flex-wrap:nowrap;overflow-x:auto;gap:5px;padding-bottom:4px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.locctl .seg button{font-size:13px;padding:7px 11px;white-space:nowrap;flex:0 0 auto}
+@media (max-width:1040px){.locctl .seg button{font-size:12.5px;padding:6px 9px}}
 .locctl.single{display:none}
 .ctl{margin-bottom:12px}
 .ctl .eyebrow{margin-bottom:7px;font-size:11px}
@@ -701,8 +703,11 @@ function render(){
     renderPortfolio();
     return;
   }
-  // one axis for every store, so switching location keeps the scale fixed and the stores compare directly
-  const rawMax = Math.max(...LOCS.flatMap(l => filtered(DATA_BY_LOC[l]).map(r => r[met])), ...live.map(s => s.hi));
+  // one axis for every store and every time window (the full year, all locations), so switching
+  // location or window never moves the scale and the dots stay comparable
+  // the ceiling is the 99.5th percentile of every store's days, so one freak day doesn't squash the rest; anything above it sits on the right edge
+  const allVals = LOCS.flatMap(l => scoped(DATA_BY_LOC[l]).map(r => r[met])).sort((a,b) => a - b);
+  const rawMax = allVals.length ? allVals[Math.min(allVals.length - 1, Math.floor(allVals.length * 0.995))] : Math.max(...live.map(s => s.hi));
   const step = niceStep(rawMax);
   const max = Math.max(step, Math.ceil(rawMax / step) * step);
 
@@ -732,7 +737,7 @@ function render(){
     cmp.textContent = "";
   }
 
-  const pct = v => Math.max(0, v / max * 100);
+  const pct = v => Math.min(100, Math.max(0, v / max * 100));
   document.getElementById("rows").innerHTML = S.map((s, i) => {
     if (!s) return `<div class="rowline empty${WKND.includes(i) ? " wknd" : ""}">
       <span class="daylab">${WD[i].slice(0,3)}</span>
