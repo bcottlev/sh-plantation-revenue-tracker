@@ -268,6 +268,17 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 .obar .tot{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;color:var(--ink-70)}
 .obar.wk .seg{opacity:.85}
 .obars-wrap{padding:18px 0 22px}
+.tracks{padding:10px 0 22px;display:flex;flex-direction:column;gap:22px}
+.track{position:relative;padding-left:34px}
+.track .obars{height:104px;padding-top:16px;border-bottom:1px solid var(--line)}
+.track .tlab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--mute);font-weight:600;margin:0 0 2px -34px;flex-wrap:wrap}
+.track .tlab b{color:var(--ink);font-weight:700;letter-spacing:.02em}
+.track .tlab i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.track .taxis{position:absolute;left:0;top:18px;bottom:0;width:28px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;font-size:10px;color:var(--mute);font-weight:600;padding-top:14px;padding-bottom:1px}
+.track .obar .lab{display:none}.track.last .obar .lab{display:block}
+.track .obar.peak .tot{color:var(--ink);font-weight:800}
+.track .obar .seg{border-radius:2px 2px 0 0}
+body.dark .seg[data-role="MA"],body.dark .track .tlab i.ma{background:var(--daisy)!important}
 #olegend,#slegend{margin-top:12px}
 #olegend i,#slegend i{width:12px;height:12px;border-radius:3px;opacity:1}
 .otable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:14px}
@@ -284,7 +295,7 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 .tip b{color:#fff}
 body.dark .tip b{color:#1C2D5A}
 
-@media (max-width:560px){.obars{height:110px;gap:2px}.obar .lab{font-size:8px}.obar .tot{display:none}.otable td{font-size:13px}.otable .conv{display:none}}
+@media (max-width:560px){.obars{height:110px;gap:2px}.track .obars{height:78px}.track{padding-left:28px}.track .tlab{margin-left:-28px;font-size:11px}.obar .lab{font-size:8px}.obar .tot{display:none}.otable td{font-size:13px}.otable .conv{display:none}}
 
 @media (max-width:560px){#themelabel{display:none}#portfolio-table{overflow-x:auto}#portfolio .ptable td,#portfolio .ptable th{padding-left:3px;padding-right:3px;font-size:12px}.ptable td{font-size:13.5px;padding:8px 0}.ptable th{font-size:10px;letter-spacing:.1em}.ptable .lo{display:none}}
 
@@ -573,7 +584,7 @@ function renderOutreach(){
   document.getElementById("obars").innerHTML = `<div class="obars-wrap"><div class="obars">` + perDay.map((x, i) => {
     const segs = names.filter(n => x.st[n] && x.st[n].o).map(n => `<span class="seg" data-p="${n}" data-day="${x.d}" style="height:${x.st[n].o / max * 100}%;background:${color[n]}"></span>`).join("");
     const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6;
-    const lab = perDay.length <= 16 ? pretty(x.d) : (perDay.length <= 40 ? (dt.getDate() % 5 === 0 || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
+    const lab = perDay.length <= 16 ? pretty(x.d) : (perDay.length <= 40 ? ((dt.getDate() % 5 === 0 && dt.getDate() < 30) || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
     return `<div class="obar${wk ? " wk" : ""}" data-day="${x.d}">${segs}${dayTot[i] && perDay.length <= 45 ? `<span class="tot">${dayTot[i]}</span>` : ""}<span class="lab">${lab}</span></div>`;
   }).join("") + `</div></div>`;
   document.getElementById("olegend").innerHTML = names.map(n => `<span class="lp" data-p="${n}"><i style="background:${color[n]}"></i>${n}</span>`).join("") + `<span>${dayTot.reduce((a,b)=>a+b,0).toLocaleString()} total · ${perDay.filter((x,i)=>dayTot[i]).length} days with reports</span>`;
@@ -581,19 +592,23 @@ function renderOutreach(){
   const role = n => VMA_SET.has(n.toLowerCase()) ? "VMA" : "MA";
   const split = perDay.map(x => { const r = {MA:{o:0,a:0,n:[]}, VMA:{o:0,a:0,n:[]}}; Object.entries(x.st).forEach(([n,v]) => { const g = r[role(n)]; g.o += v.o||0; g.a += v.a||0; if (v.o) g.n.push(n); }); return {k:x.k, d:x.d, ...r}; });
   SPLIT_BY_DAY = Object.fromEntries(split.map(x => [x.d, x]));
-  const smax = max;
   const SC = {MA:"#1C2D5A", VMA:"#33A3DC"};
-  document.getElementById("stitle").textContent = `Outreach by role · ${windowLabel()} · MA in-store vs VMA remote, per day`;
-  document.getElementById("sbars").innerHTML = `<div class="obars-wrap"><div class="obars">` + split.map((x, i) => {
-    const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6, tot = x.MA.o + x.VMA.o;
-    const lab = split.length <= 16 ? pretty(x.d) : (split.length <= 40 ? (dt.getDate() % 5 === 0 || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
-    return `<div class="obar sbar${wk ? " wk" : ""}" data-day="${x.d}">` +
-      (x.MA.o ? `<span class="seg" data-role="MA" data-day="${x.d}" style="height:${x.MA.o / smax * 100}%;background:${SC.MA}"></span>` : "") +
-      (x.VMA.o ? `<span class="seg" data-role="VMA" data-day="${x.d}" style="height:${x.VMA.o / smax * 100}%;background:${SC.VMA}"></span>` : "") +
-      `${tot && split.length <= 45 ? `<span class="tot">${tot}</span>` : ""}<span class="lab">${lab}</span></div>`;
-  }).join("") + `</div></div>`;
+  const RL = {VMA:"VMA (remote)", MA:"MA (in-store)"};
+  document.getElementById("stitle").textContent = `Outreach by role · ${windowLabel()} · VMA remote and MA in-store on their own scales, same days`;
+  const track = (r, last) => {
+    const vals = split.map(x => x[r].o), rmax = Math.max(1, ...vals), rtot = vals.reduce((a,b)=>a+b,0), rdays = vals.filter(Boolean).length;
+    const bars = split.map((x, i) => {
+      const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6, v = x[r].o;
+      const lab = !last ? "" : (split.length <= 16 ? pretty(x.d) : (split.length <= 40 ? ((dt.getDate() % 5 === 0 && dt.getDate() < 30) || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : "")));
+      return `<div class="obar sbar${wk ? " wk" : ""}${v === rmax && v ? " peak" : ""}" data-day="${x.d}" data-role="${r}">` +
+        (v ? `<span class="seg" data-role="${r}" data-day="${x.d}" style="height:${v / rmax * 100}%;background:${SC[r]}"></span>` : "") +
+        `${v && split.length <= 45 ? `<span class="tot">${v}</span>` : ""}<span class="lab">${lab}</span></div>`;
+    }).join("");
+    return `<div class="track${last ? " last" : ""}"><div class="tlab"><span><i class="${r.toLowerCase()}" style="background:${SC[r]}"></i><b>${RL[r]}</b></span><span>${rtot.toLocaleString()} total · ${rdays ? Math.round(rtot/rdays) : 0}/day avg · peak ${rmax === 1 && !rtot ? 0 : rmax}</span></div><div class="taxis"><span>${rmax === 1 && !rtot ? 0 : rmax}</span><span>0</span></div><div class="obars">${bars}</div></div>`;
+  };
+  document.getElementById("sbars").innerHTML = `<div class="tracks">${track("VMA", false)}${track("MA", true)}</div>`;
   const tMA = split.reduce((a,x) => a + x.MA.o, 0), tVMA = split.reduce((a,x) => a + x.VMA.o, 0), bMA = split.reduce((a,x) => a + x.MA.a, 0), bVMA = split.reduce((a,x) => a + x.VMA.a, 0);
-  document.getElementById("slegend").innerHTML = `<span><i style="background:${SC.MA}"></i>MA (in-store)</span><span><i style="background:${SC.VMA}"></i>VMA (remote)</span><span>${(tMA+tVMA).toLocaleString()} total · VMA ${(tMA+tVMA) ? Math.round(tVMA/(tMA+tVMA)*100) : 0}%</span>`;
+  document.getElementById("slegend").innerHTML = `<span>${(tMA+tVMA).toLocaleString()} total · VMA ${(tMA+tVMA) ? Math.round(tVMA/(tMA+tVMA)*100) : 0}% · MA ${(tMA+tVMA) ? Math.round(tMA/(tMA+tVMA)*100) : 0}%</span><span>Each row has its own scale — compare shapes across days, not bar heights between rows</span>`;
   const dMA = split.filter(x => x.MA.o).length, dVMA = split.filter(x => x.VMA.o).length;
   document.getElementById("stable").innerHTML = `<table class="otable"><thead><tr><th>Role</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Share</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
     [["MA (in-store)", dMA, tMA, bMA], ["VMA (remote)", dVMA, tVMA, bVMA]].map(([n,d,o,a]) => `<tr><td class="name">${n}</td><td class="n">${d}</td><td class="b">${o.toLocaleString()}</td><td>${d ? Math.round(o/d) : 0}</td><td>${(tMA+tVMA) ? Math.round(o/(tMA+tVMA)*100) : 0}%</td><td class="b">${a}</td><td class="conv">${o ? (a/o*100).toFixed(1) : "0.0"}</td></tr>`).join("") +
@@ -846,7 +861,7 @@ render();
   function target(e){ return e.target.closest(".seg, .prow, .lp, .obar"); }
   function open(t){
     if (t.classList.contains("seg")) { if (t.dataset.role) showDay(t, t.dataset.day, null, t.dataset.role); else showDay(t, t.closest(".obar").dataset.day || t.dataset.day, t.dataset.p, null); }
-    else if (t.classList.contains("obar")) showDay(t, t.dataset.day, null, null);
+    else if (t.classList.contains("obar")) showDay(t, t.dataset.day, null, t.dataset.role || null);
     else if (t.dataset.p) showPerson(t, t.dataset.p);
   }
   box.addEventListener("mouseover", e => { const t = target(e); if (t) open(t); });
