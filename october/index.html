@@ -93,7 +93,7 @@
 
         <div class="card">
             <div class="metric">
-                <span class="label">September Revenue (Final)</span>
+                <span class="label">August Revenue (Final)</span>
                 <span class="value" id="priorDisplay"></span>
             </div>
             <div class="metric">
@@ -124,7 +124,7 @@
                 <span class="value" id="paceTarget"></span>
             </div>
             <div class="metric">
-                <span class="label">Pace to match September</span>
+                <span class="label">Pace to match August</span>
                 <span class="value" id="pacePrior"></span>
             </div>
         </div>
@@ -160,7 +160,8 @@
         const daysWithData = Object.keys(dailyRevenue).length;
         const daysCompleted = Math.max(...Object.keys(dailyRevenue).map(d => parseInt(d.split('-')[2])));
         const membership = dailyRevenue['2026-10-01'] || 0;
-        const priorTotal = 29480.46;   // September final (MyTime)
+        const compareMonth = '2026-08';   // comparison month override (Sep was a slump; compare Oct to Aug)
+        const priorTotal = 32832.53;   // August final (MyTime)
         const targetTotal = 33500;
         const daysInOctober = 31;
         const daysRemaining = daysInOctober - daysCompleted;
@@ -221,7 +222,7 @@
             box.innerHTML = `
                 <div class="sensitivity-label">$${dailyRate}/day</div>
                 <div class="sensitivity-value">$${Math.round(projection).toLocaleString()}</div>
-                ${projection >= targetTotal ? '<div class="sensitivity-note">hits target</div>' : projection >= priorTotal ? '<div class="sensitivity-note">matches Sep</div>' : ''}
+                ${projection >= targetTotal ? '<div class="sensitivity-note">hits target</div>' : projection >= priorTotal ? '<div class="sensitivity-note">matches Aug</div>' : ''}
             `;
             gridContainer.appendChild(box);
         });

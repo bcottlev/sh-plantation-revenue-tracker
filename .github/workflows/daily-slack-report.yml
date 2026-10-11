@@ -49,8 +49,12 @@ jobs:
           MONTH_FILE="${STORE_DIR}${MONTH_DIR}/index.html"
           DAYS_IN_MONTH=$(date -u -d "$YM-01 +1 month -1 day" +%d)
 
-          # ---- prior month ----
+          # ---- comparison month: the prior month, unless the tracker declares `const compareMonth = 'YYYY-MM'` ----
           PRIOR_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m)
+          if [ -f "$MONTH_FILE" ]; then
+            OVR=$(grep -oP "compareMonth\s*=\s*'\K\d{4}-\d{2}" "$MONTH_FILE" | head -1)
+            [ -n "$OVR" ] && PRIOR_YM="$OVR"
+          fi
           PRIOR_NAME=$(date -u -d "$PRIOR_YM-01" +%B)
           PRIOR_TOTAL=$(jq -r --arg k "$PRIOR_YM" '.[$k].total // empty' "$TOTALS")
           PRIOR_MEMB=$(jq -r --arg k "$PRIOR_YM" '.[$k].membership // empty' "$TOTALS")
