@@ -58,7 +58,9 @@ header .eyebrow{color:var(--skye);margin-bottom:6px}
 }
 
 /* controls */
-.controls{margin:26px 0 8px}
+.controls{margin:18px 0 22px;padding:14px 16px 4px;background:var(--skye-8);border-radius:12px}
+.ctlrow{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}.ctlrow .ctl{flex:0 1 auto}.ctlrow .ctl:last-child{margin-left:auto}
+@media (max-width:560px){.ctlrow{gap:12px}.ctlrow .ctl:last-child{margin-left:0}}
 .locctl{margin:4px 0 0}
 .locctl .seg button{font-size:14px;padding:8px 15px}
 .locctl.single{display:none}
@@ -340,6 +342,35 @@ body.dark .tip b{color:#1C2D5A}
   <div class="seg" id="locseg" role="group" aria-label="Location"></div>
 </div>
 
+<div class="controls">
+  <div class="ctl">
+    <p class="eyebrow">Time window</p>
+    <div class="seg" id="winseg" role="group" aria-label="Time window">
+      <button data-win="7">Last 7 days</button>
+      <button data-win="14">Last 14 days</button>
+      <button data-win="21">Last 21 days</button>
+      <button data-win="30" aria-pressed="true">Last 30 days</button>
+      <button data-win="60">Last 60 days</button>
+      <button data-win="90">Last 90 days</button>
+      <button data-win="120">Last 120 days</button>
+      <button data-win="all">All 2026</button>
+    </div>
+  </div>
+  <div class="ctlrow">
+  <div class="ctl">
+    <p class="eyebrow">Single month</p>
+    <div class="seg" id="monseg" role="group" aria-label="Single month"></div>
+  </div>
+  <div class="ctl">
+    <p class="eyebrow">Measure</p>
+    <div class="seg" id="metseg" role="group" aria-label="Revenue measure">
+      <button data-met="nonmemb">Non-membership</button>
+      <button data-met="net" aria-pressed="true">Including membership</button>
+    </div>
+  </div>
+  </div>
+</div>
+
 <div class="tip" id="tip" role="tooltip"></div>
 <div class="chart">
   <div class="colhead"><span></span><span></span><span>Average</span><span>High</span></div>
@@ -374,33 +405,6 @@ body.dark .tip b{color:#1C2D5A}
     <div class="legend" id="slegend"></div>
   </div>
   <div id="stable"></div>
-</div>
-
-<div class="controls">
-  <div class="ctl">
-    <p class="eyebrow">Time window</p>
-    <div class="seg" id="winseg" role="group" aria-label="Time window">
-      <button data-win="7">Last 7 days</button>
-      <button data-win="14">Last 14 days</button>
-      <button data-win="21">Last 21 days</button>
-      <button data-win="30" aria-pressed="true">Last 30 days</button>
-      <button data-win="60">Last 60 days</button>
-      <button data-win="90">Last 90 days</button>
-      <button data-win="120">Last 120 days</button>
-      <button data-win="all">All 2026</button>
-    </div>
-  </div>
-  <div class="ctl">
-    <p class="eyebrow">Single month</p>
-    <div class="seg" id="monseg" role="group" aria-label="Single month"></div>
-  </div>
-  <div class="ctl">
-    <p class="eyebrow">Measure</p>
-    <div class="seg" id="metseg" role="group" aria-label="Revenue measure">
-      <button data-met="nonmemb">Non-membership</button>
-      <button data-met="net" aria-pressed="true">Including membership</button>
-    </div>
-  </div>
 </div>
 
 <div class="days">
