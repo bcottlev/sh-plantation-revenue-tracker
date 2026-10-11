@@ -281,6 +281,8 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 .otable tr.total td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}.prow,.lp,.seg{cursor:pointer}
 .prow:hover td{background:var(--skye-8)}
 .tip .who{white-space:nowrap}
+.tip b{color:#fff}
+body.dark .tip b{color:#1C2D5A}
 
 @media (max-width:560px){.obars{height:110px;gap:2px}.obar .lab{font-size:8px}.obar .tot{display:none}.otable td{font-size:13px}.otable .conv{display:none}}
 
@@ -348,6 +350,21 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
   </div>
 </div>
 
+<div class="periods" id="outreach" style="margin-top:26px">
+  <p class="eyebrow" id="otitle"></p>
+  <div class="chart ochart">
+    <div id="obars"></div>
+    <div class="legend" id="olegend"></div>
+  </div>
+  <div id="otable"></div>
+  <p class="eyebrow" id="stitle" style="margin-top:28px"></p>
+  <div class="chart ochart">
+    <div id="sbars"></div>
+    <div class="legend" id="slegend"></div>
+  </div>
+  <div id="stable"></div>
+</div>
+
 <div class="controls">
   <div class="ctl">
     <p class="eyebrow">Time window</p>
@@ -387,15 +404,6 @@ body.dark .tip .who .vma{color:rgba(28,45,90,.7)}
 <div class="periods">
   <p class="eyebrow" id="ptitle-months"></p>
   <div id="periods-months"></div>
-</div>
-
-<div class="periods" id="outreach">
-  <p class="eyebrow" id="otitle"></p>
-  <div class="chart ochart">
-    <div id="obars"></div>
-    <div class="legend" id="olegend"></div>
-  </div>
-  <div id="otable"></div>
 </div>
 
 <div class="periods" id="portfolio">
@@ -543,7 +551,7 @@ function renderPortfolio(){
 
 /* outreach: daily stacked bars by person over the selected window, with per-person totals */
 const OCOLORS = ["#33A3DC","#FFE73F","#2E8B57","#C9503A","#8B5CF6","#F59E0B","#0EA5A4","#EC4899"];
-let OUTREACH_PEOPLE = {};
+let OUTREACH_PEOPLE = {}, SPLIT_BY_DAY = {}, OUTREACH_DAYS = {};
 function renderOutreach(){
   const box = document.getElementById("outreach");
   const days = filtered();                           // same window start as the chart
@@ -554,7 +562,7 @@ function renderOutreach(){
   const people = {};                                 // name -> {o,l,d,a,days}
   const perDay = keys.map(k => { const who = DESK[k]; const st = (who && who.stats) || {}; return {k, d: k.slice(5), st}; });
   perDay.forEach(x => Object.entries(x.st).forEach(([n, v]) => { const p = people[n] = people[n] || {o:0,l:0,d:0,a:0,days:0,log:[]}; p.o += v.o||0; p.l += v.l||0; p.d += v.d||0; p.a += v.a||0; if (v.o) p.days++; p.log.push({dt:x.d, o:v.o||0, l:v.l||0, a:v.a||0, m:v.d||0}); }));
-  OUTREACH_PEOPLE = people;
+  OUTREACH_PEOPLE = people; OUTREACH_DAYS = Object.fromEntries(perDay.map(x => [x.d, x.st]));
   const names = Object.keys(people).sort((a,b) => people[b].o - people[a].o);
   if (!names.length) { box.style.display = "none"; return; }
   box.style.display = "";
@@ -563,12 +571,34 @@ function renderOutreach(){
   const max = Math.max(1, ...dayTot);
   document.getElementById("otitle").textContent = `Outreach · ${windowLabel()} · calls, texts and emails logged in end-of-shift reports`;
   document.getElementById("obars").innerHTML = `<div class="obars-wrap"><div class="obars">` + perDay.map((x, i) => {
-    const segs = names.filter(n => x.st[n] && x.st[n].o).map(n => `<span class="seg" data-p="${n}" style="height:${x.st[n].o / max * 100}%;background:${color[n]}" title="${n}: ${x.st[n].o}"></span>`).join("");
+    const segs = names.filter(n => x.st[n] && x.st[n].o).map(n => `<span class="seg" data-p="${n}" data-day="${x.d}" style="height:${x.st[n].o / max * 100}%;background:${color[n]}"></span>`).join("");
     const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6;
     const lab = perDay.length <= 16 ? pretty(x.d) : (perDay.length <= 40 ? (dt.getDate() % 5 === 0 || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
-    return `<div class="obar${wk ? " wk" : ""}" title="${WD[(dt.getDay()+6)%7]} ${pretty(x.d)}: ${dayTot[i]} outreach">${segs}${dayTot[i] && perDay.length <= 45 ? `<span class="tot">${dayTot[i]}</span>` : ""}<span class="lab">${lab}</span></div>`;
+    return `<div class="obar${wk ? " wk" : ""}" data-day="${x.d}">${segs}${dayTot[i] && perDay.length <= 45 ? `<span class="tot">${dayTot[i]}</span>` : ""}<span class="lab">${lab}</span></div>`;
   }).join("") + `</div></div>`;
   document.getElementById("olegend").innerHTML = names.map(n => `<span class="lp" data-p="${n}"><i style="background:${color[n]}"></i>${n}</span>`).join("") + `<span>${dayTot.reduce((a,b)=>a+b,0).toLocaleString()} total · ${perDay.filter((x,i)=>dayTot[i]).length} days with reports</span>`;
+  // ---- MA vs VMA split, per day ----
+  const role = n => VMA_SET.has(n.toLowerCase()) ? "VMA" : "MA";
+  const split = perDay.map(x => { const r = {MA:{o:0,a:0,n:[]}, VMA:{o:0,a:0,n:[]}}; Object.entries(x.st).forEach(([n,v]) => { const g = r[role(n)]; g.o += v.o||0; g.a += v.a||0; if (v.o) g.n.push(n); }); return {k:x.k, d:x.d, ...r}; });
+  SPLIT_BY_DAY = Object.fromEntries(split.map(x => [x.d, x]));
+  const smax = max;
+  const SC = {MA:"#1C2D5A", VMA:"#33A3DC"};
+  document.getElementById("stitle").textContent = `Outreach by role · ${windowLabel()} · MA in-store vs VMA remote, per day`;
+  document.getElementById("sbars").innerHTML = `<div class="obars-wrap"><div class="obars">` + split.map((x, i) => {
+    const dt = toDate(x.d), wk = dt.getDay() === 0 || dt.getDay() === 6, tot = x.MA.o + x.VMA.o;
+    const lab = split.length <= 16 ? pretty(x.d) : (split.length <= 40 ? (dt.getDate() % 5 === 0 || dt.getDate() === 1 ? pretty(x.d) : "") : (dt.getDate() === 1 ? MONTHS[dt.getMonth()] : ""));
+    return `<div class="obar sbar${wk ? " wk" : ""}" data-day="${x.d}">` +
+      (x.MA.o ? `<span class="seg" data-role="MA" data-day="${x.d}" style="height:${x.MA.o / smax * 100}%;background:${SC.MA}"></span>` : "") +
+      (x.VMA.o ? `<span class="seg" data-role="VMA" data-day="${x.d}" style="height:${x.VMA.o / smax * 100}%;background:${SC.VMA}"></span>` : "") +
+      `${tot && split.length <= 45 ? `<span class="tot">${tot}</span>` : ""}<span class="lab">${lab}</span></div>`;
+  }).join("") + `</div></div>`;
+  const tMA = split.reduce((a,x) => a + x.MA.o, 0), tVMA = split.reduce((a,x) => a + x.VMA.o, 0), bMA = split.reduce((a,x) => a + x.MA.a, 0), bVMA = split.reduce((a,x) => a + x.VMA.a, 0);
+  document.getElementById("slegend").innerHTML = `<span><i style="background:${SC.MA}"></i>MA (in-store)</span><span><i style="background:${SC.VMA}"></i>VMA (remote)</span><span>${(tMA+tVMA).toLocaleString()} total · VMA ${(tMA+tVMA) ? Math.round(tVMA/(tMA+tVMA)*100) : 0}%</span>`;
+  const dMA = split.filter(x => x.MA.o).length, dVMA = split.filter(x => x.VMA.o).length;
+  document.getElementById("stable").innerHTML = `<table class="otable"><thead><tr><th>Role</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Share</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
+    [["MA (in-store)", dMA, tMA, bMA], ["VMA (remote)", dVMA, tVMA, bVMA]].map(([n,d,o,a]) => `<tr><td class="name">${n}</td><td class="n">${d}</td><td class="b">${o.toLocaleString()}</td><td>${d ? Math.round(o/d) : 0}</td><td>${(tMA+tVMA) ? Math.round(o/(tMA+tVMA)*100) : 0}%</td><td class="b">${a}</td><td class="conv">${o ? (a/o*100).toFixed(1) : "0.0"}</td></tr>`).join("") +
+    `<tr class="total"><td class="name">All</td><td class="n"></td><td>${(tMA+tVMA).toLocaleString()}</td><td></td><td></td><td>${bMA+bVMA}</td><td class="conv">${(tMA+tVMA) ? ((bMA+bVMA)/(tMA+tVMA)*100).toFixed(1) : "0.0"}</td></tr></tbody></table>`;
+
   const grand = names.reduce((a,n) => a + people[n].o, 0), gb = names.reduce((a,n) => a + people[n].a, 0);
   document.getElementById("otable").innerHTML = `<table class="otable"><thead><tr><th>Person</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Leads</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
     names.map(n => { const p = people[n]; return `<tr class="prow" data-p="${n}">
@@ -784,23 +814,45 @@ render();
   if (!box) return;
   let cur = null;
   function spot(n){ box.querySelectorAll(".seg").forEach(e => e.style.opacity = (!n || e.dataset.p === n) ? "" : ".18"); }
-  function show(el, n){
-    const p = OUTREACH_PEOPLE[n]; if (!p) return;
-    const rows = p.log.filter(x => x.o).slice(-14).reverse();
-    tip.innerHTML = `${n} · ${p.o.toLocaleString()} outreach over ${p.days} days` +
-      `<span class="v">${p.a} booked${p.d ? " · " + p.d + " member" + (p.d > 1 ? "s" : "") : ""}${p.l ? " · " + p.l + " lead" + (p.l > 1 ? "s" : "") : ""}</span>` +
-      `<span class="who">${rows.map(x => `${pretty(x.dt)}: ${x.o}${x.a ? " · " + x.a + " bkd" : ""}${x.m ? " · " + x.m + " mbr" : ""}`).join("<br>")}${p.log.filter(x => x.o).length > 14 ? "<br>…" : ""}</span>`;
+  function place(el){
     const cr = document.querySelector(".wrap").getBoundingClientRect(), er = el.getBoundingClientRect();
     tip.classList.remove("below"); tip.style.left = (er.left + er.width/2 - cr.left) + "px"; tip.style.top = (er.top - cr.top) + "px";
-    tip.classList.add("show"); cur = n; spot(n);
+    tip.classList.add("show");
     const tr = tip.getBoundingClientRect();
     if (tr.left < cr.left + 6) tip.style.left = (parseFloat(tip.style.left) + (cr.left + 6 - tr.left)) + "px";
     if (tr.right > cr.right - 6) tip.style.left = (parseFloat(tip.style.left) - (tr.right - cr.right + 6)) + "px";
   }
+  function showPerson(el, n){
+    const p = OUTREACH_PEOPLE[n]; if (!p) return;
+    tip.innerHTML = `${n} · ${VMA_SET.has(n.toLowerCase()) ? "VMA" : "MA"} · ${p.days} days` +
+      `<span class="v">${p.o.toLocaleString()} outreach</span>` +
+      `<span class="who">${Math.round(p.o / Math.max(p.days,1))} per day · ${p.a} booked${p.d ? " · " + p.d + " member" + (p.d > 1 ? "s" : "") : ""}${p.l ? " · " + p.l + " lead" + (p.l > 1 ? "s" : "") : ""}</span>`;
+    place(el); cur = n; spot(n);
+  }
+  function showDay(el, d, n, roleName){
+    const st = OUTREACH_DAYS[d] || {}, dt = toDate(d);
+    const rows = Object.entries(st).filter(([k,v]) => v.o).sort((a,b) => b[1].o - a[1].o);
+    const tot = rows.reduce((a,[k,v]) => a + v.o, 0), bk = rows.reduce((a,[k,v]) => a + v.a, 0);
+    const line = ([k,v]) => `${k === n ? "<b>" : ""}${k} (${VMA_SET.has(k.toLowerCase()) ? "VMA" : "MA"}): ${v.o}${v.a ? " · " + v.a + " bkd" : ""}${v.d ? " · " + v.d + " mbr" : ""}${k === n ? "</b>" : ""}`;
+    const shown = roleName ? rows.filter(([k]) => (VMA_SET.has(k.toLowerCase()) ? "VMA" : "MA") === roleName) : rows;
+    const sp = SPLIT_BY_DAY[d];
+    tip.innerHTML = `${WD[(dt.getDay()+6)%7]}, ${pretty(d)}${roleName ? " · " + roleName : ""}` +
+      `<span class="v">${roleName && sp ? sp[roleName].o : tot} outreach${(roleName && sp ? sp[roleName].a : bk) ? " · " + (roleName && sp ? sp[roleName].a : bk) + " booked" : ""}</span>` +
+      `<span class="who">${shown.map(line).join("<br>") || "no reports"}${roleName && sp ? `<br><span class="vma">Day total ${tot} · MA ${sp.MA.o} · VMA ${sp.VMA.o}</span>` : ""}</span>`;
+    place(el); cur = n || roleName || d; spot(n);
+  }
+  function show(el, n){ showPerson(el, n); }
   function hide(){ tip.classList.remove("show"); cur = null; spot(null); }
-  box.addEventListener("mouseover", e => { const t = e.target.closest(".prow, .lp, .seg"); if (t && t.dataset.p) show(t, t.dataset.p); });
-  box.addEventListener("mouseout", e => { const to = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".prow, .lp, .seg"); if (!to || to.dataset.p !== cur) hide(); });
-  box.addEventListener("click", e => { const t = e.target.closest(".prow, .lp, .seg"); if (!t || !t.dataset.p) return hide(); if (cur === t.dataset.p && tip.classList.contains("show")) hide(); else show(t, t.dataset.p); });
+  function target(e){ return e.target.closest(".seg, .prow, .lp, .obar"); }
+  function open(t){
+    if (t.classList.contains("seg")) { if (t.dataset.role) showDay(t, t.dataset.day, null, t.dataset.role); else showDay(t, t.closest(".obar").dataset.day || t.dataset.day, t.dataset.p, null); }
+    else if (t.classList.contains("obar")) showDay(t, t.dataset.day, null, null);
+    else if (t.dataset.p) showPerson(t, t.dataset.p);
+  }
+  box.addEventListener("mouseover", e => { const t = target(e); if (t) open(t); });
+  box.addEventListener("mouseout", e => { const to = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".seg, .prow, .lp, .obar"); if (!to) hide(); });
+  box.addEventListener("click", e => { const t = target(e); if (!t) return hide(); if (tip.classList.contains("show") && t === lastEl) hide(); else { lastEl = t; open(t); } });
+  let lastEl = null;
 })();
 
 /* theme */
