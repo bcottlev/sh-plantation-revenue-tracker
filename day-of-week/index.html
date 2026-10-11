@@ -286,6 +286,11 @@ body.dark .seg[data-role="MA"],body.dark .track .tlab i.ma{background:var(--dais
 .otable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:14px}
 .otable th{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px;border-bottom:1.5px solid var(--line)}
 .otable th:first-child,.otable td:first-child{text-align:left}
+.otable th button{all:unset;cursor:pointer;font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;white-space:nowrap}
+.otable th button i{font-style:normal;font-size:9px;margin-left:4px;opacity:.45}
+.otable th.sorted{color:var(--shadow)}.otable th.sorted button i{opacity:1;color:var(--skye)}
+.otable th button:hover{color:var(--skye)}
+body.dark .otable th.sorted{color:var(--ink)}
 .otable td{padding:9px 0;border-bottom:1px solid var(--line);text-align:right;font-size:14.5px;color:var(--ink)}
 .otable td.name{font-weight:700;color:var(--shadow)}
 .otable td.name .sub{display:block;font-size:11px;color:var(--mute);font-weight:500}
@@ -567,6 +572,14 @@ function renderPortfolio(){
 /* outreach: daily stacked bars by person over the selected window, with per-person totals */
 const OCOLORS = ["#33A3DC","#FFE73F","#2E8B57","#C9503A","#8B5CF6","#F59E0B","#0EA5A4","#EC4899"];
 let OUTREACH_PEOPLE = {}, SPLIT_BY_DAY = {}, OUTREACH_DAYS = {};
+let OSORT = {k:"o", dir:"desc"};                    // per-person table sort
+document.getElementById("otable").addEventListener("click", e => {
+  const th = e.target.closest("th[data-sort]"); if (!th) return;
+  const k = th.dataset.sort;
+  if (OSORT.k === k) OSORT.dir = OSORT.dir === "desc" ? "asc" : "desc";
+  else OSORT = {k, dir: k === "name" ? "asc" : "desc"};
+  renderOutreach();
+});
 function renderOutreach(){
   const box = document.getElementById("outreach");
   const days = filtered();                           // same window start as the chart
@@ -620,8 +633,20 @@ function renderOutreach(){
     `<tr class="total"><td class="name">All</td><td class="n"></td><td>${(tMA+tVMA).toLocaleString()}</td><td></td><td></td><td>${bMA+bVMA}</td><td class="conv">${(tMA+tVMA) ? ((bMA+bVMA)/(tMA+tVMA)*100).toFixed(1) : "0.0"}</td></tr></tbody></table>`;
 
   const grand = names.reduce((a,n) => a + people[n].o, 0), gb = names.reduce((a,n) => a + people[n].a, 0);
-  document.getElementById("otable").innerHTML = `<table class="otable"><thead><tr><th>Person</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Leads</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
-    names.map(n => { const p = people[n]; return `<tr class="prow" data-p="${n}">
+  const COLS = [
+    {k:"name", h:"Person", v:n => n.toLowerCase(), str:true},
+    {k:"days", h:"Days", v:n => people[n].days},
+    {k:"o", h:"Outreach", v:n => people[n].o},
+    {k:"pd", h:"Per day", v:n => people[n].days ? people[n].o / people[n].days : 0},
+    {k:"l", h:"Leads", v:n => people[n].l},
+    {k:"a", h:"Booked", v:n => people[n].a},
+    {k:"conv", h:"Per 100", v:n => people[n].o ? people[n].a / people[n].o * 100 : 0, cls:"conv"}
+  ];
+  const sc = COLS.find(c => c.k === OSORT.k) || COLS[2];
+  const sorted = names.slice().sort((a,b) => { const x = sc.v(a), y = sc.v(b); const r = sc.str ? (x < y ? -1 : x > y ? 1 : 0) : x - y; return (OSORT.dir === "asc" ? r : -r) || people[b].o - people[a].o; });
+  document.getElementById("otable").innerHTML = `<table class="otable"><thead><tr>` +
+    COLS.map(c => `<th class="${c.cls || ""}${c.k === sc.k ? " sorted" : ""}" data-sort="${c.k}" title="Sort by ${c.h}"><button type="button">${c.h}<i>${c.k === sc.k ? (OSORT.dir === "asc" ? "▲" : "▼") : "⇅"}</i></button></th>`).join("") + `</tr></thead><tbody>` +
+    sorted.map(n => { const p = people[n]; return `<tr class="prow" data-p="${n}">
       <td class="name"><span class="pname" style="border-left:3px solid ${color[n]};padding-left:8px">${n}</span><span class="sub">${VMA_SET.has(n.toLowerCase()) ? "VMA" : "MA"}</span></td>
       <td class="n">${p.days}</td><td class="b">${p.o.toLocaleString()}</td><td>${p.days ? Math.round(p.o / p.days) : 0}</td>
       <td>${p.l}</td><td class="b">${p.a}</td><td class="conv">${p.o ? (p.a / p.o * 100).toFixed(1) : "0.0"}</td></tr>`; }).join("") +
