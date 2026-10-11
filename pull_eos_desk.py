@@ -13,7 +13,7 @@ import os, re, sys, json, time, urllib.request, urllib.parse
 
 TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
 PAGE = "day-of-week/index.html"
-VMA = {"shenna", "jo", "jobeelyn"}   # remote virtual member associates (Jo = Jobeelyn Agustin)
+VMA = {"shenna", "jo", "jobeelyn", "cydny", "yana"}   # remote virtual member associates (Jo = Jobeelyn Agustin)
 ALIAS = {"Nina Mariel": "Nina", "Bryan Cottle": "Bryan"}
 
 def api(method, **params):
