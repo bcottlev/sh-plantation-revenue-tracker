@@ -567,7 +567,7 @@ function renderOutreach(){
   const grand = names.reduce((a,n) => a + people[n].o, 0), gb = names.reduce((a,n) => a + people[n].a, 0);
   document.getElementById("otable").innerHTML = `<table class="otable"><thead><tr><th>Person</th><th>Days</th><th>Outreach</th><th>Per day</th><th>Leads</th><th>Booked</th><th class="conv">Per 100</th></tr></thead><tbody>` +
     names.map(n => { const p = people[n]; return `<tr>
-      <td class="name">${n}<span class="sub">${VMA_SET.has(n.toLowerCase()) ? "VMA" : "Desk"}</span></td>
+      <td class="name">${n}<span class="sub">${VMA_SET.has(n.toLowerCase()) ? "VMA" : "MA"}</span></td>
       <td class="n">${p.days}</td><td class="b">${p.o.toLocaleString()}</td><td>${p.days ? Math.round(p.o / p.days) : 0}</td>
       <td>${p.l}</td><td class="b">${p.a}</td><td class="conv">${p.o ? (p.a / p.o * 100).toFixed(1) : "0.0"}</td></tr>`; }).join("") +
     `<tr class="total"><td class="name">All</td><td class="n"></td><td>${grand.toLocaleString()}</td><td></td><td>${names.reduce((a,n)=>a+people[n].l,0)}</td><td>${gb}</td><td class="conv">${grand ? (gb / grand * 100).toFixed(1) : "0.0"}</td></tr></tbody></table>`;
@@ -744,7 +744,7 @@ render();
     const tag = n => { const x = st[n]; return x && x.o ? `${n} ${x.o}${x.a ? " · " + x.a + " bkd" : ""}` : n; };
     const tot = Object.values(st).reduce((a, x) => a + (x.o || 0), 0), bkd = Object.values(st).reduce((a, x) => a + (x.a || 0), 0);
     const deskLine = !who ? `<span class="who none">no end-of-shift report</span>`
-      : `<span class="who">${who.desk.length ? "Desk: " + who.desk.map(tag).join(", ") : "Desk: no report"}${who.vma.length ? `<span class="vma">VMA: ${who.vma.map(tag).join(", ")}</span>` : ""}${tot ? `<span class="vma">Outreach ${tot}${bkd ? " · " + bkd + " booked" : ""}</span>` : ""}</span>`;
+      : `<span class="who">${who.desk.length ? "MA: " + who.desk.map(tag).join(", ") : "MA: no report"}${who.vma.length ? `<span class="vma">VMA: ${who.vma.map(tag).join(", ")}</span>` : ""}${tot ? `<span class="vma">Outreach ${tot}${bkd ? " · " + bkd + " booked" : ""}</span>` : ""}</span>`;
     const mg = MGR[key];
     const mgrLine = !mg ? "" : `<span class="mgr">${mg.m ? "Manager: " + mg.m : "Manager report"}<span class="ops">${mg.dogs} dogs · ${mg.add} add-ons${mg.dogs ? " (" + (mg.add / mg.dogs).toFixed(1) + "/dog)" : ""}${mg.nm ? " · +" + mg.nm + " member" + (mg.nm > 1 ? "s" : "") : ""}${mg.can ? " · " + mg.can + " cancel" + (mg.can > 1 ? "s" : "") : ""}${mg.ret ? " · retail " + money(mg.ret) : ""}</span></span>`;
     tip.innerHTML = `${WD[w]}, ${pretty(d)}${dot.dataset.latest ? " · latest" : ""}<span class="v${v < BAD ? " bad" : v >= GREAT ? " great" : ""}">${money(v)}</span>${mgrLine}${deskLine}`;
