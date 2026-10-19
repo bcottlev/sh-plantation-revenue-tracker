@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
+      fail-fast: false
       matrix:
         store: [plantation, pbg-east, pbg-northlake, cooper-city]
     steps:
@@ -39,6 +40,7 @@ jobs:
             pbg-northlake) STORE_NAME="PBG Northlake"; STORE_DIR="stores/pbg-northlake/" ;;
             cooper-city)   STORE_NAME="Cooper City";   STORE_DIR="stores/cooper-city/" ;;
           esac
+          if [ -n "$STORE_DIR" ] && [ ! -d "$STORE_DIR" ]; then echo "$STORE_NAME has no tracker folder yet - nothing to report."; exit 0; fi
           TOTALS="${STORE_DIR}month_totals.json"; [ -f "$TOTALS" ] || echo '{}' > "$TOTALS"
 
           # ---- resolve month (override or today) ----
