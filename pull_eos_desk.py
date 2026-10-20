@@ -78,12 +78,22 @@ def desk_roster(msgs):
         st["o"] += int(num(t, r"Outreach")); st["l"] += int(num(t, r"Leads")); st["d"] += int(num(t, r"Deals Closed")); st["a"] += int(num(t, r"Appointments Booked"))
     return out
 
-def manager_reports(msgs):
+SCENTER_SLUG = {"Plantation": "plantation", "PBG East": "pbg-east", "PBG Northlake": "pbg-northlake", "Cooper City": "cooper-city"}
+
+def scenter_of(t):
+    m = re.search(r"Scenter:?\*?:?\*?\s*([A-Za-z][A-Za-z ]+?)\s*(?:\n|\*|$)", t)
+    name = m.group(1).strip() if m else "Plantation"
+    for k in SCENTER_SLUG:
+        if name.lower().startswith(k.lower()): return k
+    return name
+
+def manager_reports(msgs, scenter="Plantation"):
     best = {}
     for m in msgs:
         t = m.get("text", "")
         d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
         if not d or "Net Revenue" not in t: continue
+        if scenter_of(t) != scenter: continue
         who = mention_name(t, r"Submitted by:?\*?:?\*?")
         rec = {"m": first(who) if who else "", "net": num(t, "Net Revenue"), "dogs": int(num(t, "Dog Visits")),
                "add": int(num(t, "Add-ons Sold")), "ret": num(t, "Retail Sold"), "nm": int(num(t, "New Members")),
@@ -121,5 +131,25 @@ if lead is not None:
     r = manager_reports(lead); print(f"MGR: {len(r)} days")
     if r: s = inject(s, "MGR", r)
 open(PAGE, "w").write(s)
+
+# ---- fill the month trackers from the manager reports: a date the tracker doesn't have yet gets the
+# manager's Net Revenue, so the morning Slack report never lags the end-of-shift form. Hand entries win;
+# a correction still goes through update_trackers.py by hand.
+import subprocess, datetime
+STORE_DIR = {"plantation": "", "pbg-east": "stores/pbg-east/", "pbg-northlake": "stores/pbg-northlake/", "cooper-city": "stores/cooper-city/"}
+filled = []
+if lead is not None:
+    for scenter, slug in SCENTER_SLUG.items():
+        reps = manager_reports(lead, scenter)
+        for d, rec in sorted(reps.items()):
+            if rec["net"] <= 0: continue
+            dt = datetime.date.fromisoformat(d)
+            mf = os.path.join(STORE_DIR[slug], dt.strftime("%B").lower(), "index.html")
+            if not os.path.exists(mf): continue
+            have = re.findall(r"'(\d{4}-\d{2}-\d{2})':\s*[\d.]+", open(mf).read())
+            if d in have: continue
+            r = subprocess.run([sys.executable, "update_trackers.py", ".", d, f"{rec['net']:.2f}", slug], capture_output=True, text=True)
+            filled.append(f"{scenter} {d} ${rec['net']:.2f}" + ("" if r.returncode == 0 else f" FAILED: {r.stdout.strip()} {r.stderr.strip()}"))
+if filled: status.append("filled from manager reports: " + "; ".join(filled)); print("FILLED:", *filled, sep="\n  ")
 open("eos_status.txt", "w").write("\n".join(status) + "\n")
 if eos is None and lead is None: sys.exit(1)

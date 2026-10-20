@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - pull_eos_desk.py
+      - update_trackers.py
       - .github/workflows/pull-eos-desk.yml
 
 jobs:
@@ -25,4 +26,5 @@ jobs:
           git config user.email "bcottlev@gmail.com"
           git config user.name "GitHub Automation"
           git add day-of-week/index.html eos_status.txt
-          git diff --cached --quiet && echo "no change" || (git commit -m "Update EOS desk roster" && git push)
+          git add -A -- '*/index.html'
+          git diff --cached --quiet && echo "no change" || (git commit -m "Update EOS desk roster and manager revenue" && git pull --rebase && git push)

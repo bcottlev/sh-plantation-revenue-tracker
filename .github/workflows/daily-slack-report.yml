@@ -15,7 +15,27 @@ on:
         default: ''
 
 jobs:
+  # read last night's end-of-shift reports first, so the report never lags the manager's form
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull end-of-shift reports into the trackers
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python3 pull_eos_desk.py || true
+      - name: Commit if changed
+        run: |
+          git config user.email "bcottlev@gmail.com"
+          git config user.name "GitHub Automation"
+          git add day-of-week/index.html eos_status.txt
+          git add -A -- '*/index.html'
+          git diff --cached --quiet && echo "no change" || (git commit -m "Update EOS desk roster and manager revenue" && git pull --rebase && git push)
+
   send-report:
+    needs: ingest
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
