@@ -48,6 +48,8 @@ jobs:
       - name: Send Revenue Report to Slack
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          REPORT_CHANNEL: C0C9WCYKX8A     # #plantation-revenue-updates (the bot must be a member)
           INPUT_MONTH: ${{ github.event.inputs.month }}
           INPUT_STORE: ${{ github.event.inputs.store }}
           STORE: ${{ matrix.store }}
@@ -86,7 +88,16 @@ jobs:
 
           echo "Reporting $YM ($MONTH_NAME, $DAYS_IN_MONTH days) file=$MONTH_FILE prior=$PRIOR_YM=$PRIOR_TOTAL"
 
-          post() { curl -sS -X POST -H 'Content-type: application/json' --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"; }
+          # post to #plantation-revenue-updates through the bot; the old webhook (#broward-pbg-leadership) is only a fallback if the bot token is missing
+          post() {
+            if [ -n "$SLACK_BOT_TOKEN" ]; then
+              R=$(curl -sS -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H 'Content-type: application/json; charset=utf-8' \
+                --data "{\"channel\":\"$REPORT_CHANNEL\",\"text\":$1,\"unfurl_links\":false}" https://slack.com/api/chat.postMessage)
+              echo "$R" | jq -e '.ok' >/dev/null && return 0
+              echo "chat.postMessage failed: $R" >&2; return 1
+            fi
+            curl -sS -X POST -H 'Content-type: application/json' --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"
+          }
           FORMAT() { printf "%.0f" "$1" | sed -e :a -e 's/\B[0-9]\{3\}\>/,&/g;ta'; }
 
           if [ ! -f "$MONTH_FILE" ]; then
