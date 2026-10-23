@@ -81,7 +81,8 @@ def desk_roster(msgs):
 SCENTER_SLUG = {"Plantation": "plantation", "PBG East": "pbg-east", "PBG Northlake": "pbg-northlake", "Cooper City": "cooper-city"}
 
 def scenter_of(t):
-    m = re.search(r"Scenter:?\*?:?\*?\s*([A-Za-z][A-Za-z ]+?)\s*(?:\n|\*|$)", t)
+    # "*Scenter:* PBG East" (older form) or "End-of-Shift SM Report PBG East:" (per-channel form, Oct 2026)
+    m = re.search(r"Scenter:?\*?:?\*?\s*([A-Za-z][A-Za-z ]+?)\s*(?:\n|\*|$)", t) or re.search(r"Report\s+([A-Za-z][A-Za-z ]+?)\s*:", t)
     name = m.group(1).strip() if m else "Plantation"
     for k in SCENTER_SLUG:
         if name.lower().startswith(k.lower()): return k
@@ -126,7 +127,13 @@ eos = history("C0A0WQTGTBK")
 if eos is not None:
     r = desk_roster(eos); print(f"DESK: {len(r)} days")
     if r: s = inject(s, "DESK", r)
-lead = history("C0B241EHPP0")
+# manager end-of-shift reports: the per-scenter revenue channels (since Oct 21 2026) plus the leadership channel for history
+lead = []
+for ch in ("C0C9WCYKX8A", "C0CBZGMS9MW", "C0CAZSK43V3", "C0B241EHPP0"):   # plantation-, pbg-, cooper-city-revenue-updates, broward-pbg-leadership
+    h = history(ch)
+    if h is None: status.append(f"{ch}: not readable (invite @plantation_revenue_bo)")
+    else: lead += h
+if not lead: lead = None
 if lead is not None:
     r = manager_reports(lead); print(f"MGR: {len(r)} days")
     if r: s = inject(s, "MGR", r)
