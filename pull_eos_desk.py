@@ -152,6 +152,7 @@ if lead is not None:
         for d, rec in sorted(reps.items()):
             if rec["net"] <= 0: continue
             dt = datetime.date.fromisoformat(d)
+            if (datetime.date.today() - dt).days > 10: continue   # only recent days; older months are reconciled from MyTime
             mf = os.path.join(STORE_DIR[slug], dt.strftime("%B").lower(), "index.html")
             if not os.path.exists(mf): continue
             have = re.findall(r"'(\d{4}-\d{2}-\d{2})':\s*[\d.]+", open(mf).read())
