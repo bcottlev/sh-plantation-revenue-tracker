@@ -94,7 +94,7 @@ jobs:
               R=$(curl -sS -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H 'Content-type: application/json; charset=utf-8' \
                 --data "{\"channel\":\"$REPORT_CHANNEL\",\"text\":$1,\"unfurl_links\":false}" https://slack.com/api/chat.postMessage)
               echo "$R" | jq -e '.ok' >/dev/null && return 0
-              echo "chat.postMessage failed: $R" >&2; return 1
+              echo "::error::chat.postMessage failed: $(echo "$R" | jq -c '{error,needed,provided}')"; return 1
             fi
             curl -sS -X POST -H 'Content-type: application/json' --data "{\"text\":$1}" "$SLACK_WEBHOOK_URL"
           }

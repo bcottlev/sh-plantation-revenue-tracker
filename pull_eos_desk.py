@@ -121,6 +121,8 @@ def inject(s, const, data):
 status = []
 try:
     who = api("auth.test"); status.append(f"bot: {who.get('user')} (app user id {who.get('user_id')}) in workspace {who.get('team')}")
+    _r = urllib.request.urlopen(urllib.request.Request("https://slack.com/api/auth.test", headers={"Authorization": f"Bearer {TOKEN}"}), timeout=30)
+    status.append(f"scopes: {_r.headers.get('x-oauth-scopes')}")
 except Exception as e:
     status.append(f"auth.test failed: {e}")
 s = open(PAGE).read()
