@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# channels: plantation/pbg/cooper-city revenue updates + broward-pbg-leadership (bot invited 2026-10-23)
+# channels: plantation/pbg/cooper-city revenue updates + broward-pbg-leadership (bot invited 2026-10-23; chat:write check 2026-10-25)
 """Read the two end-of-shift channels and embed who worked / what happened each day
 into day-of-week/index.html.
 
