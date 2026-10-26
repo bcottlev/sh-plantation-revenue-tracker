@@ -2,7 +2,7 @@ name: Daily Slack Revenue Report
 
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 5 * * *'   # 1 AM ET; GitHub starts scheduled runs 4-5 h late, so this lands ~6 AM
   workflow_dispatch:
     inputs:
       month:

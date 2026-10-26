@@ -2,7 +2,7 @@ name: Pull EOS desk roster
 
 on:
   schedule:
-    - cron: '30 7 * * *'
+    - cron: '30 4 * * *'
   workflow_dispatch:
   push:
     paths:
