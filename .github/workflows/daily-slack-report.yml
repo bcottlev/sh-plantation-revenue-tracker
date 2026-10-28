@@ -238,10 +238,15 @@ jobs:
             ACT=$(jq -r --arg l "$STORE_NAME" --arg ym "$YM" '.[$l] // {} | to_entries | map(select(.key|startswith($ym))) | map(select(.value.active)) | last | .value.active // empty' data/scorecard.json)
             ACT_D=$(jq -r --arg l "$STORE_NAME" --arg ym "$YM" '.[$l] // {} | to_entries | map(select(.key|startswith($ym))) | map(select(.value.active)) | last | .key // empty' data/scorecard.json)
             if [ -n "$ACT" ]; then
-              RUNG=""; for R in 400 410 415 420; do if [ "$ACT" -lt "$R" ]; then RUNG=$R; break; fi; done
               AD=$(date -u -d "$ACT_D" +%-m/%-d)
-              if [ -n "$RUNG" ]; then LINES+=("• Members: *$ACT* active ($AD) · next bonus rung $RUNG, *$((RUNG-ACT)) to go*")
-              else LINES+=("• Members: *$ACT* active ($AD) · top bonus rung reached"); fi
+              # month over month: active members at the end of the month just closed (FBC monthly report)
+              MOM_YM=$(date -u -d "$YM-01 -1 month" +%Y-%m); MOM_N=$(date -u -d "$MOM_YM-01" +%b)
+              PREV_ACT=$(jq -r --arg k "$MOM_YM" '.[$k].active_members // empty' "$TOTALS")
+              if [ -n "$PREV_ACT" ]; then
+                DA=$((ACT-PREV_ACT)); SG=$([ $DA -ge 0 ] && echo "+" || echo "")
+                PCT=$(awk "BEGIN {printf \"%+.1f\", 100*($ACT/$PREV_ACT-1)}")
+                LINES+=("• Members: *$ACT* active ($AD) · *$SG$DA* ($PCT%) MoM vs $MOM_N $PREV_ACT")
+              else LINES+=("• Members: *$ACT* active ($AD)"); fi
             fi
           fi
           LINES+=("" "*Daily Average Scenarios:*$TIERS")

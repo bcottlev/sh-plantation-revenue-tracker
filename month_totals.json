@@ -9,42 +9,77 @@
     "total": 19588.93,
     "membership": 14137.0,
     "non_membership": 5451.93,
-    "active_days": 29
+    "active_days": 29,
+    "active_members": 317,
+    "dog_visits": 386,
+    "scent_pct": 95,
+    "fbc_revenue": 19589,
+    "fbc_avg_ticket": 14.0
   },
   "2026-04": {
     "total": 23170.46,
     "membership": 14485.0,
     "non_membership": 8685.46,
-    "active_days": 27
+    "active_days": 27,
+    "active_members": 331,
+    "dog_visits": 414,
+    "scent_pct": 96,
+    "fbc_revenue": 23276,
+    "fbc_avg_ticket": 19.4
   },
   "2026-05": {
     "total": 28015.24,
     "membership": 15508.0,
     "non_membership": 12507.24,
-    "active_days": 28
+    "active_days": 28,
+    "active_members": 333,
+    "dog_visits": 498,
+    "scent_pct": 91,
+    "fbc_revenue": 28167,
+    "fbc_avg_ticket": 22.6
   },
   "2026-06": {
     "total": 29673.31,
     "membership": 16362.0,
     "non_membership": 13311.31,
-    "active_days": 30
+    "active_days": 30,
+    "active_members": 350,
+    "dog_visits": 488,
+    "scent_pct": 90,
+    "fbc_revenue": 29654,
+    "fbc_avg_ticket": 24.2
   },
   "2026-07": {
     "total": 29561.93,
     "membership": 16799.0,
     "non_membership": 12762.93,
-    "active_days": 31
+    "active_days": 31,
+    "active_members": 373,
+    "dog_visits": 485,
+    "scent_pct": 85,
+    "fbc_revenue": 29649,
+    "fbc_avg_ticket": 22.7
   },
   "2026-08": {
     "total": 32832.53,
     "membership": 17513.5,
     "non_membership": 15319.03,
-    "active_days": 31
+    "active_days": 31,
+    "active_members": 362,
+    "dog_visits": 537,
+    "scent_pct": 90,
+    "fbc_revenue": 32467,
+    "fbc_avg_ticket": 23.4
   },
   "2026-09": {
     "total": 29480.46,
     "membership": 17528.5,
     "non_membership": 11951.96,
-    "active_days": 29
+    "active_days": 29,
+    "active_members": 395,
+    "dog_visits": 492,
+    "scent_pct": 94,
+    "fbc_revenue": 29480,
+    "fbc_avg_ticket": 21.8
   }
 }
