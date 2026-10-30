@@ -1,0 +1,52 @@
+name: RingCentral Archive
+
+on:
+  schedule:
+    - cron: '30 8 * * *'   # 4:30 AM ET; re-pulls the last 3 days so late records are caught
+  workflow_dispatch:
+    inputs:
+      from_date:
+        description: 'Backfill from YYYY-MM-DD (blank = last 3 days)'
+        required: false
+        default: ''
+      to_date:
+        description: 'Last day YYYY-MM-DD (blank = yesterday)'
+        required: false
+        default: ''
+
+concurrency:
+  group: ringcentral-archive
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Pull calls and texts, save to Drive
+        env:
+          RC_CLIENT_ID: ${{ secrets.RC_CLIENT_ID }}
+          RC_CLIENT_SECRET: ${{ secrets.RC_CLIENT_SECRET }}
+          RC_JWT: ${{ secrets.RC_JWT }}
+          DRIVE_WEBHOOK_URL: ${{ secrets.DRIVE_WEBHOOK_URL }}
+          DRIVE_WEBHOOK_TOKEN: ${{ secrets.DRIVE_WEBHOOK_TOKEN }}
+          FROM_DATE: ${{ github.event.inputs.from_date }}
+          TO_DATE: ${{ github.event.inputs.to_date }}
+        run: python3 ringcentral_archive.py
+
+      - name: Commit daily totals
+        run: |
+          git config user.email "bcottlev@gmail.com"
+          git config user.name "GitHub Automation"
+          git add data/ringcentral/daily.csv
+          git diff --cached --quiet && echo "no change" || (git commit -m "RingCentral daily totals" && git pull --rebase && git push)
