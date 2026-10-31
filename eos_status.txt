@@ -1,3 +1,2 @@
 bot: plantation_revenue_bo (app user id U0B93Q4M27P) in workspace Scenthound SFL
 scopes: channels:history,users:read,groups:history,chat:write
-filled from manager reports: Plantation 2026-10-30 $786.99
