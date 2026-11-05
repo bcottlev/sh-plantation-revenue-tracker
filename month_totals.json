@@ -81,5 +81,11 @@
     "scent_pct": 94,
     "fbc_revenue": 29480,
     "fbc_avg_ticket": 21.8
+  },
+  "2026-10": {
+    "total": 33683.55,
+    "membership": 17773.0,
+    "non_membership": 15910.55,
+    "active_days": 31
   }
 }
