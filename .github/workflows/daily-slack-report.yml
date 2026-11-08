@@ -182,7 +182,9 @@ jobs:
           PACE=$(awk "BEGIN {printf \"%.0f\", ($TARGET - $MTD) / $DAYS_REM}")
           TIERS=""
           HIT=0
-          for d in 500 600 700 800 900 1000; do
+          # six $100 steps around the pace the store needs (Plantation: 500-1000)
+          LO=$(awk "BEGIN {v=int(($PACE-150)/100)*100; if (v<200) v=200; print v}")
+          for d in $LO $((LO+100)) $((LO+200)) $((LO+300)) $((LO+400)) $((LO+500)); do
             V=$(awk "BEGIN {printf \"%.0f\", $MTD + ($d * $DAYS_REM)}")
             if [ "$HIT" = "0" ] && [ "$(awk "BEGIN {print ($V>=$TARGET)}")" = "1" ]; then
               TIERS="$TIERS"$'\n'"• *\$$d/day → \$$(FORMAT $V)*"; HIT=1
