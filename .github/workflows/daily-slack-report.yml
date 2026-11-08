@@ -49,7 +49,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          REPORT_CHANNEL: C0C9WCYKX8A     # #plantation-revenue-updates (the bot must be a member)
           INPUT_MONTH: ${{ github.event.inputs.month }}
           INPUT_STORE: ${{ github.event.inputs.store }}
           STORE: ${{ matrix.store }}
@@ -57,10 +56,10 @@ jobs:
           # ---- which store (a dispatch can name one; the schedule runs every store that has a tracker) ----
           if [ -n "$INPUT_STORE" ] && [ "$INPUT_STORE" != "$STORE" ]; then echo "skip $STORE"; exit 0; fi
           case "$STORE" in
-            plantation)    STORE_NAME="Plantation";    STORE_DIR="" ;;
-            pbg-east)      STORE_NAME="PBG East";      STORE_DIR="stores/pbg-east/" ;;
-            pbg-northlake) STORE_NAME="PBG Northlake"; STORE_DIR="stores/pbg-northlake/" ;;
-            cooper-city)   STORE_NAME="Cooper City";   STORE_DIR="stores/cooper-city/" ;;
+            plantation)    STORE_NAME="Plantation";    STORE_DIR="" ;                    REPORT_CHANNEL=C0C9WCYKX8A ;;  # #plantation-revenue-updates
+            pbg-east)      STORE_NAME="PBG East";      STORE_DIR="stores/pbg-east/" ;      REPORT_CHANNEL=C0CBZGMS9MW ;;  # #pbg-revenue-updates
+            pbg-northlake) STORE_NAME="PBG Northlake"; STORE_DIR="stores/pbg-northlake/" ; REPORT_CHANNEL=C0CBZGMS9MW ;;  # #pbg-revenue-updates
+            cooper-city)   STORE_NAME="Cooper City";   STORE_DIR="stores/cooper-city/" ;   REPORT_CHANNEL=C0CAZSK43V3 ;;  # #cooper-city-revenue-updates
           esac
           if [ -n "$STORE_DIR" ] && [ ! -d "$STORE_DIR" ]; then echo "$STORE_NAME has no tracker folder yet - nothing to report."; exit 0; fi
           TOTALS="${STORE_DIR}month_totals.json"; [ -f "$TOTALS" ] || echo '{}' > "$TOTALS"
