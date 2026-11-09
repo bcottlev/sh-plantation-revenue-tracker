@@ -134,7 +134,7 @@ if eos is not None:
 lead = []
 for ch in ("C0C9WCYKX8A", "C0CBZGMS9MW", "C0CAZSK43V3", "C0B241EHPP0"):   # plantation-, pbg-, cooper-city-revenue-updates, broward-pbg-leadership
     h = history(ch)
-    if h is None: status.append(f"{ch}: not readable (invite @plantation_revenue_bo)")
+    if h is None: status.append(f"{ch}: not readable (invite the Revenue Bot)")
     else: lead += h
 if not lead: lead = None
 if lead is not None:
