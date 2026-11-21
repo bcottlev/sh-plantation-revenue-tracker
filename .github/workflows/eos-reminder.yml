@@ -1,0 +1,27 @@
+name: End-of-shift report reminder (8 PM)
+
+# Started at 8 PM ET by a scheduled dispatch (GitHub's own cron runs hours late);
+# the cron below is only a late fallback. Posts only when a manager report is missing.
+on:
+  workflow_dispatch:
+    inputs:
+      post:
+        description: "Post to Slack (false = preview in the log only)"
+        default: "false"
+      for_date:
+        description: "Date to check, YYYY-MM-DD (blank = today ET)"
+        default: ""
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for missing end-of-shift reports
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          POST: ${{ github.event.inputs.post == 'true' && '1' || '0' }}
+          FOR_DATE: ${{ github.event.inputs.for_date }}
+          TAG_PLANTATION: ${{ vars.EOS_TAG_PLANTATION }}
+          TAG_PBG: ${{ vars.EOS_TAG_PBG }}
+        run: python3 eos_reminder.py
