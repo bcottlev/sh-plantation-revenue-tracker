@@ -48,5 +48,6 @@ jobs:
         run: |
           git config user.email "bcottlev@gmail.com"
           git config user.name "GitHub Automation"
+          if [ ! -f data/ringcentral/daily.csv ]; then echo "nothing to commit"; exit 0; fi
           git add data/ringcentral/daily.csv
           git diff --cached --quiet && echo "no change" || (git commit -m "RingCentral daily totals" && git pull --rebase && git push)
