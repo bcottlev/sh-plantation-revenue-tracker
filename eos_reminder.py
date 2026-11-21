@@ -16,11 +16,14 @@ POST = os.environ.get("POST") == "1"
 LOOKBACK = 7   # also flag earlier open days still missing within this many days
 
 # store -> (channel the report is submitted to, Slack ids to tag, weekdays closed: Mon=0..Sun=6)
+TORI, NINA, HOLLY = "U0BQ69DSRRQ", "U0B241C3J5D", "U09QJMJQPU7"
 STORES = {
-    "Plantation":    ("C0C9WCYKX8A", os.environ.get("TAG_PLANTATION", ""), set()),
-    "PBG East":      ("C0CBZGMS9MW", os.environ.get("TAG_PBG", ""), set()),
-    "PBG Northlake": ("C0CBZGMS9MW", os.environ.get("TAG_PBG", ""), {6}),
+    "Plantation":    ("C0C9WCYKX8A", f"{NINA},{HOLLY}", set()),
+    "PBG East":      ("C0CBZGMS9MW", TORI, set()),
+    "PBG Northlake": ("C0CBZGMS9MW", TORI, {6}),
+    "Cooper City":   ("C0CAZSK43V3", NINA, set()),
 }
+OPENS = {"Cooper City": datetime.date(2026, 12, 2)}   # not checked before opening day
 # every channel a manager report has ever been posted to (a report anywhere counts)
 REPORT_CHANNELS = ["C0C9WCYKX8A", "C0CBZGMS9MW", "C0CAZSK43V3", "C0B241EHPP0"]
 HOLIDAYS = {"2026-11-26", "2026-12-25", "2027-01-01"}   # all stores closed
@@ -61,6 +64,7 @@ def reported(oldest_ts):
     return got
 
 def open_on(store, day):
+    if day < OPENS.get(store, datetime.date.min): return False
     return day.isoformat() not in HOLIDAYS and day.weekday() not in STORES[store][2]
 
 def label(day):
@@ -77,7 +81,7 @@ for store, (channel, tags, _) in STORES.items():
     days = [start + datetime.timedelta(days=i) for i in range((today - start).days + 1)]
     missing = [d for d in days if open_on(store, d) and (store, d.isoformat()) not in have]
     if not missing:
-        print(f"{store}: all reports in - no message"); continue
+        print(f"{store}: nothing missing - no message"); continue
     tag = " ".join(f"<@{u}>" for u in tags.split(",") if u.strip())
     today_missing = missing[-1] == today
     earlier = [d for d in missing if d != today]

@@ -22,6 +22,4 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           POST: ${{ github.event.inputs.post == 'true' && '1' || '0' }}
           FOR_DATE: ${{ github.event.inputs.for_date }}
-          TAG_PLANTATION: ${{ vars.EOS_TAG_PLANTATION }}
-          TAG_PBG: ${{ vars.EOS_TAG_PBG }}
         run: python3 eos_reminder.py
