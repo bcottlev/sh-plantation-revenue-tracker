@@ -113,6 +113,10 @@ jobs:
             post "$(printf '%s' "📊 $STORE_NAME · $MONTH_NAME tracker is live. No revenue entered yet." | jq -Rs .)"
             exit 0
           fi
+          # Day N = calendar day of the latest entry, not the number of entries, so a
+          # store that was closed (no entry, e.g. Northlake Sundays) still counts that day
+          DAYS=$((10#$(grep -oP "'$YM-\K\d+" "$MONTH_FILE" | sort -n | tail -n 1)))
+          DAYS_REM=$((DAYS_IN_MONTH - DAYS))
 
           # membership = day 01 entry; service avg excludes it
           MEMBERSHIP=$(jq -r --arg k "$YM" '.[$k].membership // empty' "$TOTALS")
