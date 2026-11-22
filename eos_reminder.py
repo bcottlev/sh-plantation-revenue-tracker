@@ -83,14 +83,8 @@ for store, (channel, tags, _) in STORES.items():
     if not missing:
         print(f"{store}: nothing missing - no message"); continue
     tag = " ".join(f"<@{u}>" for u in tags.split(",") if u.strip())
-    today_missing = missing[-1] == today
-    earlier = [d for d in missing if d != today]
-    lines = [f"⏰ *{store} · End-of-shift report missing*" + (f" {tag}" if tag else "")]
-    if today_missing:
-        lines.append(f"Today's report ({label(today)}) hasn't been submitted yet. Please submit it before you leave tonight.")
-    if earlier:
-        lines.append(("Also still missing: " if today_missing else "Still missing: ") + ", ".join(label(d) for d in earlier) + ".")
-    text = "\n".join(lines)
+    word = "report" if len(missing) == 1 else "reports"
+    text = f"⏰ {store} EoS {word} missing · " + ", ".join(label(d) for d in missing) + (f" {tag}" if tag else "")
     print(f"--- {store} -> {channel}\n{text}")
     if POST:
         r = api("chat.postMessage", http="POST", channel=channel, text=text, unfurl_links=False)
