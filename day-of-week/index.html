@@ -348,6 +348,7 @@ body.dark .mtd-kpi b{color:var(--ink)}
 .mtd-card{background:var(--skye-8);border-radius:12px;padding:14px 16px 10px;margin-top:12px}
 .mtd-card header{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
 .mtd-card header strong{font-size:14px;color:var(--shadow)}body.dark .mtd-card header strong{color:var(--ink)}
+.mtd-leg i.fut{background:var(--line);border:1px dashed var(--mute)}
 .mtd-leg{font-size:12.5px;color:var(--ink-70);font-weight:500}.mtd-leg i{display:inline-block;width:12px;height:8px;border-radius:2px;margin:0 5px 0 10px;vertical-align:0}
 .mtd-fig{position:relative;height:220px;margin-top:6px}.mtd-fig svg{position:absolute;inset:0;width:100%;height:100%}
 .mtd-tip{position:absolute;z-index:6;pointer-events:none;background:var(--white);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;line-height:1.4;box-shadow:0 4px 14px rgba(28,45,90,.18);white-space:nowrap}
@@ -392,6 +393,7 @@ body.dark .mtd-t th.on{color:var(--ink)}.mtd-t th button:hover{color:var(--skye)
   </div>
 </div>
 
+
 <section class="mtd" id="mtd">
   <p class="eyebrow" id="mtd-eyebrow">Month to date · all scenters</p>
   <h2 class="mtd-h" id="mtd-head"></h2>
@@ -404,11 +406,11 @@ body.dark .mtd-t th.on{color:var(--ink)}.mtd-t th button:hover{color:var(--skye)
   </div>
   <div class="mtd-kpis" id="mtd-kpis"></div>
   <div class="mtd-card">
-    <header><strong id="mtd-ta"></strong><span class="mtd-leg"><i style="background:var(--skye)"></i>Ahead<i style="background:var(--bad)"></i>Behind</span></header>
+    <header><strong id="mtd-ta"></strong><span class="mtd-leg"><i style="background:var(--great)"></i>Ahead<i style="background:var(--bad)"></i>Behind<i class="fut"></i>Days to come</span></header>
     <div class="mtd-fig" id="mtd-fa"><svg id="mtd-sa" role="img" aria-label="Running gap versus comparison month"></svg><div class="mtd-tip" id="mtd-pa" hidden></div></div>
   </div>
   <div class="mtd-card">
-    <header><strong id="mtd-tb"></strong><span class="mtd-leg"><i style="background:var(--skye)"></i><span id="mtd-lcur"></span><i style="background:var(--skye-45)"></i><span id="mtd-lcmp"></span></span></header>
+    <header><strong id="mtd-tb"></strong><span class="mtd-leg"><i style="background:var(--skye)"></i><span id="mtd-lcur"></span><i style="background:var(--skye-45)"></i><span id="mtd-lcmp"></span><i class="fut"></i>Days to come</span></header>
     <div class="mtd-fig" id="mtd-fb"><svg id="mtd-sb" role="img" aria-label="Daily revenue, this month versus comparison month"></svg><div class="mtd-tip" id="mtd-pb" hidden></div></div>
     <p class="mtd-note">Hover or tap either chart for that day. Tap a store in the table below to chart it.</p>
   </div>
@@ -1025,6 +1027,7 @@ render();
 })();
 </script>
 
+
 <script>
 /* ---- month to date section: built from DATA_BY_LOC on this page ---- */
 (function(){
@@ -1077,15 +1080,21 @@ render();
   }
   const svgA = document.getElementById("mtd-sa"), svgB = document.getElementById("mtd-sb");
   function axis(o, lo, hi, y, pl, W, pr){ for (const v of ticks(lo,hi,4)) o.push(`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--mute)">${kf(v)}</text>`); }
+  function future(o, x, bw, W, pr, pt, H, pb, dim){
+    if (THRU >= dim) return; const x0 = x(THRU + 1), x1 = Math.min(x(dim) + bw, W - pr);
+    o.push(`<rect x="${x0}" y="${pt}" width="${x1 - x0}" height="${H - pt - pb}" fill="var(--line)" opacity=".45"/>`);
+    o.push(`<line x1="${x0}" x2="${x0}" y1="${pt}" y2="${H - pb}" stroke="var(--mute)" stroke-dasharray="3 3"/>`);
+    o.push(`<text x="${(x0 + x1) / 2}" y="${H - pb - 6}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--mute)">${dim - THRU} day${dim - THRU > 1 ? "s" : ""} to come</text>`);
+  }
   function xlab(o, x, bw, H){ for (const d of [1,8,15,22,29]) o.push(`<text x="${x(d)+bw/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--mute)">${d}</text>`); }
   function drawA(){
     if (!CH) return; const W = svgA.clientWidth, H = svgA.clientHeight; if (!W) return;
     const pl = W < 520 ? 42 : 54, pr = 8, pt = 10, pb = 22, g = CH.gap;
     const mx = Math.max(...g.map(Math.abs), 1) * 1.15, lo = Math.min(...g) < 0 ? -mx : -mx * .15, hi = Math.max(...g) > 0 ? mx : mx * .15;
     const bw = (W - pl - pr) / 31, x = d => pl + (d-1) * bw, y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb);
-    const o = []; axis(o, lo, hi, y, pl, W, pr);
+    const o = []; future(o, x, bw, W, pr, pt, H, pb, DIM(CUR)); axis(o, lo, hi, y, pl, W, pr);
     o.push(`<line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--shadow)" stroke-width="1.2"/>`);
-    g.forEach((v,i) => { const y0 = y(0), y1 = y(v); o.push(`<rect x="${(x(i+1)+bw*.15).toFixed(1)}" width="${(bw*.7).toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" height="${Math.max(1,Math.abs(y1-y0)).toFixed(1)}" rx="2" fill="${v >= 0 ? "var(--skye)" : "var(--bad)"}"/>`); });
+    g.forEach((v,i) => { const y0 = y(0), y1 = y(v); o.push(`<rect x="${(x(i+1)+bw*.15).toFixed(1)}" width="${(bw*.7).toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" height="${Math.max(1,Math.abs(y1-y0)).toFixed(1)}" rx="2" fill="${v >= 0 ? "var(--great)" : "var(--bad)"}"/>`); });
     xlab(o, x, bw, H);
     const L = g[g.length-1]; o.push(`<text x="${Math.min(x(THRU)+bw+4, W-pr-56)}" y="${y(L)+(L >= 0 ? -6 : 14)}" font-size="12" font-weight="700" fill="var(--ink)">${L >= 0 ? "+" : ""}${kf(L)}</text>`);
     o.push(`<rect id="mtd-ha" y="${pt}" height="${H-pt-pb}" width="${bw}" fill="var(--shadow)" opacity="0"/>`);
@@ -1098,9 +1107,9 @@ render();
     const d1 = Math.max(CH.dn[0] || 0, CH.dp[0] || 0), rm = Math.max(...rest, 1), clip = d1 > rm * 1.6;
     const hi = (clip ? rm : Math.max(...all, 1)) * 1.12, lo = Math.min(0, ...all);
     const bw = (W - pl - pr) / 31, x = d => pl + (d-1) * bw, y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb), w = bw * .38, cl = v => Math.min(v, hi);
-    const o = []; axis(o, lo, hi, y, pl, W, pr);
-    for (let d = 1; d <= 31; d++) { const p = CH.dp[d-1], n = CH.dn[d-1];
-      if (p != null) o.push(`<rect x="${(x(d)+bw*.1).toFixed(1)}" width="${w.toFixed(1)}" y="${Math.min(y(0),y(cl(p))).toFixed(1)}" height="${Math.max(1,Math.abs(y(cl(p))-y(0))).toFixed(1)}" rx="1.5" fill="var(--skye-45)"/>`);
+    const o = []; future(o, x, bw, W, pr, pt, H, pb, DIM(CUR)); axis(o, lo, hi, y, pl, W, pr);
+    for (let d = 1; d <= 31; d++) { const p = CH.dp[d-1], n = CH.dn[d-1], fut = d > THRU;
+      if (p != null) o.push(`<rect x="${(x(d)+bw*.1).toFixed(1)}" width="${w.toFixed(1)}" y="${Math.min(y(0),y(cl(p))).toFixed(1)}" height="${Math.max(1,Math.abs(y(cl(p))-y(0))).toFixed(1)}" rx="1.5" fill="var(--skye-45)"${fut ? ' fill-opacity=".35" stroke="var(--skye-45)" stroke-dasharray="2 2"' : ""}/>`);
       if (n != null) o.push(`<rect x="${(x(d)+bw*.1+w).toFixed(1)}" width="${w.toFixed(1)}" y="${Math.min(y(0),y(cl(n))).toFixed(1)}" height="${Math.max(1,Math.abs(y(cl(n))-y(0))).toFixed(1)}" rx="1.5" fill="var(--skye)"/>`); }
     xlab(o, x, bw, H);
     if (clip) o.push(`<text x="${x(2)+4}" y="${y(hi)+12}" font-size="11" fill="var(--mute)">${W < 520 ? "Day 1 cut off: " + kf(CH.dn[0] || 0) : "Day 1 (membership billing): " + kf(CH.dn[0] || 0) + " vs " + kf(CH.dp[0] || 0) + ", bars cut off"}</text>`);
