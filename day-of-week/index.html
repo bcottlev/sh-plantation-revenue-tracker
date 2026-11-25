@@ -403,14 +403,29 @@ body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2
 .mtd-pre{white-space:pre-wrap;background:var(--skye-8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:8px}
 
 /* ---- dark mode, neutral (Claude-style) instead of navy ---- */
-body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5A9BC4;--shadow:#E8E6DF;background:#1F1E1D}
+body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5E5D59;--shadow:#E8E6DF;background:#1F1E1D;
+  --skye:#D97757;--daisy:#D97757;--great:#7FB685;--great-soft:rgba(127,182,133,.16);--bad:#E26D6D;--bad-soft:rgba(226,109,109,.14)}
+/* accents: Claude clay for highlights, neutrals for selection, no brand yellow/blue in dark */
+body.dark .tab{background:#30302E;color:#F5F4EF}
+body.dark .bar{border-bottom-color:var(--line)}body.dark .mtd{border-bottom-color:var(--line)}
+body.dark .seg button[aria-pressed="true"]{background:#F5F4EF;border-color:#F5F4EF;color:#1F1E1D}
+body.dark .switch[aria-checked="true"]::after{background:#1F1E1D}
+body.dark header .eyebrow{color:var(--skye)}
+body.dark .avgmark,body.dark .k-bar{background:#F5F4EF}
+body.dark .mtd-trk .rg{background:rgba(217,119,87,.38);opacity:1}
+body.dark .mtd-trk .tg{background:#F5F4EF;box-shadow:none}
+body.dark .mtd-st.reach{background:#34332F;color:#F5F4EF}body.dark .mtd-st.str{background:rgba(217,119,87,.18);color:#E8A58C}
+body.dark .mtd-copy{background:#D97757;border-color:#D97757;color:#fff}
+body.dark .mtd-day.next{border-color:#F5F4EF}
+body.dark .seg[data-role="MA"],body.dark .track .tlab i.ma{background:#D97757!important}
+body.dark .seg[data-role="VMA"],body.dark .track .tlab i.vma{background:#C2C0B6!important}
 body.dark .dot.latest{border-color:#1F1E1D}body.dark .k-latest{border-color:#1F1E1D}
 body.dark .tip{background:#3A3936;color:#F5F4EF;box-shadow:0 4px 14px rgba(0,0,0,.55)}body.dark .tip::after{background:#3A3936}
 body.dark .tip b{color:#fff}body.dark .tip .mgr,body.dark .tip .who{border-top-color:rgba(255,255,255,.15)}
 body.dark .tip .mgr .ops,body.dark .tip .who .vma{color:rgba(255,255,255,.7)}body.dark .tip .who.none{color:rgba(255,255,255,.55)}
 body.dark .tip .v.bad{color:#FFB3A6}body.dark .tip .v.great{color:#9FE3BE}
 body.dark .mtd-tip{background:#30302E;border-color:#3A3936;box-shadow:0 4px 14px rgba(0,0,0,.5)}
-body.dark .mtd-trk .mt{background:#D6D3CA}body.dark .mtd-day.next{background:#30302E}
+body.dark .mtd-trk .mt{background:#C2C0B6}body.dark .mtd-day.next{background:#30302E}
 body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{background:#262624}
 @media (max-width:560px){
  .mtd-row{grid-template-columns:minmax(0,1fr);gap:5px}.mtd-row .rt{text-align:left}.mtd-axis .rt,.mtd-axis>div:first-child{display:none}
@@ -431,6 +446,7 @@ body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{backgroun
     <button class="switch" id="themeswitch" role="switch" aria-checked="false" aria-label="Dark mode"></button>
   </div>
 </div>
+
 
 
 
@@ -1081,6 +1097,7 @@ render();
 
 
 
+
 <script>
 /* ---- month to date section: built from DATA_BY_LOC on this page ---- */
 (function(){
@@ -1247,7 +1264,7 @@ render();
     document.getElementById("mtd-odds").innerHTML = `<div class="mtd-row mtd-axis"><div></div><div class="mtd-ax">${[.6,.7,.8,.9,1,1.1,1.2].map(v => `<span style="left:${(v-A)/(B-A)*100}%">${Math.round(v*100)}%</span>`).join("")}</div><div class="rt">of target</div></div>` + M.map(m => { P = v => Math.max(0, Math.min(100, (v / m.T.t - A) / (B - A) * 100)); return `<div class="mtd-row"><div class="nm">${m.s}<span class="mtd-st ${m.status[0]}">${m.status[1]}</span><small>target ${fmt(m.T.t)} · ${m.T.src}</small></div>
       <div class="mtd-trk" title="So far ${fmt(m.mtd)} · likely ${fmt(m.lo)}–${fmt(m.hi)} · target ${fmt(m.T.t)}"><span class="rg" style="left:${P(m.lo)}%;width:${Math.max(.6, P(m.hi)-P(m.lo))}%"></span><span class="mt" style="width:${P(m.mtd)}%"></span><span class="md" style="left:${P(m.mid)}%"></span><span class="tg" style="left:${P(m.T.t)}%"></span></div>
       <div class="rt"><b>${fmt(m.lo)}–${fmt(m.hi)}</b> likely<br>${liftTxt(m)}</div></div>`; }).join("");
-    document.getElementById("mtd-oddsnote").innerHTML = `Dark bar = revenue so far. Blue band = likely month end from each store's own last 6 weeks, weekday by weekday (middle half of outcomes; line = typical). Yellow tick = target; every row is drawn as a % of its own target, so the ticks line up. ${thanks(CUR) ? "Thanksgiving closed; the day before is planned like a Saturday." : ""} Sorted hardest first.`;
+    document.getElementById("mtd-oddsnote").innerHTML = `Dark bar = revenue so far. Shaded band = likely month end from each store's own last 6 weeks, weekday by weekday (middle half of outcomes; line = typical). Tick = target; every row is drawn as a % of its own target, so the ticks line up. ${thanks(CUR) ? "Thanksgiving closed; the day before is planned like a Saturday." : ""} Sorted hardest first.`;
     if (!PICK || !STORES.includes(PICK)) PICK = M[0].s;
     const pk = document.getElementById("mtd-pick");
     pk.innerHTML = M.map(m => `<button data-s="${m.s}"${m.s === PICK ? ' aria-pressed="true"' : ""}>${m.s}</button>`).join("");
@@ -1289,6 +1306,12 @@ render();
     prep(); drawA(); drawB(); stores(); plan();
   }
   render();
+  // outreach person colours: softer palette in dark mode, original in light
+  if (typeof OCOLORS !== "undefined") {
+    const LIGHTC = OCOLORS.slice(), DARKC = ["#D97757","#C2C0B6","#7FB685","#6A9BCC","#B58BC4","#D4A85C","#5FA39B","#C9787F"];
+    const sync = () => { const d = document.body.classList.contains("dark"); OCOLORS.splice(0, OCOLORS.length, ...(d ? DARKC : LIGHTC)); if (typeof renderOutreach === "function") renderOutreach(); };
+    document.getElementById("themeswitch").addEventListener("click", sync); sync();
+  }
 })();
 </script>
 </body>
