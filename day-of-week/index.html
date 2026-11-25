@@ -401,6 +401,17 @@ body.dark .mtd-st.reach{color:var(--ink)}
 body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2D5A}
 .mtd-copy:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
 .mtd-pre{white-space:pre-wrap;background:var(--skye-8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:8px}
+
+/* ---- dark mode, neutral (Claude-style) instead of navy ---- */
+body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5A9BC4;--shadow:#E8E6DF;background:#1F1E1D}
+body.dark .dot.latest{border-color:#1F1E1D}body.dark .k-latest{border-color:#1F1E1D}
+body.dark .tip{background:#3A3936;color:#F5F4EF;box-shadow:0 4px 14px rgba(0,0,0,.55)}body.dark .tip::after{background:#3A3936}
+body.dark .tip b{color:#fff}body.dark .tip .mgr,body.dark .tip .who{border-top-color:rgba(255,255,255,.15)}
+body.dark .tip .mgr .ops,body.dark .tip .who .vma{color:rgba(255,255,255,.7)}body.dark .tip .who.none{color:rgba(255,255,255,.55)}
+body.dark .tip .v.bad{color:#FFB3A6}body.dark .tip .v.great{color:#9FE3BE}
+body.dark .mtd-tip{background:#30302E;border-color:#3A3936;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+body.dark .mtd-trk .mt{background:#D6D3CA}body.dark .mtd-day.next{background:#30302E}
+body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{background:#262624}
 @media (max-width:560px){
  .mtd-row{grid-template-columns:minmax(0,1fr);gap:5px}.mtd-row .rt{text-align:left}.mtd-axis .rt,.mtd-axis>div:first-child{display:none}
  .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -420,6 +431,7 @@ body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2
     <button class="switch" id="themeswitch" role="switch" aria-checked="false" aria-label="Dark mode"></button>
   </div>
 </div>
+
 
 
 
@@ -1065,6 +1077,7 @@ render();
   sw.addEventListener("click", () => apply(!document.body.classList.contains("dark")));
 })();
 </script>
+
 
 
 
