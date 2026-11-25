@@ -370,14 +370,42 @@ body.dark .mtd-t th.on{color:var(--ink)}.mtd-t th button:hover{color:var(--skye)
 .mtd-t input.d{width:52px}.mtd-t input:focus-visible{outline:2px solid var(--skye);outline-offset:1px}
 .mtd-pill{display:inline-block;padding:2px 9px;border-radius:11px;font-size:12.5px;font-weight:700}
 .mtd-pill.ok{background:var(--daisy);color:#1C2D5A}.mtd-pill.no{background:var(--bad-soft);color:var(--bad)}
+.mtd-q{font-weight:700;font-size:15px;color:var(--shadow);margin:18px 0 8px}body.dark .mtd-q{color:var(--ink)}
+.mtd-row{display:grid;grid-template-columns:150px minmax(0,1fr) 190px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.mtd-row .nm{font-weight:700;color:var(--shadow);font-size:14.5px}body.dark .mtd-row .nm{color:var(--ink)}
+.mtd-row .nm small{display:block;font-weight:500;color:var(--mute);font-size:11.5px}
+.mtd-trk{position:relative;height:26px;background:var(--skye-8);border-radius:6px}
+.mtd-trk .mt{position:absolute;left:0;top:7px;height:12px;border-radius:3px;background:var(--shadow)}body.dark .mtd-trk .mt{background:#C3CCDD}
+.mtd-trk .rg{position:absolute;top:4px;height:18px;border-radius:4px;background:var(--skye-45);opacity:.85}
+.mtd-trk .md{position:absolute;top:2px;width:2px;height:22px;background:var(--skye);margin-left:-1px}
+.mtd-axis{border-bottom:0;padding:0}.mtd-ax{position:relative;height:16px}.mtd-ax span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--mute);font-weight:600}
+.mtd-trk .tg{position:absolute;top:-3px;width:3px;height:32px;background:var(--daisy);margin-left:-1.5px;border-radius:2px;box-shadow:0 0 0 1px rgba(28,45,90,.35)}
+.mtd-row .rt{text-align:right;font-size:13px;color:var(--ink-70);line-height:1.35}
+.mtd-row .rt b{color:var(--ink);font-size:14px}
+.mtd-st{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:700;margin-left:6px;vertical-align:1px}
+.mtd-st.ok{background:var(--great-soft);color:var(--great)}.mtd-st.reach{background:var(--skye-20);color:var(--shadow)}.mtd-st.str{background:rgba(255,231,63,.45);color:#1C2D5A}.mtd-st.risk{background:var(--bad-soft);color:var(--bad)}
+body.dark .mtd-st.reach{color:var(--ink)}
+.mtd-dsum{font-size:14px;color:var(--ink-70);margin:10px 0 8px}.mtd-dsum b{color:var(--ink)}
+.mtd-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.mtd-day{border-radius:10px;padding:9px 10px;background:var(--skye-8);border:1.5px solid transparent;font-variant-numeric:tabular-nums}
+.mtd-day .w{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.mtd-day .v{font-size:18px;font-weight:700;color:var(--shadow);margin-top:2px}body.dark .mtd-day .v{color:var(--ink)}
+.mtd-day .x{font-size:11.5px;color:var(--mute)}
+.mtd-day.next{border-color:var(--skye);background:var(--white)}
+.mtd-day.big{border-color:var(--daisy)}
+.mtd-day.closed{opacity:.55}.mtd-day.closed .v{font-size:14px;color:var(--mute)}
+.mtd-day.hit{background:var(--great-soft)}.mtd-day.miss{background:var(--bad-soft)}
+.mtd-day.hit .v{color:var(--great)}.mtd-day.miss .v{color:var(--bad)}
+.mtd-copyrow{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.mtd-copy{font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:999px;border:1.5px solid var(--shadow);background:var(--shadow);color:#fff;cursor:pointer}
+body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2D5A}
+.mtd-copy:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
+.mtd-pre{white-space:pre-wrap;background:var(--skye-8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:8px}
 @media (max-width:560px){
+ .mtd-row{grid-template-columns:minmax(0,1fr);gap:5px}.mtd-row .rt{text-align:left}.mtd-axis .rt,.mtd-axis>div:first-child{display:none}
+ .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}
  .mtd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
  .mtd-t td{font-size:13px}.mtd-t th{font-size:10px;letter-spacing:.08em}.mtd-t .mtd-bar{display:none}
- #mtd-plan thead{display:none}#mtd-plan tr{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
- #mtd-plan td{border:0;padding:2px 0;display:flex;justify-content:space-between;align-items:center;gap:6px}
- #mtd-plan td::before{content:attr(data-l);color:var(--mute);font-size:11.5px}
- #mtd-plan td.nm{grid-column:1/-1;justify-content:flex-start}#mtd-plan td:empty{display:none}
- #mtd-plan tr.grp{border-top:2px solid var(--shadow)}#mtd-plan tr.grp td{border:0}
 }
 </style>
 </head>
@@ -392,6 +420,7 @@ body.dark .mtd-t th.on{color:var(--ink)}.mtd-t th button:hover{color:var(--skye)
     <button class="switch" id="themeswitch" role="switch" aria-checked="false" aria-label="Dark mode"></button>
   </div>
 </div>
+
 
 
 <section class="mtd" id="mtd">
@@ -417,7 +446,17 @@ body.dark .mtd-t th.on{color:var(--ink)}.mtd-t th button:hover{color:var(--skye)
   <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-stores" aria-expanded="false" id="mtd-ft"></p>
   <div id="mtd-stores" class="fbody"></div>
   <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-planbox" aria-expanded="false" id="mtd-fp"></p>
-  <div id="mtd-planbox" class="fbody"><p class="mtd-note">Total revenue. Edit a target or open-days figure; the page remembers your numbers in this browser. Pace is the average of the last 14 trading days (billing day excluded). Open days left skip closed holidays and Northlake Sundays.</p><table class="mtd-t" id="mtd-plan"></table></div>
+  <div id="mtd-planbox" class="fbody">
+    <p class="mtd-q">1 · Will each store make it?</p>
+    <div id="mtd-odds"></div>
+    <p class="mtd-note" id="mtd-oddsnote"></p>
+    <p class="mtd-q">2 · What each store needs, day by day</p>
+    <div class="seg" id="mtd-pick" role="group" aria-label="Store for daily targets"></div>
+    <p class="mtd-dsum" id="mtd-dsum"></p>
+    <div class="mtd-days" id="mtd-days"></div>
+    <div class="mtd-copyrow"><button type="button" class="mtd-copy" id="mtd-copy">Copy for Slack</button><span class="mtd-note" id="mtd-copied"></span></div>
+    <pre class="mtd-pre" id="mtd-pre" hidden></pre>
+  </div>
 </section>
 
 <header>
@@ -1028,6 +1067,7 @@ render();
 </script>
 
 
+
 <script>
 /* ---- month to date section: built from DATA_BY_LOC on this page ---- */
 (function(){
@@ -1053,7 +1093,6 @@ render();
   const CMPS = [CUR-1, CUR-2, CUR-3].filter(m => m >= 1);
   const MEAS = {total:"Total", mem:"Memberships", add:"Add-ons & other"};
   let st = {m:"total", c:CMPS[0], sel:"Total system", sk:"n", sd:-1};
-  let saved = {}; try { saved = JSON.parse(localStorage.getItem("dow.mtdplan") || "{}"); } catch (e) {}
   const fmt = n => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
   const kf = v => { const a = Math.abs(v); return (v < 0 ? "-" : "") + "$" + (a >= 1000 ? (a/1000).toFixed(a >= 10000 ? 0 : 1) + "k" : Math.round(a)); };
   const pct = (a,b) => b ? Math.round((a/b - 1) * 100) : null;
@@ -1151,18 +1190,76 @@ render();
     const h = e.target.closest("th[data-k]"); if (h) { const k = h.dataset.k; if (st.sk === k) st.sd *= -1; else { st.sk = k; st.sd = k === "s" ? 1 : -1; } stores(); return; }
     const r = e.target.closest("tr[data-s]"); if (r) { st.sel = r.dataset.s; render(); }
   });
-  function openDays(s){ let n = 0; const dim = DIM(CUR); for (let d = THRU + 1; d <= dim; d++) { const dt = new Date(YEAR, CUR-1, d), k = String(CUR).padStart(2,"0") + "-" + String(d).padStart(2,"0"); if (HOLI.has(k) || (CLOSED_DOW[s] || []).includes(dt.getDay())) continue; n++; } return n; }
-  function pace(s){ const rows = DATA_BY_LOC[s].filter(r => r[4] !== 1 && (+r[2] || 0) > 50); const l = rows.slice(-14); return l.length ? l.reduce((a,r) => a + (+r[2]), 0) / l.length : 0; }
-  function plan(){
-    const tot = s => { const g = G[s][CUR]; if (!g) return 0; let t = 0; for (let d = 0; d < THRU; d++) t += g.net[d]; return t; };
-    const fullPrev = s => { const g = G[s][CUR-1]; return g ? g.net.reduce((a,b) => a + b, 0) : 0; };
-    const R = STORES.map(s => { const mtd = tot(s), t = +(saved[s]?.t ?? DEF_T[s] ?? Math.round(fullPrev(s)/100)*100), d = +(saved[s]?.d ?? openDays(s)), p = pace(s), proj = mtd + p * d, need = d ? (t - mtd) / d : 0; return {s, mtd, t, d, p, proj, need, ok: proj >= t}; });
-    const T = R.reduce((a,r) => ({mtd: a.mtd + r.mtd, t: a.t + r.t, proj: a.proj + r.proj}), {mtd:0, t:0, proj:0});
-    document.getElementById("mtd-plan").innerHTML = `<thead><tr><th>Store</th><th>MTD</th><th>Target</th><th>Open days left</th><th>Need / open day</th><th>Recent pace</th><th>Projected</th><th></th></tr></thead><tbody>` +
-      R.map(r => `<tr><td class="nm">${r.s}</td><td data-l="MTD">${fmt(r.mtd)}</td><td data-l="Target"><input inputmode="numeric" data-s="${r.s}" data-k="t" value="${r.t}" aria-label="${r.s} target"></td><td data-l="Open days left"><input class="d" inputmode="numeric" data-s="${r.s}" data-k="d" value="${r.d}" aria-label="${r.s} open days left"></td><td data-l="Need / open day"><b>${r.need > 0 ? fmt(r.need) : "done"}</b></td><td data-l="Recent pace">${fmt(r.p)}</td><td data-l="Projected">${fmt(r.proj)}</td><td data-l="vs target"><span class="mtd-pill ${r.ok ? "ok" : "no"}">${r.ok ? "on track" : fmt(r.proj - r.t)}</span></td></tr>`).join("") +
-      `<tr class="grp"><td class="nm">Total</td><td data-l="MTD">${fmt(T.mtd)}</td><td data-l="Target">${fmt(T.t)}</td><td></td><td></td><td></td><td data-l="Projected">${fmt(T.proj)}</td><td data-l="vs target"><span class="mtd-pill ${T.proj >= T.t ? "ok" : "no"}">${T.proj >= T.t ? "on track" : fmt(T.proj - T.t)}</span></td></tr></tbody>`;
+  // ---------- planner: weekday-aware forecast, odds and daily targets ----------
+  const pad = n => String(n).padStart(2,"0");
+  const mmdd = dt => pad(dt.getMonth()+1) + "-" + pad(dt.getDate());
+  const wdIdx = dt => (dt.getDay() + 6) % 7;                 // 0 = Mon … 6 = Sun, as in the data
+  const thanks = m => { if (m !== 11) return null; const f = new Date(YEAR, 10, 1); const first = 1 + ((4 - f.getDay() + 7) % 7); return first + 21; };
+  function kind(s, dt){                                     // "closed" | "sat" (holiday eve, plays like a Saturday) | "normal"
+    const k = mmdd(dt), tg = thanks(dt.getMonth()+1);
+    if (HOLI.has(k) || (tg && dt.getMonth() === 10 && dt.getDate() === tg)) return "closed";
+    if ((CLOSED_DOW[s] || []).includes(dt.getDay())) return "closed";
+    if (tg && dt.getMonth() === 10 && dt.getDate() === tg - 1) return "sat";
+    if (k === "12-24" || k === "12-31") return "sat";
+    return "normal";
   }
-  document.getElementById("mtd-plan").addEventListener("change", e => { const i = e.target; if (!i.dataset.s) return; const v = parseFloat(String(i.value).replace(/[^0-9.]/g, "")); if (isNaN(v)) return; (saved[i.dataset.s] ??= {})[i.dataset.k] = v; try { localStorage.setItem("dow.mtdplan", JSON.stringify(saved)); } catch (e) {} plan(); });
+  function wstats(s){                                       // last 6 weeks, per weekday: mean, p25, p75 (billing days and the 1st excluded)
+    const end = new Date(YEAR, CUR-1, THRU), by = Array.from({length:7}, () => []);
+    DATA_BY_LOC[s].forEach(r => { const dt = new Date(YEAR, +r[0].slice(0,2)-1, +r[0].slice(3,5)), age = (end - dt) / 864e5;
+      if (age >= 0 && age < 42 && r[4] !== 1 && +r[0].slice(3,5) !== 1 && (+r[2] || 0) > 0) by[r[1]].push(+r[2]); });
+    return by.map(v => { v.sort((a,b) => a-b); if (!v.length) return {m:0, lo:0, hi:0, n:0}; const q = p => v[Math.min(v.length-1, Math.round(p*(v.length-1)))];
+      return {m: v.reduce((a,b) => a+b, 0) / v.length, lo: q(.25), hi: q(.75), n: v.length}; });
+  }
+  function target(s){ if (DEF_T[s]) return {t: DEF_T[s], src: "bonus target"};
+    const g = G[s][CUR-1]; const prev = g ? g.net.reduce((a,b) => a+b, 0) : 0; return {t: Math.round(prev * 1.1 / 100) * 100, src: MN[(CUR+10)%12] + " +10%"}; }
+  function model(s){
+    const W = wstats(s), dim = DIM(CUR), g = G[s][CUR]; let mtd = 0; if (g) for (let d = 0; d < THRU; d++) mtd += g.net[d];
+    const days = []; for (let d = THRU + 1; d <= dim; d++) { const dt = new Date(YEAR, CUR-1, d), k = kind(s, dt), w = k === "sat" ? 5 : wdIdx(dt);
+      days.push({d, dt, k, base: k === "closed" ? 0 : W[w].m, lo: k === "closed" ? 0 : W[w].lo, hi: k === "closed" ? 0 : W[w].hi}); }
+    const T = target(s), sm = days.reduce((a,x) => a + x.base, 0), lo = mtd + days.reduce((a,x) => a + x.lo, 0), hi = mtd + days.reduce((a,x) => a + x.hi, 0), mid = mtd + sm;
+    const gap = T.t - mtd, lift = sm ? gap / sm - 1 : (gap > 0 ? Infinity : -1), k = gap > 0 && sm ? gap / sm : 1;
+    days.forEach(x => x.tgt = x.k === "closed" ? 0 : Math.round(x.base * Math.max(k, 1) / 10) * 10);
+    // the week behind: actual vs that weekday's normal
+    const past = []; for (let d = Math.max(1, THRU - 6); d <= THRU; d++) { const dt = new Date(YEAR, CUR-1, d), w = wdIdx(dt), act = g ? g.net[d-1] : 0, k2 = kind(s, dt);
+      if (d === 1) continue; past.push({d, dt, act, base: k2 === "closed" ? 0 : W[k2 === "sat" ? 5 : w].m, k: k2}); }
+    const status = lo >= T.t ? ["ok","On track"] : mid >= T.t ? ["reach","Likely"] : hi >= T.t ? ["str","Within reach"] : ["risk","At risk"];
+    return {s, mtd, T, lo, mid, hi, gap, lift, days, past, status, open: days.filter(x => x.k !== "closed").length};
+  }
+  let PICK = null;
+  function liftTxt(m){ return m.gap <= 0 ? "target already reached" : m.lift <= 0 ? `a normal week clears it by ${fmt(-m.lift * (m.mid - m.mtd))}` : `needs <b>${Math.round(m.lift*100)}% above</b> a normal week`; }
+  function plan(){
+    const M = STORES.map(model).sort((a,b) => b.lift - a.lift);
+    // every row on the same scale: % of its own target, 60% to 120%, so the targets line up
+    const A = .6, B = 1.2; let P;
+    document.getElementById("mtd-odds").innerHTML = `<div class="mtd-row mtd-axis"><div></div><div class="mtd-ax">${[.6,.7,.8,.9,1,1.1,1.2].map(v => `<span style="left:${(v-A)/(B-A)*100}%">${Math.round(v*100)}%</span>`).join("")}</div><div class="rt">of target</div></div>` + M.map(m => { P = v => Math.max(0, Math.min(100, (v / m.T.t - A) / (B - A) * 100)); return `<div class="mtd-row"><div class="nm">${m.s}<span class="mtd-st ${m.status[0]}">${m.status[1]}</span><small>target ${fmt(m.T.t)} · ${m.T.src}</small></div>
+      <div class="mtd-trk" title="So far ${fmt(m.mtd)} · likely ${fmt(m.lo)}–${fmt(m.hi)} · target ${fmt(m.T.t)}"><span class="rg" style="left:${P(m.lo)}%;width:${Math.max(.6, P(m.hi)-P(m.lo))}%"></span><span class="mt" style="width:${P(m.mtd)}%"></span><span class="md" style="left:${P(m.mid)}%"></span><span class="tg" style="left:${P(m.T.t)}%"></span></div>
+      <div class="rt"><b>${fmt(m.lo)}–${fmt(m.hi)}</b> likely<br>${liftTxt(m)}</div></div>`; }).join("");
+    document.getElementById("mtd-oddsnote").innerHTML = `Dark bar = revenue so far. Blue band = likely month end from each store's own last 6 weeks, weekday by weekday (middle half of outcomes; line = typical). Yellow tick = target; every row is drawn as a % of its own target, so the ticks line up. ${thanks(CUR) ? "Thanksgiving closed; the day before is planned like a Saturday." : ""} Sorted hardest first.`;
+    if (!PICK || !STORES.includes(PICK)) PICK = M[0].s;
+    const pk = document.getElementById("mtd-pick");
+    pk.innerHTML = M.map(m => `<button data-s="${m.s}"${m.s === PICK ? ' aria-pressed="true"' : ""}>${m.s}</button>`).join("");
+    daily(M.find(m => m.s === PICK));
+  }
+  let LASTTXT = "";
+  function daily(m){
+    const S = d => DNS[d.dt.getDay()] + " " + (d.dt.getMonth()+1) + "/" + d.d;
+    document.getElementById("mtd-dsum").innerHTML = `<b>${m.s}</b>: ${fmt(m.mtd)} so far, target ${fmt(m.T.t)}. ${m.gap > 0 ? `${fmt(m.gap)} to go over ${m.open} open day${m.open === 1 ? "" : "s"}, ${liftTxt(m)}.` : "Target reached; the cards show a normal week."}`;
+    const big = Math.max(...m.days.map(x => x.tgt));
+    const past = m.past.map(x => { const ok = x.k === "closed" ? null : x.act >= x.base; return `<div class="mtd-day ${x.k === "closed" ? "closed" : ok ? "hit" : "miss"}"><div class="w">${S(x)}</div><div class="v">${x.k === "closed" && !x.act ? "closed" : fmt(x.act)}</div><div class="x">${x.k === "closed" ? "" : "normal " + fmt(x.base)}</div></div>`; }).join("");
+    const fut = m.days.map((x,i) => x.k === "closed" ? `<div class="mtd-day closed"><div class="w">${S(x)}</div><div class="v">closed</div><div class="x">${mmdd(x.dt) === "11-" + thanks(11) ? "Thanksgiving" : ""}</div></div>`
+      : `<div class="mtd-day${i === m.days.findIndex(y => y.k !== "closed") ? " next" : ""}${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div></div>`).join("");
+    document.getElementById("mtd-days").innerHTML = (past ? `<div class="mtd-day" style="grid-column:1/-1;background:none;padding:0 0 2px"><div class="w">This past week · actual vs a normal day</div></div>` + past : "") +
+      `<div class="mtd-day" style="grid-column:1/-1;background:none;padding:8px 0 2px"><div class="w">Targets for the days left</div></div>` + (fut || `<div class="mtd-day closed"><div class="v">month complete</div></div>`);
+    const lines = m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""}`);
+    LASTTXT = `*${m.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + lines.join("\n");
+    document.getElementById("mtd-pre").hidden = true; document.getElementById("mtd-copied").textContent = "";
+  }
+  document.getElementById("mtd-pick").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; PICK = b.dataset.s; plan(); });
+  document.getElementById("mtd-copy").addEventListener("click", async () => {
+    const out = document.getElementById("mtd-copied"), pre = document.getElementById("mtd-pre");
+    try { await navigator.clipboard.writeText(LASTTXT); out.textContent = "Copied. Review it before you send it."; pre.hidden = true; }
+    catch (e) { pre.textContent = LASTTXT; pre.hidden = false; out.textContent = "Copy didn't work here; select the text below."; }
+  });
   function render(){
     seg("mtd-meas", Object.entries(MEAS), "m"); seg("mtd-cmp", CMPS.map(m => [m, MN[m-1]]), "c");
     const n = sum(STORES, CUR, THRU), c = sum(STORES, st.c, THRU), p = pct(n, c);
@@ -1175,7 +1272,7 @@ render();
     document.getElementById("mtd-tb").textContent = `${st.sel} · each day, ${MN[CUR-1]} vs ${MN[st.c-1]}`;
     document.getElementById("mtd-lcur").textContent = MN[CUR-1]; document.getElementById("mtd-lcmp").textContent = MN[st.c-1];
     document.getElementById("mtd-ft").textContent = `By store · ${MEAS[st.m].toLowerCase()}, ${MN[CUR-1]} 1–${THRU} vs the same days`;
-    document.getElementById("mtd-fp").textContent = `Plan the rest of ${MN[CUR-1]} · targets, pace and projection`;
+    document.getElementById("mtd-fp").textContent = `Plan the rest of ${MN[CUR-1]} · odds and daily targets`;
     prep(); drawA(); drawB(); stores(); plan();
   }
   render();
