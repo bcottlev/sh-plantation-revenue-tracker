@@ -39,6 +39,10 @@ git add -A data day-of-week planner november stores && git commit -m "Data throu
 - **Late or early exports:** if an export was saved before 9 PM ET on its last date, that day may be partial and `merge_exports.py` warns. Bryan's call; usually keep the day and say it may change. Use `--drop-open-day` to leave it out.
 - **Safety check:** `refresh_pages.py` aborts if any row from a previous month would change.
 
+### Bryan says "pull the data": export it yourself
+
+Follow `/pull-data`: export Daily Revenue (detailed CSV) from MyTime in Bryan's Chrome for the 6 stores on the main login, then ask Bryan to **Switch User** to the separate PBG login for PBG East and Northlake. You can't type passwords, so he switches and you wait. Move the files from `~/Downloads` into the Revenue Analysis folder and run the daily workflow above.
+
 ### What to report after an update
 
 Keep it short. Cover:
