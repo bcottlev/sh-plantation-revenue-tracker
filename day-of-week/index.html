@@ -1368,7 +1368,7 @@ render();
     const ld = lastDate(s), lv = netOn(s, ld) ?? 0, pv = netOn(s, addD(ld, -7));
     const W = wstats(s), flags = [];
     for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
-      if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (normal ${fmt(nrm)}): store closed, or sales missing from the export?`); }
+      if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (6-wk avg ${fmt(nrm)}): store closed, or sales missing from the export?`); }
     const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
     const fl = floorDay(s, CUR, THRU), fp = has(s, CUR-1) ? floorDay(s, CUR-1, DIM(CUR-1)) : null;
     return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s), fl, fp};
@@ -1412,7 +1412,7 @@ render();
       const big = Math.max(...m.days.map(x => x.tgt), 0);
       let run = m.mtd; m.days.forEach(x => { if (x.k !== "closed") run += x.tgt; x.cum = run; });
       const days = m.days.map(x => x.k === "closed" ? `<div class="mtd-day closed"><div class="w">${S(x)}</div><div class="v">closed</div><div class="x">${x.d === thanks(CUR) && CUR === 11 ? "Thanksgiving" : ""}</div></div>`
-        : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div><div class="cu">→ ${"$" + (x.cum / 1000).toFixed(1)}k total</div></div>`).join("");
+        : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "6-wk avg " + fmt(x.base)}</div><div class="cu">→ ${"$" + (x.cum / 1000).toFixed(1)}k total</div></div>`).join("");
       TXT[t.s] = `*${t.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""} → ${fmt(x.cum)} total`).join("\n");
       return `<div class="tile${OPEN[t.s] ? " open" : ""}" data-s="${t.s}">
         <button type="button" class="th" aria-expanded="${!!OPEN[t.s]}"><span class="tn">${t.s}<i>▾</i></span><span class="ld">${DNS[t.ld.getDay()]} <b>${fmt(t.lv)}</b>${lc == null ? "" : ` ${pc(lc)} vs ${(addD(t.ld, -7).getMonth()+1) + "/" + addD(t.ld, -7).getDate()}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</span><span class="gap ${t.cls}">${kd(t.diff)} at pace</span></button>
