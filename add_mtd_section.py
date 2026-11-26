@@ -74,6 +74,44 @@ body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2
 .mtd-copy:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
 .mtd-pre{white-space:pre-wrap;background:var(--skye-8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:8px}
 
+.mtd-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px;margin:16px 0 6px;align-items:start}
+.tile{background:var(--skye-8);border-radius:14px;padding:14px 16px 12px;border:1px solid transparent}
+.tile.open{border-color:var(--line)}
+.tile .th{display:flex;justify-content:space-between;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;padding:0;width:100%;text-align:left;font:inherit;color:inherit}
+.tile .th:focus-visible{outline:2px solid var(--skye);outline-offset:3px;border-radius:6px}
+.tile .tn{font-size:18px;font-weight:700;color:var(--shadow)}body.dark .tile .tn{color:var(--ink)}
+.tile .tn i{font-style:normal;display:inline-block;margin-left:6px;font-size:12px;color:var(--mute);transition:transform .15s}
+.tile.open .tn i{transform:rotate(180deg)}
+.tile .gap{font-size:15px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tile .gap.g{color:var(--great)}.tile .gap.a{color:#C98A00}.tile .gap.r{color:var(--bad)}
+body.dark .tile .gap.a{color:#E6B84A}
+.tile .ld{font-size:14px;color:var(--ink-70);margin:3px 0 8px;font-variant-numeric:tabular-nums}
+.tile .ld .flag{color:var(--bad);font-weight:600}
+.tile .pb{position:relative;height:8px;background:var(--skye-20);border-radius:5px;margin:4px 0 7px}
+.tile .pb .f{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.tile .pb .f.g{background:var(--great)}.tile .pb .f.a{background:#E0A82E}.tile .pb .f.r{background:var(--bad)}
+.tile .pb .k{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink-70);margin-left:-1px;border-radius:1px}
+.tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
+.wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg i+span{margin-right:12px}
+.wk{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
+.wk .dl{font-size:13.5px;color:var(--ink)}
+.wk .bars{position:relative;height:22px}
+.wk .bars b{position:absolute;left:0;height:8px;border-radius:4px}.wk .bars b.c{top:2px;background:var(--skye)}.wk .bars b.p{top:12px;background:var(--skye-45)}
+.wk .bars u{position:absolute;top:0;width:2px;height:3px;text-decoration:none}.wk .bars u.l{background:var(--bad)}.wk .bars u.h{background:var(--great)}
+.wk .vv{font-size:13.5px;text-align:right;white-space:nowrap;color:var(--ink)}.wk .vv em{font-style:normal;font-weight:600;margin-left:6px}
+.wk .vv em.up{color:var(--great)}.wk .vv em.down{color:var(--bad)}
+.wk-ax{position:relative;height:16px;margin:2px 0 0 66px;font-size:11px;color:var(--mute)}.wk-ax span{position:absolute;transform:translateX(-50%)}.wk-ax span:last-child{transform:translateX(-100%)}.wk-ax span:first-child{transform:none}
+.wk-ax .l{color:var(--bad);font-weight:600}.wk-ax .h{color:var(--great);font-weight:600}
+.tile .sum{font-size:13.5px;color:var(--ink-70);margin:10px 0 4px}
+.tile .warn{font-size:12.5px;color:var(--bad);margin:2px 0}
+.tile .sub2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+.tile .mtd-days{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.tile .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.mtd-ghost{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.mtd-ghost:hover{border-color:var(--skye)}
+@media (max-width:560px){.wk{grid-template-columns:50px minmax(0,1fr) auto}.wk-ax{margin-left:60px}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 /* ---- dark mode, neutral (Claude-style) instead of navy ---- */
 body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5E5D59;--shadow:#E8E6DF;background:#1F1E1D;
   --skye:#5BB0E3;--daisy:#E6D466;--great:#7FB685;--great-soft:rgba(127,182,133,.16);--bad:#E26D6D;--bad-soft:rgba(226,109,109,.14)}
@@ -109,38 +147,30 @@ body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{backgroun
 '''
 
 HTML = r'''<section class="mtd" id="mtd">
-  <p class="eyebrow" id="mtd-eyebrow">Month to date · all scenters</p>
+  <p class="eyebrow" id="mtd-eyebrow"></p>
   <h2 class="mtd-h" id="mtd-head"></h2>
   <p class="range" id="mtd-sub"></p>
-  <div class="controls">
-    <div class="ctlrow">
-      <div class="ctl"><p class="eyebrow">Measure</p><div class="seg" id="mtd-meas" role="group" aria-label="MTD measure"></div></div>
-      <div class="ctl"><p class="eyebrow">Compare to</p><div class="seg" id="mtd-cmp" role="group" aria-label="Compare month"></div></div>
+  <div class="mtd-tiles" id="mtd-tiles"></div>
+  <p class="mtd-note" id="mtd-tnote"></p>
+  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-trends" aria-expanded="false" id="mtd-ft"></p>
+  <div id="mtd-trends" class="fbody">
+    <div class="controls">
+      <div class="ctlrow">
+        <div class="ctl"><p class="eyebrow">Measure</p><div class="seg" id="mtd-meas" role="group" aria-label="MTD measure"></div></div>
+        <div class="ctl"><p class="eyebrow">Compare to</p><div class="seg" id="mtd-cmp" role="group" aria-label="Compare month"></div></div>
+      </div>
+      <div class="ctl"><p class="eyebrow">Chart</p><div class="seg" id="mtd-sel" role="group" aria-label="Store to chart"></div></div>
     </div>
-  </div>
-  <div class="mtd-kpis" id="mtd-kpis"></div>
-  <div class="mtd-card">
-    <header><strong id="mtd-ta"></strong><span class="mtd-leg"><i style="background:var(--great)"></i>Ahead<i style="background:var(--bad)"></i>Behind<i class="fut"></i>Days to come</span></header>
-    <div class="mtd-fig" id="mtd-fa"><svg id="mtd-sa" role="img" aria-label="Running gap versus comparison month"></svg><div class="mtd-tip" id="mtd-pa" hidden></div></div>
-  </div>
-  <div class="mtd-card">
-    <header><strong id="mtd-tb"></strong><span class="mtd-leg"><i style="background:var(--skye)"></i><span id="mtd-lcur"></span><i style="background:var(--skye-45)"></i><span id="mtd-lcmp"></span><i class="fut"></i>Days to come</span></header>
-    <div class="mtd-fig" id="mtd-fb"><svg id="mtd-sb" role="img" aria-label="Daily revenue, this month versus comparison month"></svg><div class="mtd-tip" id="mtd-pb" hidden></div></div>
-    <p class="mtd-note">Hover or tap either chart for that day. Tap a store in the table below to chart it.</p>
-  </div>
-  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-stores" aria-expanded="false" id="mtd-ft"></p>
-  <div id="mtd-stores" class="fbody"></div>
-  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-planbox" aria-expanded="false" id="mtd-fp"></p>
-  <div id="mtd-planbox" class="fbody">
-    <p class="mtd-q">1 · Will each store make it?</p>
-    <div id="mtd-odds"></div>
-    <p class="mtd-note" id="mtd-oddsnote"></p>
-    <p class="mtd-q">2 · What each store needs, day by day</p>
-    <div class="seg" id="mtd-pick" role="group" aria-label="Store for daily targets"></div>
-    <p class="mtd-dsum" id="mtd-dsum"></p>
-    <div class="mtd-days" id="mtd-days"></div>
-    <div class="mtd-copyrow"><button type="button" class="mtd-copy" id="mtd-copy">Copy for Slack</button><span class="mtd-note" id="mtd-copied"></span></div>
-    <pre class="mtd-pre" id="mtd-pre" hidden></pre>
+    <div class="mtd-kpis" id="mtd-kpis"></div>
+    <div class="mtd-card">
+      <header><strong id="mtd-ta"></strong><span class="mtd-leg"><i style="background:var(--great)"></i>Ahead<i style="background:var(--bad)"></i>Behind<i class="fut"></i>Days to come</span></header>
+      <div class="mtd-fig" id="mtd-fa"><svg id="mtd-sa" role="img" aria-label="Running gap versus comparison month"></svg><div class="mtd-tip" id="mtd-pa" hidden></div></div>
+    </div>
+    <div class="mtd-card">
+      <header><strong id="mtd-tb"></strong><span class="mtd-leg"><i style="background:var(--skye)"></i><span id="mtd-lcur"></span><i style="background:var(--skye-45)"></i><span id="mtd-lcmp"></span><i class="fut"></i>Days to come</span></header>
+      <div class="mtd-fig" id="mtd-fb"><svg id="mtd-sb" role="img" aria-label="Daily revenue, this month versus comparison month"></svg><div class="mtd-tip" id="mtd-pb" hidden></div></div>
+      <p class="mtd-note">Hover or tap either chart for that day.</p>
+    </div>
   </div>
 </section>
 '''
@@ -253,21 +283,6 @@ JS = r'''
       tip.style.left = L + "px"; tip.style.top = "2px"; };
     fig.addEventListener("pointermove", move); fig.addEventListener("pointerdown", move); fig.addEventListener("pointerleave", leave);
   });
-  function stores(){
-    const cs = CMPS;
-    const v = ls => [CUR, ...cs].map(m => ls.some(s => has(s, m)) ? sum(ls, m, THRU) : null);
-    const key = s => { const a = v([s]); return st.sk === "s" ? s : st.sk === "n" ? a[0] : (pct(a[0], a[+st.sk]) ?? -1e9); };
-    const rows = STORES.slice().sort((x,y) => { const a = key(x), b = key(y); return (typeof a === "string" ? a.localeCompare(b) : a - b) * st.sd; });
-    const top = Math.max(...STORES.map(s => v([s])[0]), 1);
-    const th = (k,l) => `<th class="${st.sk === k ? "on" : ""}" data-k="${k}" aria-sort="${st.sk === k ? (st.sd > 0 ? "ascending" : "descending") : "none"}"><button type="button">${l}<i>${st.sk === k ? (st.sd > 0 ? "▲" : "▼") : "⇅"}</i></button></th>`;
-    const tr = (name, ls, cls) => { const a = v(ls); return `<tr class="${cls || ""}${st.sel === name ? " sel" : ""}" data-s="${name}"><td>${name}</td><td>${fmt(a[0])}${ls.length > 1 ? "" : `<span class="mtd-bar" style="width:${Math.max(2, a[0]/top*70)}px"></span>`}</td>${cs.map((m,i) => `<td>${pc(a[i+1] == null ? null : pct(a[0], a[i+1]))}</td>`).join("")}</tr>`; };
-    document.getElementById("mtd-stores").innerHTML = `<table class="mtd-t"><thead><tr>${th("s","Store")}${th("n", MN[CUR-1] + " 1–" + THRU)}${cs.map((m,i) => th(String(i+1), "vs " + MN[m-1])).join("")}</tr></thead><tbody>` +
-      rows.map(s => tr(s, [s])).join("") + GROUPS.map((g,i) => tr(g[0], g[1], i === 0 ? "grp" : "")).join("") + `</tbody></table>`;
-  }
-  document.getElementById("mtd-stores").addEventListener("click", e => {
-    const h = e.target.closest("th[data-k]"); if (h) { const k = h.dataset.k; if (st.sk === k) st.sd *= -1; else { st.sk = k; st.sd = k === "s" ? 1 : -1; } stores(); return; }
-    const r = e.target.closest("tr[data-s]"); if (r) { st.sel = r.dataset.s; render(); }
-  });
   // ---------- planner: weekday-aware forecast, odds and daily targets ----------
   const pad = n => String(n).padStart(2,"0");
   const mmdd = dt => pad(dt.getMonth()+1) + "-" + pad(dt.getDate());
@@ -303,56 +318,98 @@ JS = r'''
     const status = lo >= T.t ? ["ok","On track"] : mid >= T.t ? ["reach","Likely"] : hi >= T.t ? ["str","Within reach"] : ["risk","At risk"];
     return {s, mtd, T, lo, mid, hi, gap, lift, days, past, status, open: days.filter(x => x.k !== "closed").length};
   }
-  let PICK = null;
+  // ---------- store tiles ----------
+  const netOn = (s, dt) => { const g = G[s][dt.getMonth()+1]; return g && g.has[dt.getDate()-1] ? g.net[dt.getDate()-1] : null; };
+  const lastDate = s => { const r = DATA_BY_LOC[s][DATA_BY_LOC[s].length-1]; return new Date(YEAR, +r[0].slice(0,2)-1, +r[0].slice(3,5)); };
+  const addD = (dt, n) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + n);
+  const lab = dt => DNS[dt.getDay()] + " " + (dt.getMonth()+1) + "/" + dt.getDate();
+  function expShare(s){                                  // weighted share of the month's revenue normally booked by THRU
+    const W = wstats(s), dim = DIM(CUR), prev = G[s][CUR-1];
+    const w = d => { if (d === 1) return prev ? prev.net[0] : W[wdIdx(new Date(YEAR, CUR-1, 1))].m;
+      const dt = new Date(YEAR, CUR-1, d), k = kind(s, dt); return k === "closed" ? 0 : W[k === "sat" ? 5 : wdIdx(dt)].m; };
+    let a = 0, t = 0; for (let d = 1; d <= dim; d++) { const x = w(d); t += x; if (d <= THRU) a += x; } return t ? a / t : THRU / dim;
+  }
+  function tileData(s){
+    const m = model(s), proj = m.mid, diff = proj - m.T.t, cls = diff >= 0 ? "g" : diff >= -0.05 * m.T.t ? "a" : "r";
+    const ld = lastDate(s), lv = netOn(s, ld) ?? 0, pv = netOn(s, addD(ld, -7));
+    const W = wstats(s), flags = [];
+    for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
+      if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (normal ${fmt(nrm)}): store closed, or sales missing from the export?`); }
+    const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
+    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s)};
+  }
+  const kd = v => (v >= 0 ? "+" : "−") + "$" + (Math.abs(v)/1000).toFixed(1) + "k";
+  let OPEN = {}; try { OPEN = JSON.parse(localStorage.getItem("dow.tiles") || "{}"); } catch (e) {}
+  const TXT = {};
+  function weekRows(s, ld){
+    const rows = []; for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); rows.push({dt, c: netOn(s, dt), p: netOn(s, addD(dt, -7))}); }
+    const mx0 = Math.max(1000, ...rows.flatMap(r => [r.c || 0, r.p || 0])), mx = Math.ceil(mx0 / 500) * 500, P = v => Math.max(0, Math.min(100, v / mx * 100));
+    const html = rows.map(r => { const ch = r.c != null && r.p ? Math.round((r.c / r.p - 1) * 100) : null;
+      return `<div class="dl">${DNS[r.dt.getDay()]} ${r.dt.getDate()}</div><div class="bars"><u class="l" style="left:${P(500)}%"></u><u class="h" style="left:${P(1000)}%"></u><b class="c" style="width:${P(r.c || 0)}%"></b><b class="p" style="width:${P(r.p || 0)}%"></b></div>
+        <div class="vv">${r.c == null ? "—" : fmt(r.c)}${ch == null ? "" : `<em class="${ch >= 0 ? "up" : "down"}">${ch > 0 ? "+" : ""}${ch}%</em>`}</div>`; }).join("");
+    const ax = [0, 500, 1000, mx].filter((v,i,a) => a.indexOf(v) === i).map(v => `<span class="${v === 500 ? "l" : v === 1000 ? "h" : ""}" style="left:${P(v)}%">${fmt(v)}</span>`).join("");
+    const both = rows.filter(r => r.c != null && r.p != null), sc = both.reduce((a,r) => a + r.c, 0), sp = both.reduce((a,r) => a + r.p, 0);
+    return {html, ax, sc, sp};
+  }
+  function tiles(){
+    const T = STORES.map(s => ({s, ...tileData(s)})).sort((a,b) => a.diff - b.diff);
+    const on = T.filter(t => t.cls === "g").length, sysProj = T.reduce((a,t) => a + t.proj, 0), sysT = T.reduce((a,t) => a + t.m.T.t, 0);
+    document.getElementById("mtd-head").textContent = `${on} of ${T.length} stores on pace to hit target`;
+    const n = sum(STORES, CUR, THRU), c = sum(STORES, CMPS[0], THRU);
+    // weekday-matched: last month's average for each weekday, times this month's count of that weekday (the 1st compared to the 1st)
+    const wm = (() => { const pm = CMPS[0]; let e = 0; STORES.forEach(s => { const g = G[s][pm]; if (!g) return; const by = Array.from({length:7}, () => []);
+      for (let d = 2; d <= DIM(pm); d++) if (g.has[d-1]) by[wdIdx(new Date(YEAR, pm-1, d))].push(g.net[d-1]);
+      e += g.net[0]; for (let d = 2; d <= THRU; d++) { const l = by[wdIdx(new Date(YEAR, CUR-1, d))]; if (l.length) e += l.reduce((a,b) => a+b, 0) / l.length; } }); return e; })();
+    document.getElementById("mtd-sub").innerHTML = `System ${fmt(n)} month to date · projected <b>${fmt(sysProj)}</b> vs ${fmt(sysT)} target · vs ${MN[CMPS[0]-1]} ${pc(pct(n, c))} (same dates) / ${pc(pct(n, wm))} weekday-matched`;
+    document.getElementById("mtd-tiles").innerHTML = T.map((t, i) => {
+      const m = t.m, wk = weekRows(t.s, t.ld), fill = Math.min(100, m.mtd / m.T.t * 100), lc = t.pv ? Math.round((t.lv / t.pv - 1) * 100) : null;
+      const S = d => lab(d.dt);
+      const big = Math.max(...m.days.map(x => x.tgt), 0);
+      const days = m.days.map(x => x.k === "closed" ? `<div class="mtd-day closed"><div class="w">${S(x)}</div><div class="v">closed</div><div class="x">${x.d === thanks(CUR) && CUR === 11 ? "Thanksgiving" : ""}</div></div>`
+        : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div></div>`).join("");
+      TXT[t.s] = `*${t.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""}`).join("\n");
+      return `<div class="tile${OPEN[t.s] ? " open" : ""}" data-s="${t.s}">
+        <button type="button" class="th" aria-expanded="${!!OPEN[t.s]}"><span class="tn">${t.s}<i>▾</i></span><span class="gap ${t.cls}">${kd(t.diff)} at pace</span></button>
+        <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
+        <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
+        <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
+        <div class="body">
+          <div class="wk-leg"><i style="background:var(--skye)"></i><span>This week</span><i style="background:var(--skye-45)"></i><span>Same day last week</span></div>
+          <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>
+          <p class="sum">Matching days ${fmt(wk.sc)} vs ${fmt(wk.sp)} the week before ${wk.sp ? pc(pct(wk.sc, wk.sp)) : ""}</p>
+          ${t.flags.map(f => `<p class="warn">⚠ ${f}</p>`).join("")}
+          <p class="sub2">Rest of ${MN[CUR-1]} · ${m.gap > 0 ? `${fmt(m.gap)} to go, ${liftTxt(m).replace(/<\/?b>/g, "")}` : "target reached"} · target ${m.T.src}</p>
+          <div class="mtd-days">${days || '<div class="mtd-day closed"><div class="v">month complete</div></div>'}</div>
+          <div class="acts"><button type="button" class="mtd-copy" data-copy="${t.s}">Copy for Slack</button><button type="button" class="mtd-ghost" data-open="${t.s}">Weekday analysis ↓</button><span class="mtd-note" data-out="${t.s}"></span></div>
+          <pre class="mtd-pre" data-pre="${t.s}" hidden></pre>
+        </div></div>`; }).join("");
+    document.getElementById("mtd-tnote").textContent = `Sorted by gap at pace, worst first. Bar = month to date as a share of target; tick = where the store normally is by the ${ord(THRU)}, weighted by its own weekdays and the 1st's billing. "At pace" = likely month end (each store's last 6 weeks, weekday by weekday${thanks(CUR) ? "; Thanksgiving closed, the day before planned like a Saturday" : ""}) minus target. Green clears target, amber within 5%, red more than 5% short. Targets: bonus targets for Plantation, PBG East and PBG Northlake; prior month +10% elsewhere.`;
+  }
   function liftTxt(m){ return m.gap <= 0 ? "target already reached" : m.lift <= 0 ? `a normal week clears it by ${fmt(-m.lift * (m.mid - m.mtd))}` : `needs <b>${Math.round(m.lift*100)}% above</b> a normal week`; }
-  function plan(){
-    const M = STORES.map(model).sort((a,b) => b.lift - a.lift);
-    // every row on the same scale: % of its own target, 60% to 120%, so the targets line up
-    const A = .6, B = 1.2; let P;
-    document.getElementById("mtd-odds").innerHTML = `<div class="mtd-row mtd-axis"><div></div><div class="mtd-ax">${[.6,.7,.8,.9,1,1.1,1.2].map(v => `<span style="left:${(v-A)/(B-A)*100}%">${Math.round(v*100)}%</span>`).join("")}</div><div class="rt">of target</div></div>` + M.map(m => { P = v => Math.max(0, Math.min(100, (v / m.T.t - A) / (B - A) * 100)); return `<div class="mtd-row"><div class="nm">${m.s}<span class="mtd-st ${m.status[0]}">${m.status[1]}</span><small>target ${fmt(m.T.t)} · ${m.T.src}</small></div>
-      <div class="mtd-trk" title="So far ${fmt(m.mtd)} · likely ${fmt(m.lo)}–${fmt(m.hi)} · target ${fmt(m.T.t)}"><span class="rg" style="left:${P(m.lo)}%;width:${Math.max(.6, P(m.hi)-P(m.lo))}%"></span><span class="mt" style="width:${P(m.mtd)}%"></span><span class="md" style="left:${P(m.mid)}%"></span><span class="tg" style="left:${P(m.T.t)}%"></span></div>
-      <div class="rt"><b>${fmt(m.lo)}–${fmt(m.hi)}</b> likely<br>${liftTxt(m)}</div></div>`; }).join("");
-    document.getElementById("mtd-oddsnote").innerHTML = `Dark bar = revenue so far. Shaded band = likely month end from each store's own last 6 weeks, weekday by weekday (middle half of outcomes; line = typical). Tick = target; every row is drawn as a % of its own target, so the ticks line up. ${thanks(CUR) ? "Thanksgiving closed; the day before is planned like a Saturday." : ""} Sorted hardest first.`;
-    if (!PICK || !STORES.includes(PICK)) PICK = M[0].s;
-    const pk = document.getElementById("mtd-pick");
-    pk.innerHTML = M.map(m => `<button data-s="${m.s}"${m.s === PICK ? ' aria-pressed="true"' : ""}>${m.s}</button>`).join("");
-    daily(M.find(m => m.s === PICK));
-  }
-  let LASTTXT = "";
-  function daily(m){
-    const S = d => DNS[d.dt.getDay()] + " " + (d.dt.getMonth()+1) + "/" + d.d;
-    document.getElementById("mtd-dsum").innerHTML = `<b>${m.s}</b>: ${fmt(m.mtd)} so far, target ${fmt(m.T.t)}. ${m.gap > 0 ? `${fmt(m.gap)} to go over ${m.open} open day${m.open === 1 ? "" : "s"}, ${liftTxt(m)}.` : "Target reached; the cards show a normal week."}`;
-    const big = Math.max(...m.days.map(x => x.tgt));
-    const past = m.past.map(x => { const ok = x.k === "closed" ? null : x.act >= x.base; return `<div class="mtd-day ${x.k === "closed" ? "closed" : ok ? "hit" : "miss"}"><div class="w">${S(x)}</div><div class="v">${x.k === "closed" && !x.act ? "closed" : fmt(x.act)}</div><div class="x">${x.k === "closed" ? "" : "normal " + fmt(x.base)}</div></div>`; }).join("");
-    const fut = m.days.map((x,i) => x.k === "closed" ? `<div class="mtd-day closed"><div class="w">${S(x)}</div><div class="v">closed</div><div class="x">${mmdd(x.dt) === "11-" + thanks(11) ? "Thanksgiving" : ""}</div></div>`
-      : `<div class="mtd-day${i === m.days.findIndex(y => y.k !== "closed") ? " next" : ""}${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div></div>`).join("");
-    document.getElementById("mtd-days").innerHTML = (past ? `<div class="mtd-day" style="grid-column:1/-1;background:none;padding:0 0 2px"><div class="w">This past week · actual vs a normal day</div></div>` + past : "") +
-      `<div class="mtd-day" style="grid-column:1/-1;background:none;padding:8px 0 2px"><div class="w">Targets for the days left</div></div>` + (fut || `<div class="mtd-day closed"><div class="v">month complete</div></div>`);
-    const lines = m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""}`);
-    LASTTXT = `*${m.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + lines.join("\n");
-    document.getElementById("mtd-pre").hidden = true; document.getElementById("mtd-copied").textContent = "";
-  }
-  document.getElementById("mtd-pick").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; PICK = b.dataset.s; plan(); });
-  document.getElementById("mtd-copy").addEventListener("click", async () => {
-    const out = document.getElementById("mtd-copied"), pre = document.getElementById("mtd-pre");
-    try { await navigator.clipboard.writeText(LASTTXT); out.textContent = "Copied. Review it before you send it."; pre.hidden = true; }
-    catch (e) { pre.textContent = LASTTXT; pre.hidden = false; out.textContent = "Copy didn't work here; select the text below."; }
+  document.getElementById("mtd-tiles").addEventListener("click", async e => {
+    const th = e.target.closest(".th"); if (th) { const t = th.closest(".tile"), s = t.dataset.s; OPEN[s] = !OPEN[s]; t.classList.toggle("open", OPEN[s]); th.setAttribute("aria-expanded", OPEN[s]); try { localStorage.setItem("dow.tiles", JSON.stringify(OPEN)); } catch (er) {} return; }
+    const cp = e.target.closest("[data-copy]"); if (cp) { const s = cp.dataset.copy, out = document.querySelector(`[data-out="${s}"]`), pre = document.querySelector(`[data-pre="${s}"]`);
+      try { await navigator.clipboard.writeText(TXT[s]); out.textContent = "Copied. Review it before you send it."; pre.hidden = true; }
+      catch (er) { pre.textContent = TXT[s]; pre.hidden = false; out.textContent = "Copy didn't work here; select the text below."; } return; }
+    const op = e.target.closest("[data-open]"); if (op) { const b = document.querySelector(`#locseg button[data-loc="${op.dataset.open}"]`); if (b) b.click(); const h = document.getElementById("latestline"); if (h) h.scrollIntoView({behavior:"smooth", block:"start"}); }
   });
   function render(){
     seg("mtd-meas", Object.entries(MEAS), "m"); seg("mtd-cmp", CMPS.map(m => [m, MN[m-1]]), "c");
-    const n = sum(STORES, CUR, THRU), c = sum(STORES, st.c, THRU), p = pct(n, c);
+    seg("mtd-sel", [["Total system","Total system"], ...STORES.map(x => [x, x])], "sel");
+    const n = sum(STORES, CUR, THRU);
     document.getElementById("mtd-eyebrow").textContent = `Month to date · ${MN[CUR-1]} 1–${THRU}, ${YEAR} · all scenters`;
-    document.getElementById("mtd-head").textContent = p == null ? `${MEAS[st.m]} ${fmt(n)} month to date` : `${MEAS[st.m]} is ${p >= 0 ? "up" : "down"} ${Math.abs(p)}% vs ${MN[st.c-1]} through the ${ord(THRU)}`;
-    document.getElementById("mtd-sub").textContent = `${STORES.length} scenters, the 1st to the ${ord(THRU)} of each month. ${st.m === "mem" ? "Memberships bill mostly on the 1st, so they move slowly." : st.m === "add" ? "Add-ons & other move with how busy the stores are." : "Switch the measure to see memberships and add-ons separately."}`;
     document.getElementById("mtd-kpis").innerHTML = [[CUR, n, MN[CUR-1] + " 1–" + THRU, "this month"], ...CMPS.map(m => { const v = sum(STORES, m, THRU); return [m, v, MN[m-1] + " 1–" + THRU, pc(pct(n, v)) + " vs " + MN[m-1]]; })]
       .map(([m,v,l,d]) => `<div class="mtd-kpi"><span>${l}</span><b>${fmt(v)}</b><em>${d}</em></div>`).join("");
     document.getElementById("mtd-ta").textContent = `${st.sel} · ahead or behind ${MN[st.c-1]}, month to date`;
     document.getElementById("mtd-tb").textContent = `${st.sel} · each day, ${MN[CUR-1]} vs ${MN[st.c-1]}`;
     document.getElementById("mtd-lcur").textContent = MN[CUR-1]; document.getElementById("mtd-lcmp").textContent = MN[st.c-1];
-    document.getElementById("mtd-ft").textContent = `By store · ${MEAS[st.m].toLowerCase()}, ${MN[CUR-1]} 1–${THRU} vs the same days`;
-    document.getElementById("mtd-fp").textContent = `Plan the rest of ${MN[CUR-1]} · odds and daily targets`;
-    prep(); drawA(); drawB(); stores(); plan();
+    document.getElementById("mtd-ft").textContent = `Trends · ${MEAS[st.m].toLowerCase()}, ${MN[CUR-1]} vs earlier months, day by day`;
+    prep(); drawA(); drawB();
   }
+  // data freshness in the top bar
+  (function(){ const cr = document.querySelector(".bar .crumb"); if (!cr) return; const d = new Date(YEAR, CUR-1, THRU), now = new Date(), age = Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - d) / 864e5);
+    cr.innerHTML = `Daily Revenue Tracker <span>· data through ${DNS[d.getDay()]} ${CUR}/${THRU}${age > 1 ? ` · <b style="color:var(--bad)">${age} days old</b>` : ""}</span>`; })();
+  tiles();
   render();
   // outreach person colours: softer palette in dark mode, original in light
   if (typeof OCOLORS !== "undefined") {
