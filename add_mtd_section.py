@@ -93,15 +93,20 @@ body.dark .tile .gap.a{color:#E6B84A}
 .tile .pb .k{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink-70);margin-left:-1px;border-radius:1px}
 .tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
 .tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
-.wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg i+span{margin-right:12px}
-.wk{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
+.wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
+.wk{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
 .wk .dl{font-size:13.5px;color:var(--ink)}
-.wk .bars{position:relative;height:22px}
-.wk .bars b{position:absolute;left:0;height:8px;border-radius:4px}.wk .bars b.c{top:2px;background:var(--skye)}.wk .bars b.p{top:12px;background:var(--skye-45)}
-.wk .bars u{position:absolute;top:0;width:2px;height:3px;text-decoration:none}.wk .bars u.l{background:var(--bad)}.wk .bars u.h{background:var(--great)}
+.wk .bars{position:relative;display:flex;flex-direction:column;gap:3px;padding:3px 0}
+.wk .bars b{display:block;height:5px;border-radius:3px;min-width:2px;position:relative}.wk .bars b.c{height:10px;background:var(--skye)}
+.wk .bars b.w1,.wk-leg i.w1{background:#8C9AA8}.wk .bars b.w2,.wk-leg i.w2{background:#B3BFCA}.wk .bars b.w3,.wk-leg i.w3{background:#D2DAE2}
+body.dark .wk .bars b.w1,body.dark .wk-leg i.w1{background:#8A8984}body.dark .wk .bars b.w2,body.dark .wk-leg i.w2{background:#B5B3AC}body.dark .wk .bars b.w3,body.dark .wk-leg i.w3{background:#DAD8D1}
+.wk .bars b.lm,.wk-leg i.lm{background:transparent;border:1.5px dashed var(--mute);box-sizing:border-box}.wk .bars b.lm{height:7px}
+.wk .bars b.lm span{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;font-size:11.5px;color:var(--mute);white-space:nowrap;font-weight:400}
+.wk .dl,.wk .vv{align-self:start;padding-top:1px}.wk{row-gap:9px}
+.wk .bars u{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed;text-decoration:none;opacity:.7}.wk .bars u.l{border-color:var(--bad)}.wk .bars u.h{border-color:var(--great)}
 .wk .vv{font-size:13.5px;text-align:right;white-space:nowrap;color:var(--ink)}.wk .vv em{font-style:normal;font-weight:600;margin-left:6px}
 .wk .vv em.up{color:var(--great)}.wk .vv em.down{color:var(--bad)}
-.wk-ax{position:relative;height:16px;margin:2px 0 0 66px;font-size:11px;color:var(--mute)}.wk-ax span{position:absolute;transform:translateX(-50%)}.wk-ax span:last-child{transform:translateX(-100%)}.wk-ax span:first-child{transform:none}
+.wk-ax{position:relative;height:16px;margin:2px 0 0 86px;font-size:11px;color:var(--mute)}.wk-ax span{position:absolute;transform:translateX(-50%)}.wk-ax span:last-child{transform:translateX(-100%)}.wk-ax span:first-child{transform:none}
 .wk-ax .l{color:var(--bad);font-weight:600}.wk-ax .h{color:var(--great);font-weight:600}
 .tile .sum{font-size:13.5px;color:var(--ink-70);margin:10px 0 4px}
 .tile .warn{font-size:12.5px;color:var(--bad);margin:2px 0}
@@ -110,7 +115,7 @@ body.dark .tile .gap.a{color:#E6B84A}
 .tile .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .mtd-ghost{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .mtd-ghost:hover{border-color:var(--skye)}
-@media (max-width:560px){.wk{grid-template-columns:50px minmax(0,1fr) auto}.wk-ax{margin-left:60px}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.wk .dl .md{display:none}.wk{grid-template-columns:50px minmax(0,1fr) auto}.wk-ax{margin-left:60px}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* ---- dark mode, neutral (Claude-style) instead of navy ---- */
 body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5E5D59;--shadow:#E8E6DF;background:#1F1E1D;
@@ -342,10 +347,15 @@ JS = r'''
   let OPEN = {}; try { OPEN = JSON.parse(localStorage.getItem("dow.tiles") || "{}"); } catch (e) {}
   const TXT = {};
   function weekRows(s, ld){
-    const rows = []; for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); rows.push({dt, c: netOn(s, dt), p: netOn(s, addD(dt, -7))}); }
-    const mx0 = Math.max(1000, ...rows.flatMap(r => [r.c || 0, r.p || 0])), mx = Math.ceil(mx0 / 500) * 500, P = v => Math.max(0, Math.min(100, v / mx * 100));
+    const rows = []; for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue;
+      const back = [1,2,3].map(w => { const d = addD(dt, -7*w); return {w, d, v: d.getDate() === 1 ? null : netOn(s, d), lm: d.getMonth() !== dt.getMonth()}; });
+      rows.push({dt, c: netOn(s, dt), back, p: back[0].v}); }
+    const mx0 = Math.max(1000, ...rows.flatMap(r => [r.c || 0, ...r.back.map(x => x.v || 0)])), mx = Math.ceil(mx0 / 500) * 500, P = v => Math.max(0, Math.min(100, v / mx * 100));
     const html = rows.map(r => { const ch = r.c != null && r.p ? Math.round((r.c / r.p - 1) * 100) : null;
-      return `<div class="dl">${DNS[r.dt.getDay()]} ${r.dt.getDate()}</div><div class="bars"><u class="l" style="left:${P(500)}%"></u><u class="h" style="left:${P(1000)}%"></u><b class="c" style="width:${P(r.c || 0)}%"></b><b class="p" style="width:${P(r.p || 0)}%"></b></div>
+      const bk = r.back.filter(x => x.v != null).map(x => x.lm
+        ? `<b class="lm" style="width:${P(x.v)}%"><span>${MN[x.d.getMonth()]} ${x.d.getDate()}</span></b>`
+        : `<b class="w${x.w}" style="width:${P(x.v)}%" title="${lab(x.d)}: ${fmt(x.v)}"></b>`).join("");
+      return `<div class="dl">${DNS[r.dt.getDay()]} <span class="md">${r.dt.getMonth()+1}/</span>${r.dt.getDate()}</div><div class="bars"><u class="l" style="left:${P(500)}%"></u><u class="h" style="left:${P(1000)}%"></u><b class="c" style="width:${P(r.c || 0)}%" title="${lab(r.dt)}: ${fmt(r.c || 0)}"></b>${bk}</div>
         <div class="vv">${r.c == null ? "—" : fmt(r.c)}${ch == null ? "" : `<em class="${ch >= 0 ? "up" : "down"}">${ch > 0 ? "+" : ""}${ch}%</em>`}</div>`; }).join("");
     const ax = [0, 500, 1000, mx].filter((v,i,a) => a.indexOf(v) === i).map(v => `<span class="${v === 500 ? "l" : v === 1000 ? "h" : ""}" style="left:${P(v)}%">${fmt(v)}</span>`).join("");
     const both = rows.filter(r => r.c != null && r.p != null), sc = both.reduce((a,r) => a + r.c, 0), sp = both.reduce((a,r) => a + r.p, 0);
@@ -374,9 +384,10 @@ JS = r'''
         <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
         <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
         <div class="body">
-          <div class="wk-leg"><i style="background:var(--skye)"></i><span>This week</span><i style="background:var(--skye-45)"></i><span>Same day last week</span></div>
+          <div class="wk-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
           <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>
           <p class="sum">Matching days ${fmt(wk.sc)} vs ${fmt(wk.sp)} the week before ${wk.sp ? pc(pct(wk.sc, wk.sp)) : ""}</p>
+          <p class="mtd-note">Gray bars are the same weekday 1, 2 and 3 weeks back; a dashed outline means that day fell in last month. % is vs 1 week ago. The 1st (billing day) is left out.</p>
           ${t.flags.map(f => `<p class="warn">⚠ ${f}</p>`).join("")}
           <p class="sub2">Rest of ${MN[CUR-1]} · ${m.gap > 0 ? `${fmt(m.gap)} to go, ${liftTxt(m).replace(/<\/?b>/g, "")}` : "target reached"} · target ${m.T.src}</p>
           <div class="mtd-days">${days || '<div class="mtd-day closed"><div class="v">month complete</div></div>'}</div>
