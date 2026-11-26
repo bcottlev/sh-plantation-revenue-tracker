@@ -106,6 +106,15 @@ The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_
 - **Bryan's decision:** one source for the page, the Slack bot and the digest. A good next step is a `data/targets.json` read by all three.
 - **Still to confirm:** Bryan has not confirmed Palm Beach County targets; October +10% makes Wellington and West Palm Beach unreachable.
 
+## Netlify credits: deploy sparingly
+
+Netlify paused production deploys on 11/24/2026 after the account ran out of credits (billing cycle runs the 8th to the 7th). Every production deploy costs credits.
+
+- **Netlify builds from GitHub itself.** The `deploy-netlify.yml` Action duplicated every deploy and is disabled (`gh workflow disable`). Don't re-enable it.
+- **`netlify.toml` `ignore`** skips the deploy when a push only touches data, tools, scripts, `.txt`/`.md` files, `.claude`, `.github` or `month_totals.json`. Pages don't fetch those files; if a page ever starts to, update the rule.
+- **Batch your pushes.** Iterate on design locally (headless checks, preview file) and push once when Bryan approves, not after each tweak. One push per data update.
+- **After pushing, check the deploy went live:** `curl -s https://plantation-tracker.netlify.app/day-of-week/ | grep -c "<something new>"`, or the Netlify deploys page. A green `git push` doesn't mean the site updated.
+
 ## Automation (GitHub Actions)
 
 | Workflow | What it does |
@@ -114,7 +123,8 @@ The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_
 | `eos-reminder.yml` + `eos_reminder.py` | At 8 PM it posts a one-line note to a store channel only when a manager End-of-Shift SM report is missing (last 7 days). Tags: Tori for both PBG stores; Nina and Holly for Plantation; Cooper City (Nina) from Dec 2. Input `post` defaults to false. |
 | `pull-eos-desk.yml`, `pull-slack-revenue.yml` | Desk roster and manager revenue from the Slack reports. |
 | `fact-api-daily.yml`, `ringcentral-archive.yml` | Corporate FACT API pull and RingCentral call archive. |
-| `update-tracker.yml`, `deploy-netlify.yml` | Tracker entry and deploy. |
+| `update-tracker.yml` | Tracker entry. |
+| `deploy-netlify.yml` | Disabled since 11/26/2026; Netlify's own GitHub link deploys. |
 
 - **Manual runs:** dispatch with `gh workflow run <file> -f post=true` and read logs with `gh run view --log`.
 - **Scheduled tasks in claude.ai, not here:**

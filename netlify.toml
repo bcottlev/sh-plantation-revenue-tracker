@@ -1,6 +1,9 @@
 [build]
   publish = "."
   command = ""
+  # Skip the deploy (exit 0) when a push changes nothing the site serves:
+  # data files, scripts, status logs, docs. Each production deploy costs credits.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)data' ':(exclude)tools' ':(exclude)ringcentral' ':(exclude)*.py' ':(exclude)*.txt' ':(exclude)*.md' ':(exclude).claude' ':(exclude).github' ':(exclude)month_totals.json'"
 
 [[redirects]]
   from = "/*"
