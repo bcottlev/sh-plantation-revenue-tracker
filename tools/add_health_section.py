@@ -107,10 +107,19 @@ body.dark .hl h2.hl-h{color:var(--ink)}
 .hl-c em{font-style:normal;font-size:11.5px;font-weight:600;grid-column:1}
 .hl-c svg{grid-row:1/span 2;grid-column:2;width:56px;height:22px}
 @media (max-width:560px){.hl-card .big{font-size:22px}}
+/* ---- section rhythm: every top-level fold row has the same height, gap and divider ---- */
+body .mtd,body .hl{margin:0;padding:0;border-bottom:0}
+body .mtd>.fold,body .fold.big,body .days>.fold,body .periods>.fold{margin:0;padding:14px 0}
+body .periods,body .days,body .periods:has(> .fold[aria-expanded="false"]),body .days:has(> .fold[aria-expanded="false"]){margin-top:0}
+body .mtd>.fold+.fbody:not(.closed),body .fold.big+.fbody:not(.closed),body .days>.fold+.fbody:not(.closed),body .periods>.fold+.fbody:not(.closed){padding:6px 0 28px}
+body .mtd-tiles{margin-bottom:12px}
+body .sect#weekday header{margin-top:6px}
+@media (max-width:560px){body .mtd>.fold,body .fold.big,body .days>.fold,body .periods>.fold{font-size:10.5px;letter-spacing:.07em}}
 '''
 
 HTML = r'''<section class="hl" id="health">
-  <p class="eyebrow" id="hl-eyebrow"></p>
+  <p class="eyebrow fold big" id="hl-eyebrow" role="button" tabindex="0" aria-controls="hl-body" aria-expanded="true" data-open="1"></p>
+  <div id="hl-body" class="fbody">
   <h2 class="hl-h" id="hl-head"></h2>
   <p class="range" id="hl-sub"></p>
   <p class="hl-q">Membership health</p>
@@ -120,6 +129,7 @@ HTML = r'''<section class="hl" id="health">
   <div id="hl-score" class="fbody">
     <div class="hl-wrap"><table class="hl-t" id="hl-table"></table></div>
     <p class="hl-note" id="hl-snote"></p>
+  </div>
   </div>
 </section>
 '''
@@ -198,7 +208,8 @@ def main(argv):
     s = re.sub(r'\n*<section class="hl" id="health">.*?</section>\n', '\n', s, count=1, flags=re.S)
     s = re.sub(r'\n+<script>\n/\* ---- store health section.*?</script>\n', '\n', s, count=1, flags=re.S)
     s = s.replace('\n</style>', CSS + '.periods:has(#periods-months){display:none}\n</style>', 1)
-    anchor = '<header>\n  <p class="eyebrow" id="latestline">'
+    anchor = '<div class="sect" id="weekday">'           # weekday analysis block (collapsible)
+    if anchor not in s: anchor = '<header>\n  <p class="eyebrow" id="latestline">'
     assert anchor in s, "anchor missing"
     s = s.replace(anchor, HTML + '\n' + anchor, 1)
     assert s.count('</body>') == 1

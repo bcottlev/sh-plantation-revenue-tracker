@@ -65,6 +65,12 @@ Keep it short. Cover:
 
 ### Day-of-week page internals
 
+- **Order:** MTD section (tiles, one column always), Store health, then `<div class="sect" id="weekday">` (the weekday analysis, collapsible), Outreach, Outreach by role, then the By day / By week / All locations folds. Both section builders insert before the next block's anchor, so the order holds on re-runs.
+- **Top bar** always says "Scenthound SFL"; the weekday title shows the selected store.
+- **Folds:** `.fold[aria-controls]` toggles its body and remembers the choice per browser. Big sections use `data-open="1"` to start open until the viewer closes them. Store health, weekday analysis, Outreach and Outreach by role are big folds.
+- **No footer notes:** Bryan removed the billing-day and source notes, and the long explanation under the tiles; don't add them back. Explanations go in hover titles.
+- **Class names:** the outreach chart uses `.wk` for weekend bars. Tile classes are `.tw*`; don't reuse short names that the base page already styles.
+
 `DATA_BY_LOC` holds `{"Store": [["MM-DD", weekday 0=Mon..6=Sun, net, nonmembership, batch 1=billing day], ...]}`. It is rebuilt from `data/mytime.csv` by `tools/build_dow.py` and spliced in by `refresh_pages.py`.
 
 The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_section.py`**. Edit it there and re-run `python3 tools/add_mtd_section.py day-of-week/index.html`; it is idempotent. Then run `tools/build_planner.py`. Never edit the section directly in the HTML, because the next refresh overwrites it.
@@ -85,7 +91,8 @@ The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_
   - Closed days: Thanksgiving, 12/25 and 1/1. The day before Thanksgiving, 12/24 and 12/31 are planned like a Saturday.
   - `CLOSED_DOW` lists stores closed on a weekday; PBG Northlake is closed Sundays.
   - Daily target = round(normal × max(lift, 1)).
-- **Floor line on each tile:** average net per traded day, leaving out the 1st's billing, vs all of last month. Hidden under $200/day (Cooper City presale).
+- **Collapsed tile is 3 rows** (Bryan wants them compact): name · latest day vs a week earlier · gap at pace; the progress bar; MTD of target · floor $/day · vs prior months.
+- **Floor figure on each tile:** average net per traded day, leaving out the 1st's billing, vs all of last month. Hidden under $200/day (Cooper City presale).
 - **Store health section** (after the tiles), built by **`tools/add_health_section.py`** from `data/mytime.csv` (ticket level) and re-run by `refresh_pages.py`. Edit it there, never in the HTML.
   - Membership health cards: members billed on the 1st by month (7 months), change since 3 months ago, peak, new membership sales per 30 days. Shrinking/growing = 5% or more over 3 months; headline names the shrinking stores.
   - Store scorecard fold: floor $/day, visits/day (service tickets), average service ticket (gross), discount % of services, members, each with change vs last month and a 7-month bar sparkline. Cooper City left out until it opens.

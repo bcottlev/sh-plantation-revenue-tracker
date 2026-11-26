@@ -75,25 +75,26 @@ body.dark .mtd-copy{background:var(--daisy);border-color:var(--daisy);color:#1C2
 .mtd-copy:focus-visible{outline:2px solid var(--skye);outline-offset:2px}
 .mtd-pre{white-space:pre-wrap;background:var(--skye-8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:8px}
 
-.mtd-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px;margin:16px 0 6px;align-items:start}
-.tile{background:var(--skye-8);border-radius:14px;padding:14px 16px 12px;border:1px solid transparent}
+.mtd-tiles{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:16px 0 6px;align-items:start}
+.tile{background:var(--skye-8);border-radius:12px;padding:10px 14px 9px;border:1px solid transparent}
 .tile.open{border-color:var(--line)}
-.tile .th{display:flex;justify-content:space-between;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;padding:0;width:100%;text-align:left;font:inherit;color:inherit}
+.tile .th{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;cursor:pointer;background:none;border:0;padding:0;width:100%;text-align:left;font:inherit;color:inherit}
 .tile .th:focus-visible{outline:2px solid var(--skye);outline-offset:3px;border-radius:6px}
-.tile .tn{font-size:18px;font-weight:700;color:var(--shadow)}body.dark .tile .tn{color:var(--ink)}
+.tile .tn{font-size:17px;font-weight:700;color:var(--shadow)}body.dark .tile .tn{color:var(--ink)}
 .tile .tn i{font-style:normal;display:inline-block;margin-left:6px;font-size:12px;color:var(--mute);transition:transform .15s}
 .tile.open .tn i{transform:rotate(180deg)}
 .tile .gap{font-size:15px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tile .gap.g{color:var(--great)}.tile .gap.a{color:#C98A00}.tile .gap.r{color:var(--bad)}
 body.dark .tile .gap.a{color:#E6B84A}
-.tile .ld{font-size:14px;color:var(--ink-70);margin:3px 0 8px;font-variant-numeric:tabular-nums}
+.tile .ld{flex:1 1 auto;min-width:0;font-size:13.5px;color:var(--ink-70);font-variant-numeric:tabular-nums}.tile .ld b{color:var(--ink);font-weight:600}.tile .ld .up{color:var(--great)}.tile .ld .down{color:var(--bad)}
+.tile .gap{margin-left:auto}
 .tile .ld .flag{color:var(--bad);font-weight:600}
-.tile .pb{position:relative;height:8px;background:var(--skye-20);border-radius:5px;margin:4px 0 7px}
+.tile .pb{position:relative;height:7px;background:var(--skye-20);border-radius:5px;margin:8px 0 6px}
 .tile .pb .f{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
 .tile .pb .f.g{background:var(--great)}.tile .pb .f.a{background:#E0A82E}.tile .pb .f.r{background:var(--bad)}
 .tile .pb .k{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink-70);margin-left:-1px;border-radius:1px}
-.tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
-.tile .ft.fl{margin-top:3px;font-size:13.5px;color:var(--ink-70)}.tile .ft.fl b{color:var(--ink);font-weight:600}.tile .ft .up{color:var(--great)}.tile .ft .down{color:var(--bad)}
+.tile .ft{display:flex;justify-content:space-between;gap:2px 10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.tile .ft .fl{color:var(--ink-70)}.tile .ft .fl b{color:var(--ink);font-weight:600}.tile .ft .up{color:var(--great)}.tile .ft .down{color:var(--bad)}
 .tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
 .tw-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.tw-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.tw-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
 .tw{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
@@ -117,7 +118,7 @@ body.dark .tw .bars b.w1,body.dark .tw-leg i.w1{background:#8A8984}body.dark .tw
 .tile .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .mtd-ghost{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .mtd-ghost:hover{border-color:var(--skye)}
-@media (max-width:560px){.tw .dl .md{display:none}.tw{grid-template-columns:50px minmax(0,1fr) auto}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.tile .ld{order:3;flex-basis:100%}.tw .dl .md{display:none}.tw{grid-template-columns:50px minmax(0,1fr) auto}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* ---- dark mode, neutral (Claude-style) instead of navy ---- */
 body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5E5D59;--shadow:#E8E6DF;background:#1F1E1D;
@@ -158,7 +159,6 @@ HTML = r'''<section class="mtd" id="mtd">
   <h2 class="mtd-h" id="mtd-head"></h2>
   <p class="range" id="mtd-sub"></p>
   <div class="mtd-tiles" id="mtd-tiles"></div>
-  <p class="mtd-note" id="mtd-tnote"></p>
   <p class="eyebrow fold" role="button" tabindex="0" aria-controls="mtd-trends" aria-expanded="false" id="mtd-ft"></p>
   <div id="mtd-trends" class="fbody">
     <div class="controls">
@@ -388,11 +388,9 @@ JS = r'''
         : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div><div class="cu">→ ${"$" + (x.cum / 1000).toFixed(1)}k total</div></div>`).join("");
       TXT[t.s] = `*${t.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""} → ${fmt(x.cum)} total`).join("\n");
       return `<div class="tile${OPEN[t.s] ? " open" : ""}" data-s="${t.s}">
-        <button type="button" class="th" aria-expanded="${!!OPEN[t.s]}"><span class="tn">${t.s}<i>▾</i></span><span class="gap ${t.cls}">${kd(t.diff)} at pace</span></button>
-        <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
+        <button type="button" class="th" aria-expanded="${!!OPEN[t.s]}"><span class="tn">${t.s}<i>▾</i></span><span class="ld">${DNS[t.ld.getDay()]} <b>${fmt(t.lv)}</b>${lc == null ? "" : ` ${pc(lc)} vs ${(addD(t.ld, -7).getMonth()+1) + "/" + addD(t.ld, -7).getDate()}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</span><span class="gap ${t.cls}">${kd(t.diff)} at pace</span></button>
         <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
-        <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
-        ${t.fl && t.fl > 200 ?`<div class="ft fl"><span>Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` · ${pc(pct(t.fl, t.fp))} vs ${MN[CUR-2]}'s ${fmt(t.fp)}` : ""}</span></div>` : ""}
+        <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${Math.round(m.mtd / m.T.t * 100)}%)${t.fl && t.fl > 200 ? ` · <span class="fl" title="Average per traded day, leaving out the 1st's billing${t.fp ? `; ${MN[CUR-2]} was ${fmt(t.fp)}` : ""}">Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` ${pc(pct(t.fl, t.fp))}` : ""}</span>` : ""}</span><span>${t.cmp.join(" · ")}</span></div>
         <div class="body">
           <div class="tw-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
           <div class="tw">${wk.html}<span></span><div class="tw-ax">${wk.ax}</div><span></span></div>
@@ -403,7 +401,6 @@ JS = r'''
           <div class="acts"><button type="button" class="mtd-copy" data-copy="${t.s}">Copy for Slack</button><button type="button" class="mtd-ghost" data-open="${t.s}">Weekday analysis ↓</button><span class="mtd-note" data-out="${t.s}"></span></div>
           <pre class="mtd-pre" data-pre="${t.s}" hidden></pre>
         </div></div>`; }).join("");
-    document.getElementById("mtd-tnote").textContent = `Sorted by gap at pace, worst first. Bar = month to date as a share of target; tick = where the store normally is by the ${ord(THRU)}, weighted by its own weekdays and the 1st's billing. "At pace" = likely month end (each store's last 6 weeks, weekday by weekday${thanks(CUR) ? "; Thanksgiving closed, the day before planned like a Saturday" : ""}) minus target. Green clears target, amber within 5%, red more than 5% short. Targets: bonus targets for Plantation, PBG East and PBG Northlake; prior month +10% elsewhere.`;
   }
   function liftTxt(m){ return m.gap <= 0 ? "target already reached" : m.lift <= 0 ? `a normal week clears it by ${fmt(-m.lift * (m.mid - m.mtd))}` : `needs <b>${Math.round(m.lift*100)}% above</b> a normal week`; }
   document.getElementById("mtd-tiles").addEventListener("click", async e => {
@@ -411,7 +408,7 @@ JS = r'''
     const cp = e.target.closest("[data-copy]"); if (cp) { const s = cp.dataset.copy, out = document.querySelector(`[data-out="${s}"]`), pre = document.querySelector(`[data-pre="${s}"]`);
       try { await navigator.clipboard.writeText(TXT[s]); out.textContent = "Copied. Review it before you send it."; pre.hidden = true; }
       catch (er) { pre.textContent = TXT[s]; pre.hidden = false; out.textContent = "Copy didn't work here; select the text below."; } return; }
-    const op = e.target.closest("[data-open]"); if (op) { const b = document.querySelector(`#locseg button[data-loc="${op.dataset.open}"]`); if (b) b.click(); const h = document.getElementById("latestline"); if (h) h.scrollIntoView({behavior:"smooth", block:"start"}); }
+    const op = e.target.closest("[data-open]"); if (op) { const b = document.querySelector(`#locseg button[data-loc="${op.dataset.open}"]`); if (b) b.click(); const wt = document.getElementById("wktitle"); if (wt && wt.getAttribute("aria-expanded") !== "true") wt.click(); const h = wt || document.getElementById("latestline"); if (h) h.scrollIntoView({behavior:"smooth", block:"start"}); }
   });
   function render(){
     seg("mtd-meas", Object.entries(MEAS), "m"); seg("mtd-cmp", CMPS.map(m => [m, MN[m-1]]), "c");
@@ -449,6 +446,7 @@ s = re.sub(r'\n*<section class="mtd" id="mtd">.*?</section>\n', '\n', s, count=1
 s = re.sub(r'\n+<script>\n/\* ---- month to date section.*?</script>\n', '\n', s, count=1, flags=re.S)
 s = s.replace('\n</style>', CSS + '</style>', 1)
 anchor = '<section class="hl" id="health">'           # store health section, if present, comes right after MTD
+if anchor not in s: anchor = '<div class="sect" id="weekday">'
 if anchor not in s: anchor = '<header>\n  <p class="eyebrow" id="latestline">'
 assert anchor in s
 s = s.replace(anchor, HTML + '\n' + anchor, 1)
