@@ -436,8 +436,8 @@ p = sys.argv[1]
 s = open(p).read()
 # remove any earlier copy, so the script can be re-run
 s = re.sub(r'\n/\* ---- month to date \(MTD\) ---- \*/.*?(?=\n</style>)', '', s, count=1, flags=re.S)
-s = re.sub(r'<section class="mtd" id="mtd">.*?</section>\n', '', s, count=1, flags=re.S)
-s = re.sub(r'\n<script>\n/\* ---- month to date section.*?</script>\n', '\n', s, count=1, flags=re.S)
+s = re.sub(r'\n*<section class="mtd" id="mtd">.*?</section>\n', '\n', s, count=1, flags=re.S)
+s = re.sub(r'\n+<script>\n/\* ---- month to date section.*?</script>\n', '\n', s, count=1, flags=re.S)
 s = s.replace('\n</style>', CSS + '</style>', 1)
 anchor = '<header>\n  <p class="eyebrow" id="latestline">'
 assert anchor in s
