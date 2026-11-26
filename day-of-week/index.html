@@ -420,6 +420,7 @@ body.dark .tile .gap.a{color:#E6B84A}
 .tile .pb .f.g{background:var(--great)}.tile .pb .f.a{background:#E0A82E}.tile .pb .f.r{background:var(--bad)}
 .tile .pb .k{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink-70);margin-left:-1px;border-radius:1px}
 .tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.tile .ft.fl{margin-top:3px;font-size:13.5px;color:var(--ink-70)}.tile .ft.fl b{color:var(--ink);font-weight:600}.tile .ft .up{color:var(--great)}.tile .ft .down{color:var(--bad)}
 .tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
 .wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
 .wk{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
@@ -477,6 +478,40 @@ body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{backgroun
  .mtd-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
  .mtd-t td{font-size:13px}.mtd-t th{font-size:10px;letter-spacing:.08em}.mtd-t .mtd-bar{display:none}
 }
+/* ---- store health ---- */
+.hl{margin:0 0 34px;padding-bottom:26px;border-bottom:2px solid var(--daisy)}
+body.dark .hl{border-bottom-color:var(--line)}
+.hl h2.hl-h{font-family:Fraunces,"Cooper Light",Georgia,serif;font-weight:300;font-variation-settings:"SOFT" 100,"opsz" 96;font-size:clamp(26px,5.4vw,38px);line-height:1.08;margin:0 0 6px;color:var(--shadow)}
+body.dark .hl h2.hl-h{color:var(--ink)}
+.hl-q{font-weight:700;font-size:15px;color:var(--shadow);margin:20px 0 4px}body.dark .hl-q{color:var(--ink)}
+.hl-note{font-size:12.5px;color:var(--mute);margin:6px 0 0}
+.hl-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:10px;margin-top:10px}
+.hl-card{background:var(--skye-8);border-radius:12px;padding:12px 14px 10px;font-variant-numeric:tabular-nums}
+.hl-card .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.hl-card .n{font-weight:700;font-size:15px;color:var(--shadow)}body.dark .hl-card .n{color:var(--ink)}
+.hl-chip{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.hl-chip.dn{background:var(--bad-soft);color:var(--bad)}.hl-chip.up{background:var(--great-soft);color:var(--great)}.hl-chip.fl{background:var(--skye-20);color:var(--ink-70)}
+.hl-card .big{font-size:26px;font-weight:700;color:var(--shadow);margin:4px 0 0;line-height:1.1}body.dark .hl-card .big{color:var(--ink)}
+.hl-card .big small{font-size:13px;font-weight:500;color:var(--mute);margin-left:6px}
+.hl-card .ln{font-size:13px;color:var(--ink-70);margin-top:2px}
+.hl-card .ln b{color:var(--ink);font-weight:600}
+.hl-spark{display:block;width:100%;height:46px;margin:8px 0 2px}
+.hl-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute)}
+.hl .up{color:var(--great)}.hl .down{color:var(--bad)}
+.hl-wrap{overflow-x:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
+.hl-t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:640px}
+.hl-t th{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);text-align:right;padding:0 0 8px 10px;border-bottom:1.5px solid var(--line);white-space:nowrap;vertical-align:bottom}
+.hl-t th small{display:block;font-weight:500;letter-spacing:0;text-transform:none;font-size:11px}
+.hl-t th:first-child,.hl-t td:first-child{text-align:left;padding-left:0}
+.hl-t td{padding:8px 0 8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:middle}
+.hl-t td:first-child{font-weight:700;color:var(--shadow);font-size:14.5px}body.dark .hl-t td:first-child{color:var(--ink)}
+.hl-t tr.sys td{border-top:2px solid var(--shadow);font-weight:700}body.dark .hl-t tr.sys td{border-top-color:#5A5955}
+.hl-c{display:inline-grid;grid-template-columns:auto 56px;column-gap:8px;align-items:center;justify-items:end}
+.hl-c b{font-size:14.5px;color:var(--ink);font-weight:600}
+.hl-c em{font-style:normal;font-size:11.5px;font-weight:600;grid-column:1}
+.hl-c svg{grid-row:1/span 2;grid-column:2;width:56px;height:22px}
+@media (max-width:560px){.hl-card .big{font-size:22px}}
+.periods:has(#periods-months){display:none}
 </style>
 </head>
 <body>
@@ -516,6 +551,20 @@ body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{backgroun
       <div class="mtd-fig" id="mtd-fb"><svg id="mtd-sb" role="img" aria-label="Daily revenue, this month versus comparison month"></svg><div class="mtd-tip" id="mtd-pb" hidden></div></div>
       <p class="mtd-note">Hover or tap either chart for that day.</p>
     </div>
+  </div>
+</section>
+
+<section class="hl" id="health">
+  <p class="eyebrow" id="hl-eyebrow"></p>
+  <h2 class="hl-h" id="hl-head"></h2>
+  <p class="range" id="hl-sub"></p>
+  <p class="hl-q">Membership health</p>
+  <p class="hl-note" id="hl-mnote"></p>
+  <div class="hl-cards" id="hl-cards"></div>
+  <p class="eyebrow fold" role="button" tabindex="0" aria-controls="hl-score" aria-expanded="false" id="hl-ft">Store scorecard · floor revenue, visits, ticket, discounts, members by month</p>
+  <div id="hl-score" class="fbody">
+    <div class="hl-wrap"><table class="hl-t" id="hl-table"></table></div>
+    <p class="hl-note" id="hl-snote"></p>
   </div>
 </section>
 
@@ -1286,7 +1335,13 @@ render();
     for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
       if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (normal ${fmt(nrm)}): store closed, or sales missing from the export?`); }
     const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
-    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s)};
+    const fl = floorDay(s, CUR, THRU), fp = has(s, CUR-1) ? floorDay(s, CUR-1, DIM(CUR-1)) : null;
+    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s), fl, fp};
+  }
+  function floorDay(s, mm, to){                          // avg net per traded day, leaving out the 1st (membership billing)
+    const g = G[s][mm]; if (!g) return null; let t = 0, n = 0;
+    for (let d = 2; d <= to; d++) if (g.has[d-1] && g.net[d-1] > 0) { t += g.net[d-1]; n++; }
+    return n ? t / n : null;
   }
   const kd = v => (v >= 0 ? "+" : "−") + "$" + (Math.abs(v)/1000).toFixed(1) + "k";
   let OPEN = {}; try { OPEN = JSON.parse(localStorage.getItem("dow.tiles") || "{}"); } catch (e) {}
@@ -1328,6 +1383,7 @@ render();
         <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
         <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
         <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
+        ${t.fl && t.fl > 200 ?`<div class="ft fl"><span>Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` · ${pc(pct(t.fl, t.fp))} vs ${MN[CUR-2]}'s ${fmt(t.fp)}` : ""}</span></div>` : ""}
         <div class="body">
           <div class="wk-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
           <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>
@@ -1373,6 +1429,70 @@ render();
     const sync = () => { const d = document.body.classList.contains("dark"); OCOLORS.splice(0, OCOLORS.length, ...(d ? DARKC : LIGHTC)); if (typeof renderOutreach === "function") renderOutreach(); };
     document.getElementById("themeswitch").addEventListener("click", sync); sync();
   }
+})();
+</script>
+
+<script>
+/* ---- store health section: monthly figures built by tools/add_health_section.py ---- */
+(function(){
+  const H = {"months":["2026-05","2026-06","2026-07","2026-08","2026-09","2026-10","2026-11"],"thru":"2026-11-25","nofloor":["Cooper City"],"stores":{"Boynton Beach":{"2026-05":{"floor":575,"vis":12.8,"avgt":87,"disc":9.2,"mem":183,"memd":8133,"newpm":136,"days":30},"2026-06":{"floor":602,"vis":12.8,"avgt":91,"disc":10.8,"mem":186,"memd":8128,"newpm":148,"days":29},"2026-07":{"floor":512,"vis":11.9,"avgt":85,"disc":9.5,"mem":204,"memd":8777,"newpm":121,"days":30},"2026-08":{"floor":590,"vis":12.7,"avgt":86,"disc":9.4,"mem":185,"memd":8054,"newpm":121,"days":28},"2026-09":{"floor":456,"vis":10.4,"avgt":86,"disc":9.0,"mem":188,"memd":8102,"newpm":114,"days":29},"2026-10":{"floor":512,"vis":11.2,"avgt":90,"disc":9.4,"mem":182,"memd":7749,"newpm":111,"days":29},"2026-11":{"floor":565,"vis":11.4,"avgt":91,"disc":9.9,"mem":174,"memd":7478,"newpm":109,"days":24}},"Cooper City":{"2026-06":{"floor":null,"vis":null,"avgt":null,"disc":null,"mem":null,"memd":0,"newpm":10,"days":0},"2026-07":{"floor":42,"vis":0.0,"avgt":null,"disc":null,"mem":5,"memd":140,"newpm":27,"days":4},"2026-08":{"floor":68,"vis":0.0,"avgt":null,"disc":null,"mem":6,"memd":264,"newpm":37,"days":9},"2026-09":{"floor":71,"vis":0.0,"avgt":null,"disc":null,"mem":5,"memd":236,"newpm":66,"days":18},"2026-10":{"floor":97,"vis":0.0,"avgt":null,"disc":null,"mem":21,"memd":1076,"newpm":69,"days":16},"2026-11":{"floor":74,"vis":0.0,"avgt":null,"disc":null,"mem":30,"memd":1361,"newpm":61,"days":16}},"Lake Worth":{"2026-05":{"floor":654,"vis":14.9,"avgt":97,"disc":11.2,"mem":237,"memd":10416,"newpm":109,"days":28},"2026-06":{"floor":770,"vis":14.8,"avgt":103,"disc":10.3,"mem":243,"memd":10841,"newpm":101,"days":29},"2026-07":{"floor":617,"vis":14.0,"avgt":99,"disc":10.5,"mem":249,"memd":11263,"newpm":87,"days":30},"2026-08":{"floor":603,"vis":12.7,"avgt":101,"disc":10.2,"mem":250,"memd":11146,"newpm":85,"days":30},"2026-09":{"floor":613,"vis":12.8,"avgt":103,"disc":10.7,"mem":241,"memd":10815,"newpm":90,"days":29},"2026-10":{"floor":702,"vis":14.0,"avgt":109,"disc":11.2,"mem":236,"memd":10876,"newpm":88,"days":30},"2026-11":{"floor":803,"vis":15.7,"avgt":104,"disc":9.1,"mem":230,"memd":10556,"newpm":102,"days":23}},"PBG East":{"2026-05":{"floor":857,"vis":13.7,"avgt":97,"disc":8.8,"mem":122,"memd":6148,"newpm":259,"days":30},"2026-06":{"floor":807,"vis":13.3,"avgt":93,"disc":9.4,"mem":121,"memd":5842,"newpm":252,"days":29},"2026-07":{"floor":724,"vis":11.6,"avgt":97,"disc":9.5,"mem":116,"memd":5564,"newpm":238,"days":30},"2026-08":{"floor":724,"vis":12.2,"avgt":97,"disc":8.6,"mem":116,"memd":5750,"newpm":223,"days":30},"2026-09":{"floor":750,"vis":11.4,"avgt":101,"disc":9.9,"mem":112,"memd":5608,"newpm":224,"days":29},"2026-10":{"floor":737,"vis":11.9,"avgt":97,"disc":8.8,"mem":109,"memd":5226,"newpm":219,"days":30},"2026-11":{"floor":860,"vis":13.3,"avgt":104,"disc":9.9,"mem":118,"memd":5692,"newpm":221,"days":24}},"PBG Northlake":{"2026-05":{"floor":499,"vis":8.9,"avgt":107,"disc":11.7,"mem":77,"memd":3681,"newpm":87,"days":28},"2026-06":{"floor":456,"vis":8.5,"avgt":102,"disc":11.2,"mem":79,"memd":3741,"newpm":72,"days":28},"2026-07":{"floor":398,"vis":8.1,"avgt":98,"disc":11.1,"mem":77,"memd":3673,"newpm":74,"days":28},"2026-08":{"floor":337,"vis":7.0,"avgt":100,"disc":8.7,"mem":82,"memd":3924,"newpm":62,"days":30},"2026-09":{"floor":396,"vis":8.1,"avgt":96,"disc":9.9,"mem":75,"memd":3404,"newpm":69,"days":26},"2026-10":{"floor":416,"vis":8.0,"avgt":101,"disc":10.4,"mem":81,"memd":3814,"newpm":82,"days":30},"2026-11":{"floor":484,"vis":8.1,"avgt":104,"disc":12.1,"mem":80,"memd":3564,"newpm":86,"days":23}},"Plantation":{"2026-05":{"floor":594,"vis":16.5,"avgt":92,"disc":17.5,"mem":250,"memd":11681,"newpm":81,"days":27},"2026-06":{"floor":615,"vis":15.3,"avgt":94,"disc":15.8,"mem":250,"memd":11808,"newpm":95,"days":29},"2026-07":{"floor":568,"vis":14.3,"avgt":95,"disc":15.9,"mem":251,"memd":12137,"newpm":91,"days":30},"2026-08":{"floor":667,"vis":15.2,"avgt":97,"disc":14.4,"mem":259,"memd":12395,"newpm":96,"days":30},"2026-09":{"floor":625,"vis":14.8,"avgt":100,"disc":14.6,"mem":247,"memd":11966,"newpm":107,"days":28},"2026-10":{"floor":728,"vis":16.0,"avgt":100,"disc":13.5,"mem":242,"memd":11738,"newpm":116,"days":30},"2026-11":{"floor":773,"vis":17.7,"avgt":102,"disc":15.6,"mem":246,"memd":12004,"newpm":121,"days":24}},"Wellington":{"2026-05":{"floor":1090,"vis":18.0,"avgt":111,"disc":10.3,"mem":280,"memd":13849,"newpm":178,"days":29},"2026-06":{"floor":1089,"vis":17.6,"avgt":110,"disc":9.9,"mem":279,"memd":13804,"newpm":183,"days":29},"2026-07":{"floor":1038,"vis":17.0,"avgt":112,"disc":12.0,"mem":288,"memd":14588,"newpm":167,"days":30},"2026-08":{"floor":934,"vis":16.2,"avgt":110,"disc":11.1,"mem":287,"memd":14870,"newpm":151,"days":29},"2026-09":{"floor":834,"vis":15.2,"avgt":104,"disc":10.5,"mem":286,"memd":14525,"newpm":146,"days":29},"2026-10":{"floor":1041,"vis":17.0,"avgt":113,"disc":10.6,"mem":278,"memd":13934,"newpm":183,"days":30},"2026-11":{"floor":1064,"vis":17.2,"avgt":111,"disc":10.4,"mem":292,"memd":14728,"newpm":190,"days":24}},"West Palm Beach":{"2026-05":{"floor":487,"vis":11.5,"avgt":90,"disc":10.7,"mem":209,"memd":8896,"newpm":116,"days":30},"2026-06":{"floor":543,"vis":12.8,"avgt":88,"disc":10.1,"mem":206,"memd":8686,"newpm":122,"days":29},"2026-07":{"floor":544,"vis":12.6,"avgt":88,"disc":10.8,"mem":202,"memd":8356,"newpm":120,"days":30},"2026-08":{"floor":596,"vis":12.2,"avgt":92,"disc":10.3,"mem":204,"memd":8563,"newpm":112,"days":30},"2026-09":{"floor":540,"vis":11.9,"avgt":91,"disc":12.6,"mem":209,"memd":8594,"newpm":116,"days":29},"2026-10":{"floor":647,"vis":12.4,"avgt":98,"disc":9.6,"mem":200,"memd":8327,"newpm":116,"days":30},"2026-11":{"floor":621,"vis":12.7,"avgt":92,"disc":9.4,"mem":200,"memd":8340,"newpm":118,"days":23}}}};
+  const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const M = H.months, CURK = M[M.length-1], thru = new Date(H.thru + "T12:00"), mlab = k => MN[+k.slice(5)-1];
+  const fmt = n => "$" + Math.round(n).toLocaleString("en-US");
+  const S = Object.keys(H.stores);
+  const series = (s, key) => M.map(k => (H.stores[s][k] || {})[key] ?? null);
+  const pctc = (a, b) => a != null && b ? Math.round((a / b - 1) * 100) : null;
+  const sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v);
+  function spark(vals, w, h, opt){                          // bars for each month; current month in Skye, earlier in gray
+    const v = vals.map(x => x == null ? null : x), have = v.filter(x => x != null); if (!have.length) return "";
+    const lo = opt && opt.zero ? 0 : Math.min(...have) * .85, hi = Math.max(...have) || 1, n = v.length, bw = w / n;
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">` + v.map((x, i) => x == null ? "" :
+      `<rect x="${(i*bw + bw*.14).toFixed(1)}" width="${(bw*.72).toFixed(1)}" y="${(h - Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2))).toFixed(1)}" height="${Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2)).toFixed(1)}" rx="1.5" fill="${i === n-1 ? "var(--skye)" : "var(--skye-45)"}"/>`).join("") + `</svg>`;
+  }
+  // ---------- membership cards ----------
+  const k3 = M[M.length-4];
+  const cards = S.map(s => { const mem = series(s, "mem"), nw = series(s, "newpm"), cur = mem[mem.length-1], ago = (H.stores[s][k3] || {}).mem;
+    const peak = Math.max(...mem.filter(x => x != null)), ch = ago ? (cur - ago) / ago : null;
+    const nwAvg = (() => { const p = nw.slice(-4, -1).filter(x => x != null); return p.length ? p.reduce((a,b) => a+b, 0) / p.length : null; })();
+    return {s, mem, nw, cur, ago, peak, ch, nwCur: nw[nw.length-1], nwAvg}; }).filter(c => c.cur != null)
+    .sort((a, b) => (a.ch ?? 9) - (b.ch ?? 9));
+  const shrinking = cards.filter(c => c.ch != null && c.ch <= -0.05);
+  document.getElementById("hl-cards").innerHTML = cards.map(c => {
+    const chip = c.ch == null ? ["fl", "new"] : c.ch <= -0.05 ? ["dn", "Shrinking"] : c.ch >= 0.05 ? ["up", "Growing"] : ["fl", "Steady"];
+    const d3 = c.ago ? c.cur - c.ago : null, fromPeak = c.peak > c.cur ? c.cur - c.peak : 0;
+    const nwc = c.nwAvg ? pctc(c.nwCur, c.nwAvg) : null;
+    return `<div class="hl-card"><div class="t"><span class="n">${c.s}</span><span class="hl-chip ${chip[0]}">${chip[1]}</span></div>
+      <div class="big">${c.cur}<small>members billed ${mlab(CURK)} 1</small></div>
+      <div class="ln">${d3 == null ? "" : `<b class="${d3 < 0 ? "down" : d3 > 0 ? "up" : ""}">${sgn(d3)}</b> since ${mlab(k3)} 1`}${fromPeak < 0 ? ` · peak ${c.peak}` : c.ago ? " · at its peak" : ""}</div>
+      ${spark(c.mem, 210, 46)}<div class="hl-ax"><span>${mlab(M[0])}</span><span>${mlab(CURK)}</span></div>
+      <div class="ln">New sales: <b>${c.nwCur ?? "—"}</b> per 30 days${nwc == null ? "" : ` <span class="${nwc < 0 ? "down" : "up"}">${nwc > 0 ? "+" : ""}${nwc}%</span> vs prior 3 months`}</div>
+      ${c.s === "PBG East" ? `<div class="hl-note">Also bills many members on their sign-up date, so the 1st shows only part of its base and "new sales" includes those renewals.</div>` : ""}</div>`; }).join("");
+  document.getElementById("hl-mnote").textContent = `Members = membership charges billed on the 1st of each month. New sales = membership charges on other days, scaled to 30 days (${mlab(CURK)} so far: 1st–${thru.getDate()}). Sorted by the change since ${mlab(k3)}, worst first. Shrinking or growing = 5% or more.`;
+  // ---------- scorecard ----------
+  const COLS = [["floor","Floor $/day","excl. the 1st",fmt,1],["vis","Visits/day","service tickets",v => v.toFixed(1),1],["avgt","Avg ticket","gross services",fmt,1],["disc","Discounts","% of services",v => v.toFixed(1) + "%",-1],["mem","Members","billed on the 1st",v => v,1]];
+  const FS = S.filter(s => !H.nofloor.includes(s));
+  const prevK = M[M.length-2];
+  function cell(vals, col){ const cur = vals[vals.length-1], pv = vals[vals.length-2];
+    if (cur == null) return `<td>—</td>`;
+    let ch = "";
+    if (pv != null) { const dv = col[0] === "disc" ? +(cur - pv).toFixed(1) : pctc(cur, pv); const good = dv * col[4] > 0;
+      ch = dv === 0 ? `<em>flat</em>` : `<em class="${good ? "up" : "down"}">${dv > 0 ? "▲" : "▼"} ${Math.abs(dv)}${col[0] === "disc" ? " pts" : "%"}</em>`; }
+    return `<td><span class="hl-c"><b>${col[3](cur)}</b>${ch}${spark(vals, 56, 22)}</span></td>`; }
+  const sys = {}; M.forEach(k => { const rs = FS.map(s => H.stores[s][k]).filter(r => r && r.days);
+    sys[k] = rs.length ? {floor: rs.reduce((a,r) => a + r.floor, 0), vis: +rs.reduce((a,r) => a + r.vis, 0).toFixed(1), mem: rs.reduce((a,r) => a + (r.mem || 0), 0)} : {}; });
+  // system avg ticket and discount: weight each store by its visits
+  M.forEach(k => { let w = 0, at = 0, dc = 0; FS.forEach(s => { const r = H.stores[s][k]; if (!r || !r.vis) return; const x = r.vis * r.days; w += x; at += r.avgt * x; dc += r.disc * x; }); if (w) { sys[k].avgt = Math.round(at / w); sys[k].disc = +(dc / w).toFixed(1); } });
+  const rows = FS.map(s => ({s, v: Object.fromEntries(COLS.map(c => [c[0], series(s, c[0])]))})).sort((a, b) => (b.v.floor.at(-1) || 0) - (a.v.floor.at(-1) || 0));
+  document.getElementById("hl-table").innerHTML = `<thead><tr><th>Store</th>${COLS.map(c => `<th>${c[1]}<small>${c[2]}</small></th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r => `<tr><td>${r.s}</td>${COLS.map(c => cell(r.v[c[0]], c)).join("")}</tr>`).join("") +
+    `<tr class="sys"><td>System (${FS.length})</td>${COLS.map(c => cell(M.map(k => sys[k][c[0]] ?? null), c)).join("")}</tr></tbody>`;
+  document.getElementById("hl-snote").textContent = `${mlab(CURK)} so far (1st–${thru.getDate()}) vs all of ${mlab(prevK)}; bars are ${mlab(M[0])}–${mlab(CURK)}, ${mlab(CURK)} in blue. Floor $/day = net revenue on days the store traded, leaving out the 1st's membership billing. Visits/day = tickets with a service. Avg ticket = gross services per service ticket, before discounts and prepaids. Discounts: down is good. System floor and visits are sums; ticket and discounts are visit-weighted. Cooper City is left out until it opens.`;
+  // ---------- headline ----------
+  const best = rows.filter(r => r.v.floor.at(-1) != null && r.v.floor.at(-1) >= Math.max(...r.v.floor.slice(0, -1).filter(x => x != null))).map(r => r.s);
+  document.getElementById("hl-eyebrow").textContent = `Store health · ${mlab(M[0])}–${mlab(CURK)} ${thru.getFullYear()} · by month`;
+  document.getElementById("hl-head").textContent = shrinking.length ? `${(n => n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n.at(-1) : n[0])(shrinking.map(c => c.s))} ${shrinking.length > 1 ? "are" : "is"} losing members` : "Membership bases are holding";
+  const sf = sys[CURK].floor, sp = sys[prevK].floor;
+  document.getElementById("hl-sub").innerHTML = `System floor revenue ${fmt(sf)}/day in ${mlab(CURK)} <span class="${sf >= sp ? "up" : "down"}">${sf >= sp ? "+" : ""}${pctc(sf, sp)}%</span> vs ${mlab(prevK)}${best.length ? ` · best month in this view for ${best.join(", ")}` : ""}`;
 })();
 </script>
 </body>

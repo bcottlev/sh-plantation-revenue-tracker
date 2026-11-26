@@ -69,6 +69,8 @@ def main(argv):
 
     # 3. MTD section
     subprocess.run([sys.executable, os.path.join(T, "add_mtd_section.py"), DOW], check=True)
+    # 3b. store health section (membership health + scorecard), from data/mytime.csv
+    subprocess.run([sys.executable, os.path.join(T, "add_health_section.py"), DOW], check=True)
     # 4. planner copy
     subprocess.run([sys.executable, os.path.join(T, "build_planner.py")], check=True)
     return 0

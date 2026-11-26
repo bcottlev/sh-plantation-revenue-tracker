@@ -511,6 +511,7 @@ body.dark .mtd-t tr.grp td{border-top-color:#5A5955}body.dark .mtd-pre{backgroun
 
 
 
+
 <footer><p>Net revenue from MyTime exports. Memberships = membership charges less membership discounts; add-ons &amp; other = everything else. Boca Raton West is not in the exports.</p></footer>
 </div>
 <script>
@@ -702,7 +703,13 @@ const DATA_BY_LOC = {"Boynton Beach":[["03-01",6,8696.58,309.8,1],["03-02",0,368
     for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
       if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (normal ${fmt(nrm)}): store closed, or sales missing from the export?`); }
     const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
-    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s)};
+    const fl = floorDay(s, CUR, THRU), fp = has(s, CUR-1) ? floorDay(s, CUR-1, DIM(CUR-1)) : null;
+    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s), fl, fp};
+  }
+  function floorDay(s, mm, to){                          // avg net per traded day, leaving out the 1st (membership billing)
+    const g = G[s][mm]; if (!g) return null; let t = 0, n = 0;
+    for (let d = 2; d <= to; d++) if (g.has[d-1] && g.net[d-1] > 0) { t += g.net[d-1]; n++; }
+    return n ? t / n : null;
   }
   const kd = v => (v >= 0 ? "+" : "−") + "$" + (Math.abs(v)/1000).toFixed(1) + "k";
   let OPEN = {}; try { OPEN = JSON.parse(localStorage.getItem("dow.tiles") || "{}"); } catch (e) {}
@@ -744,6 +751,7 @@ const DATA_BY_LOC = {"Boynton Beach":[["03-01",6,8696.58,309.8,1],["03-02",0,368
         <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
         <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
         <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
+        ${t.fl && t.fl > 200 ?`<div class="ft fl"><span>Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` · ${pc(pct(t.fl, t.fp))} vs ${MN[CUR-2]}'s ${fmt(t.fp)}` : ""}</span></div>` : ""}
         <div class="body">
           <div class="wk-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
           <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>

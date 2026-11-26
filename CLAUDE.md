@@ -85,6 +85,12 @@ The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_
   - Closed days: Thanksgiving, 12/25 and 1/1. The day before Thanksgiving, 12/24 and 12/31 are planned like a Saturday.
   - `CLOSED_DOW` lists stores closed on a weekday; PBG Northlake is closed Sundays.
   - Daily target = round(normal × max(lift, 1)).
+- **Floor line on each tile:** average net per traded day, leaving out the 1st's billing, vs all of last month. Hidden under $200/day (Cooper City presale).
+- **Store health section** (after the tiles), built by **`tools/add_health_section.py`** from `data/mytime.csv` (ticket level) and re-run by `refresh_pages.py`. Edit it there, never in the HTML.
+  - Membership health cards: members billed on the 1st by month (7 months), change since 3 months ago, peak, new membership sales per 30 days. Shrinking/growing = 5% or more over 3 months; headline names the shrinking stores.
+  - Store scorecard fold: floor $/day, visits/day (service tickets), average service ticket (gross), discount % of services, members, each with change vs last month and a 7-month bar sparkline. Cooper City left out until it opens.
+  - PBG East bills many members on sign-up dates, so its 1st-of-month count is only part of its base; the card says so.
+  - It hides the weekday view's "By month" fold, which the scorecard replaces.
 - **Trends fold:** measure and compare-month controls, KPIs, chart A (running gap vs the comparison month: green ahead, red behind, future days faded) and chart B (daily pairs). A store chip picks what is charted.
 - **Dark mode:** neutral charcoal, `body.dark` variables. Bryan dislikes navy and orange in dark mode; keep Skye blues and soft Daisy yellow.
 - **Brand colors:** Skye `#2F9BD7`-family blues, Daisy yellow, Shadow navy text.

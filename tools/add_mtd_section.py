@@ -92,6 +92,7 @@ body.dark .tile .gap.a{color:#E6B84A}
 .tile .pb .f.g{background:var(--great)}.tile .pb .f.a{background:#E0A82E}.tile .pb .f.r{background:var(--bad)}
 .tile .pb .k{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink-70);margin-left:-1px;border-radius:1px}
 .tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.tile .ft.fl{margin-top:3px;font-size:13.5px;color:var(--ink-70)}.tile .ft.fl b{color:var(--ink);font-weight:600}.tile .ft .up{color:var(--great)}.tile .ft .down{color:var(--bad)}
 .tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
 .wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
 .wk{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
@@ -341,7 +342,13 @@ JS = r'''
     for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
       if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (normal ${fmt(nrm)}): store closed, or sales missing from the export?`); }
     const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
-    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s)};
+    const fl = floorDay(s, CUR, THRU), fp = has(s, CUR-1) ? floorDay(s, CUR-1, DIM(CUR-1)) : null;
+    return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s), fl, fp};
+  }
+  function floorDay(s, mm, to){                          // avg net per traded day, leaving out the 1st (membership billing)
+    const g = G[s][mm]; if (!g) return null; let t = 0, n = 0;
+    for (let d = 2; d <= to; d++) if (g.has[d-1] && g.net[d-1] > 0) { t += g.net[d-1]; n++; }
+    return n ? t / n : null;
   }
   const kd = v => (v >= 0 ? "+" : "−") + "$" + (Math.abs(v)/1000).toFixed(1) + "k";
   let OPEN = {}; try { OPEN = JSON.parse(localStorage.getItem("dow.tiles") || "{}"); } catch (e) {}
@@ -383,6 +390,7 @@ JS = r'''
         <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
         <div class="pb" title="Tick = where the store normally is by the ${ord(THRU)} (${Math.round(t.share*100)}% of target)"><span class="f ${t.cls}" style="width:${fill}%"></span><span class="k" style="left:${Math.min(100, t.share*100)}%"></span></div>
         <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
+        ${t.fl && t.fl > 200 ?`<div class="ft fl"><span>Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` · ${pc(pct(t.fl, t.fp))} vs ${MN[CUR-2]}'s ${fmt(t.fp)}` : ""}</span></div>` : ""}
         <div class="body">
           <div class="wk-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
           <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>
@@ -439,7 +447,8 @@ s = re.sub(r'\n/\* ---- month to date \(MTD\) ---- \*/.*?(?=\n</style>)', '', s,
 s = re.sub(r'\n*<section class="mtd" id="mtd">.*?</section>\n', '\n', s, count=1, flags=re.S)
 s = re.sub(r'\n+<script>\n/\* ---- month to date section.*?</script>\n', '\n', s, count=1, flags=re.S)
 s = s.replace('\n</style>', CSS + '</style>', 1)
-anchor = '<header>\n  <p class="eyebrow" id="latestline">'
+anchor = '<section class="hl" id="health">'           # store health section, if present, comes right after MTD
+if anchor not in s: anchor = '<header>\n  <p class="eyebrow" id="latestline">'
 assert anchor in s
 s = s.replace(anchor, HTML + '\n' + anchor, 1)
 assert s.count('</body>') == 1
