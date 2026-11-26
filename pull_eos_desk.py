@@ -4,7 +4,7 @@
 into day-of-week/index.html.
 
   #plantation-end-of-shift (C0A0WQTGTBK): member associate reports -> DESK
-      {date: {"desk": [in-store names], "vma": [remote VMA names]}}
+      {date: {"desk": [in-store names], "vwc": [remote VWC names]}}
   #broward-leadership (C0B241EHPP0): manager revenue reports -> MGR
       {date: {"m": manager, "dogs": n, "add": n, "ret": $, "nm": n, "tc": n, "can": n, "ld": n, "tt": n, "net": $}}
 
@@ -14,7 +14,7 @@ import os, re, sys, json, time, urllib.request, urllib.parse
 
 TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
 PAGE = "day-of-week/index.html"
-VMA = {"shenna", "jo", "jobeelyn", "cydny", "yana"}   # remote virtual member associates (Jo = Jobeelyn Agustin)
+VWC = {"shenna", "jo", "jobeelyn", "cydny", "yana"}   # remote virtual wellness coordinators (Jo = Jobeelyn Agustin)
 ALIAS = {"Nina Mariel": "Nina", "Bryan Cottle": "Bryan"}
 
 def api(method, **params):
@@ -71,8 +71,8 @@ def desk_roster(msgs):
         d = re.search(r"Date of Report\*?:?\*?\s*(\d{4}-\d{2}-\d{2})", t)
         n = mention_name(t, r"Name:?\*?:?\*?")
         if not (d and n): continue
-        f = first(n); e = out.setdefault(d.group(1), {"desk": [], "vma": [], "stats": {}})
-        b = "vma" if f.lower() in VMA else "desk"
+        f = first(n); e = out.setdefault(d.group(1), {"desk": [], "vwc": [], "stats": {}})
+        b = "vwc" if f.lower() in VWC else "desk"
         if f not in e[b]: e[b].append(f)
         # per-person productivity from the form: outreach, leads, deals closed, appointments booked
         st = e["stats"].setdefault(f, {"o": 0, "l": 0, "d": 0, "a": 0})

@@ -137,11 +137,11 @@ body.dark .mtd-st.reach{background:#34332F;color:#F5F4EF}body.dark .mtd-st.str{b
 body.dark .mtd-copy{background:#5BB0E3;border-color:#5BB0E3;color:#1F1E1D}
 body.dark .mtd-day.next{border-color:#F5F4EF}
 body.dark .seg[data-role="MA"],body.dark .track .tlab i.ma{background:#5BB0E3!important}
-body.dark .seg[data-role="VMA"],body.dark .track .tlab i.vma{background:#C2C0B6!important}
+body.dark .seg[data-role="VWC"],body.dark .track .tlab i.vwc{background:#C2C0B6!important}
 body.dark .dot.latest{border-color:#1F1E1D}body.dark .k-latest{border-color:#1F1E1D}
 body.dark .tip{background:#3A3936;color:#F5F4EF;box-shadow:0 4px 14px rgba(0,0,0,.55)}body.dark .tip::after{background:#3A3936}
 body.dark .tip b{color:#fff}body.dark .tip .mgr,body.dark .tip .who{border-top-color:rgba(255,255,255,.15)}
-body.dark .tip .mgr .ops,body.dark .tip .who .vma{color:rgba(255,255,255,.7)}body.dark .tip .who.none{color:rgba(255,255,255,.55)}
+body.dark .tip .mgr .ops,body.dark .tip .who .vwc{color:rgba(255,255,255,.7)}body.dark .tip .who.none{color:rgba(255,255,255,.55)}
 body.dark .tip .v.bad{color:#FFB3A6}body.dark .tip .v.great{color:#9FE3BE}
 body.dark .mtd-tip{background:#30302E;border-color:#3A3936;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 body.dark .mtd-trk .mt{background:#C2C0B6}body.dark .mtd-day.next{background:#30302E}
@@ -416,7 +416,7 @@ JS = r'''
     const n = sum(STORES, CUR, THRU);
     document.getElementById("mtd-eyebrow").textContent = `Month to date · ${MN[CUR-1]} 1–${THRU}, ${YEAR} · all scenters`;
     document.getElementById("mtd-kpis").innerHTML = [[CUR, n, MN[CUR-1] + " 1–" + THRU, "this month"], ...CMPS.map(m => { const v = sum(STORES, m, THRU); return [m, v, MN[m-1] + " 1–" + THRU, pc(pct(n, v)) + " vs " + MN[m-1]]; })]
-      .map(([m,v,l,d]) => `<div class="mtd-kpi"><span>${l}</span><b>${fmt(v)}</b><em>${d}</em></div>`).join("");
+      .map(([m,v,l,d]) => `<div class="mtd-kpi"><span>${l}</span><b>${fmt(v)}${m === CUR ? "" : `<em>${d}</em>`}</b></div>`).join("");
     document.getElementById("mtd-ta").textContent = `${st.sel} · ahead or behind ${MN[st.c-1]}, month to date`;
     document.getElementById("mtd-tb").textContent = `${st.sel} · each day, ${MN[CUR-1]} vs ${MN[st.c-1]}`;
     document.getElementById("mtd-lcur").textContent = MN[CUR-1]; document.getElementById("mtd-lcmp").textContent = MN[st.c-1];

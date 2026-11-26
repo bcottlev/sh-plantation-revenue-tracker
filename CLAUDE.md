@@ -16,7 +16,7 @@ GitHub `bcottlev/sh-plantation-revenue-tracker`. Every push to `main` deploys to
   - plain and short, no em dashes
   - write "scenter", never "center"
   - Slack doesn't render pasted tables, so use plain lines, and vertical ladders in the form `X = $Y`
-- **Role names:** MA is now Wellness Coordinator. VMA is now VWC (Virtual Wellness Coordinator), though older code and channels still say VMA. Alina, the Plantation manager, shows up in Slack as "Nina Mariel".
+- **Role names:** MA is now Wellness Coordinator. VMA is now VWC (Virtual Wellness Coordinator); the page and scripts say VWC everywhere (11/26), though Slack channels may still say VMA. Alina, the Plantation manager, shows up in Slack as "Nina Mariel".
 - **MyTime is the revenue source of truth.** Never enter an estimated figure.
 
 ## Daily workflow: Bryan says "uploaded new data"

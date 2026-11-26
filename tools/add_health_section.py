@@ -115,6 +115,24 @@ body .mtd>.fold+.fbody:not(.closed),body .fold.big+.fbody:not(.closed),body .day
 body .mtd-tiles{margin-bottom:12px}
 body .sect#weekday header{margin-top:6px}
 @media (max-width:560px){body .mtd>.fold,body .fold.big,body .days>.fold,body .periods>.fold{font-size:10.5px;letter-spacing:.07em}}
+/* crisp controls: label beside its pills, small pills, tight panels */
+body .controls{padding:10px 12px 2px;margin:10px 0 14px;border-radius:10px}
+body .ctlrow{column-gap:22px;row-gap:0}body .ctlrow .ctl:last-child{margin-left:0}
+body .ctl{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+body .ctl>.eyebrow{margin:0;font-size:10px;letter-spacing:.14em;white-space:nowrap}
+body .ctl>.seg{flex:1 1 auto;min-width:0}
+body .seg{gap:4px}
+body .seg button,body .locctl .seg button{font-size:12.5px;padding:4px 10px;border-width:1px}
+body .locctl{margin:8px 0 0}body .locctl>.eyebrow{display:none}
+body #weekday header .eyebrow{margin-bottom:2px}
+body #weekday header h1{font-size:clamp(32px,6vw,42px);margin:0 0 2px}
+body #weekday header .compare{margin:0 0 4px}
+body .mtd-kpis{gap:8px;margin:0 0 6px}
+body .mtd-kpi{padding:7px 12px 8px;border-top-width:2px;border-radius:10px}
+body .mtd-kpi>span{font-size:10px;letter-spacing:.12em;margin-bottom:1px}body .mtd-kpi em span{display:inline;font-size:inherit;letter-spacing:0;text-transform:none}
+body .mtd-kpi b{font-size:18px;line-height:1.2}
+body .mtd-kpi em{font-size:12px;margin-left:6px}
+@media (max-width:560px){body .ctl{display:block}body .ctl>.eyebrow{margin-bottom:5px}}
 '''
 
 HTML = r'''<section class="hl" id="health">

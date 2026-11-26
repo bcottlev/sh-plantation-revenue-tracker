@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Read every store's end-of-shift Slack channel and record who filed a report each day.
 
-Usage: SLACK_BOT_TOKEN=xoxb-... pull_desk.py [--out desk.json] [--vma "Shenna,Jo"] [--mgr-out mgr.json]
+Usage: SLACK_BOT_TOKEN=xoxb-... pull_desk.py [--out desk.json] [--vwc "Shenna,Jo"] [--mgr-out mgr.json]
 
 Needs a bot token whose app has been invited to each channel (channels:history /
-groups:history). Writes {location: {date: {"desk": [names], "vma": [names]}}}.
+groups:history). Writes {location: {date: {"desk": [names], "vwc": [names]}}}.
 Two report formats are handled: forms with a "Date of Report" field, and forms
 without one, where the post time (US Eastern) is the report date.
 With --mgr-out, also reads the manager report channel(s) into
@@ -79,14 +79,14 @@ def report_date(m, t):
     if d: return d.group(1)
     return datetime.datetime.fromtimestamp(float(m["ts"]), ET).strftime("%Y-%m-%d")
 
-def desk_roster(token, msgs, vma):
+def desk_roster(token, msgs, vwc):
     out = {}
     for m in msgs:
         t = m.get("text", "")
         n = mention_name(token, t, r"Name:?\*?:?\*?")
         if not n or "Recap" not in t and "Outreach" not in t: continue
-        f = first(n); e = out.setdefault(report_date(m, t), {"desk": [], "vma": [], "stats": {}})
-        b = "vma" if f.lower() in vma else "desk"
+        f = first(n); e = out.setdefault(report_date(m, t), {"desk": [], "vwc": [], "stats": {}})
+        b = "vwc" if f.lower() in vwc else "desk"
         if f not in e[b]: e[b].append(f)
         st = e["stats"].setdefault(f, {"o": 0, "l": 0, "d": 0, "a": 0})
         st["o"] += int(num(t, r"Outreach")); st["l"] += int(num(t, r"Leads")); st["d"] += int(num(t, r"Deals Closed")); st["a"] += int(num(t, r"Appointments Booked"))
@@ -115,18 +115,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="desk.json")
     ap.add_argument("--mgr-out", default="")
-    ap.add_argument("--vma", default="Shenna,Jo,Jobeelyn,Cydny,Yana", help="first names of remote VMAs, comma-separated")
+    ap.add_argument("--vwc", default="Shenna,Jo,Jobeelyn,Cydny,Yana", help="first names of remote VWCs, comma-separated")
     a = ap.parse_args()
     token = os.environ.get("SLACK_BOT_TOKEN", "")
     if not token: sys.exit("SLACK_BOT_TOKEN is not set")
-    vma = {v.strip().lower() for v in a.vma.split(",") if v.strip()}
+    vwc = {v.strip().lower() for v in a.vwc.split(",") if v.strip()}
     who = api(token, "auth.test"); print(f"bot: {who.get('user')} ({who.get('user_id')})")
 
     desk, missing = {}, []
     for locn, ch in CHANNELS.items():
         msgs = history(token, ch)
         if msgs is None: missing.append(locn); continue
-        desk[locn] = desk_roster(token, msgs, vma); print(f"{locn}: {len(desk[locn])} days")
+        desk[locn] = desk_roster(token, msgs, vwc); print(f"{locn}: {len(desk[locn])} days")
     json.dump(desk, open(a.out, "w"), separators=(",", ":"))
     if a.mgr_out:
         mgr = {}

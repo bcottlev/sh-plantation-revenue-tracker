@@ -73,7 +73,7 @@ def records(days):
         out.append([dt.strftime("%m-%d"), dt.weekday(), net, round(net - memb, 2), 1 if memb > cutoff else 0])
     return out
 
-def build_page(items, year, out_path, tpl, bad, great, desk, mgr, default_loc="Plantation", vma="Shenna,Jo,Jobeelyn"):
+def build_page(items, year, out_path, tpl, bad, great, desk, mgr, default_loc="Plantation", vwc="Shenna,Jo,Jobeelyn"):
     """items: [(display name, recs)]. One page with a location toggle."""
     names = [n for n, _ in items]
     data = {n: r for n, r in items}
@@ -84,7 +84,7 @@ def build_page(items, year, out_path, tpl, bad, great, desk, mgr, default_loc="P
                .replace("__DATA__", json.dumps(data, separators=(",", ":")))
                .replace("__YEAR__", str(year)).replace("__DEFAULT_LOC__", default_loc)
                .replace("__BAD__", str(bad)).replace("__GREAT__", str(great))
-               .replace("__VMA__", json.dumps([v.strip().lower() for v in vma.split(",") if v.strip()])))
+               .replace("__VWC__", json.dumps([v.strip().lower() for v in vwc.split(",") if v.strip()])))
     open(out_path, "w").write(html)
     return out_path
 
@@ -100,7 +100,7 @@ def main():
     ap.add_argument("--mgr", default="", help="mgr.json from pull_desk.py --mgr-out")
     ap.add_argument("--bad", type=int, default=500, help="daily revenue below this is flagged red")
     ap.add_argument("--great", type=int, default=1000, help="daily revenue at or above this is flagged green")
-    ap.add_argument("--vma", default="Shenna,Jo,Jobeelyn,Cydny,Yana", help="first names of remote VMAs, comma-separated (labels the outreach table)")
+    ap.add_argument("--vwc", default="Shenna,Jo,Jobeelyn,Cydny,Yana", help="first names of remote VWCs, comma-separated (labels the outreach table)")
     a = ap.parse_args()
 
     os.makedirs(a.out, exist_ok=True)
@@ -117,7 +117,7 @@ def main():
         sys.exit("no locations matched")
     desk = json.load(open(a.desk)) if a.desk else {}
     mgr = json.load(open(a.mgr)) if a.mgr else {}
-    out = build_page(items, a.year, os.path.join(a.out, a.name), tpl, a.bad, a.great, desk, mgr, a.default_loc, vma=a.vma)
+    out = build_page(items, a.year, os.path.join(a.out, a.name), tpl, a.bad, a.great, desk, mgr, a.default_loc, vwc=a.vwc)
     print("page ->", out)
 
 if __name__ == "__main__":
