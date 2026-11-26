@@ -36,7 +36,7 @@ def build(path):
         last = max(last, d)
         a = A[(s, d.year, d.month)]
         svc, mem = f(x["Services"]), f(x["Memberships"])
-        a["svc"] += svc; a["disc"] += -f(x["Discounts"])
+        a["svc"] += svc; a["svcn"] += svc + f(x["Services Discount"]); a["disc"] += -f(x["Discounts"])
         if svc > 0: a["tix"] += 1
         if d.day == 1:
             if mem > 0: a["mem1"] += 1; a["mem1d"] += mem
@@ -64,7 +64,7 @@ def build(path):
             o[f"{yy}-{mm:02d}"] = {
                 "floor": round(a["fnet"] / a["fdays"]) if a["fdays"] else None,
                 "vis": round(a["vtix"] / a["fdays"], 1) if a["fdays"] else None,
-                "avgt": round(a["svc"] / a["tix"]) if a["tix"] else None,
+                "avgt": round(a["svcn"] / a["tix"]) if a["tix"] else None,
                 "disc": round(a["disc"] / a["svc"] * 100, 1) if a["svc"] else None,
                 "mem": int(a["mem1"]) or None, "memd": round(a["mem1d"]),
                 "newpm": round(a["memx"] / span * 30) if span > 0 else None,
@@ -162,7 +162,7 @@ JS = r'''
       ${c.s === "PBG East" ? `<div class="hl-note">Also bills many members on their sign-up date, so the 1st shows only part of its base and "new sales" includes those renewals.</div>` : ""}</div>`; }).join("");
   document.getElementById("hl-mnote").textContent = `Members = membership charges billed on the 1st of each month. New sales = membership charges on other days, scaled to 30 days (${mlab(CURK)} so far: 1st–${thru.getDate()}). Sorted by the change since ${mlab(k3)}, worst first. Shrinking or growing = 5% or more.`;
   // ---------- scorecard ----------
-  const COLS = [["floor","Floor $/day","excl. the 1st",fmt,1],["vis","Visits/day","service tickets",v => v.toFixed(1),1],["avgt","Avg ticket","gross services",fmt,1],["disc","Discounts","% of services",v => v.toFixed(1) + "%",-1],["mem","Members","billed on the 1st",v => v,1]];
+  const COLS = [["floor","Floor $/day","excl. the 1st",fmt,1],["vis","Visits/day","service tickets",v => v.toFixed(1),1],["avgt","Avg ticket","net services",fmt,1],["disc","Discounts","% of services",v => v.toFixed(1) + "%",-1],["mem","Members","billed on the 1st",v => v,1]];
   const FS = S.filter(s => !H.nofloor.includes(s));
   const prevK = M[M.length-2];
   function cell(vals, col){ const cur = vals[vals.length-1], pv = vals[vals.length-2];
@@ -179,7 +179,7 @@ JS = r'''
   document.getElementById("hl-table").innerHTML = `<thead><tr><th>Store</th>${COLS.map(c => `<th>${c[1]}<small>${c[2]}</small></th>`).join("")}</tr></thead><tbody>` +
     rows.map(r => `<tr><td>${r.s}</td>${COLS.map(c => cell(r.v[c[0]], c)).join("")}</tr>`).join("") +
     `<tr class="sys"><td>System (${FS.length})</td>${COLS.map(c => cell(M.map(k => sys[k][c[0]] ?? null), c)).join("")}</tr></tbody>`;
-  document.getElementById("hl-snote").textContent = `${mlab(CURK)} so far (1st–${thru.getDate()}) vs all of ${mlab(prevK)}; bars are ${mlab(M[0])}–${mlab(CURK)}, ${mlab(CURK)} in blue. Floor $/day = net revenue on days the store traded, leaving out the 1st's membership billing. Visits/day = tickets with a service. Avg ticket = gross services per service ticket, before discounts and prepaids. Discounts: down is good. System floor and visits are sums; ticket and discounts are visit-weighted. Cooper City is left out until it opens.`;
+  document.getElementById("hl-snote").textContent = `${mlab(CURK)} so far (1st–${thru.getDate()}) vs all of ${mlab(prevK)}; bars are ${mlab(M[0])}–${mlab(CURK)}, ${mlab(CURK)} in blue. Floor $/day = net revenue on days the store traded, leaving out the 1st's membership billing. Visits/day = tickets with a service. Avg ticket = services after service discounts, per service ticket (membership prepaids not taken off, or member visits would count as $0). Discounts: down is good. System floor and visits are sums; ticket and discounts are visit-weighted. Cooper City is left out until it opens.`;
   // ---------- headline ----------
   const best = rows.filter(r => r.v.floor.at(-1) != null && r.v.floor.at(-1) >= Math.max(...r.v.floor.slice(0, -1).filter(x => x != null))).map(r => r.s);
   document.getElementById("hl-eyebrow").textContent = `Store health · ${mlab(M[0])}–${mlab(CURK)} ${thru.getFullYear()} · by month`;

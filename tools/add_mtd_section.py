@@ -63,6 +63,7 @@ body.dark .mtd-st.reach{color:var(--ink)}
 .mtd-day .w{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
 .mtd-day .v{font-size:18px;font-weight:700;color:var(--shadow);margin-top:2px}body.dark .mtd-day .v{color:var(--ink)}
 .mtd-day .x{font-size:11.5px;color:var(--mute)}
+.mtd-day .cu{font-size:11.5px;color:var(--ink-70);font-weight:600;margin-top:2px;border-top:1px solid var(--line);padding-top:3px}
 .mtd-day.next{border-color:var(--skye);background:var(--white)}
 .mtd-day.big{border-color:var(--daisy)}
 .mtd-day.closed{opacity:.55}.mtd-day.closed .v{font-size:14px;color:var(--mute)}
@@ -94,21 +95,21 @@ body.dark .tile .gap.a{color:#E6B84A}
 .tile .ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
 .tile .ft.fl{margin-top:3px;font-size:13.5px;color:var(--ink-70)}.tile .ft.fl b{color:var(--ink);font-weight:600}.tile .ft .up{color:var(--great)}.tile .ft .down{color:var(--bad)}
 .tile .body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.tile.open .body{display:block}
-.wk-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.wk-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.wk-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
-.wk{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
-.wk .dl{font-size:13.5px;color:var(--ink)}
-.wk .bars{position:relative;display:flex;flex-direction:column;gap:3px;padding:3px 0}
-.wk .bars b{display:block;height:5px;border-radius:3px;min-width:2px;position:relative}.wk .bars b.c{height:10px;background:var(--skye)}
-.wk .bars b.w1,.wk-leg i.w1{background:#8C9AA8}.wk .bars b.w2,.wk-leg i.w2{background:#B3BFCA}.wk .bars b.w3,.wk-leg i.w3{background:#D2DAE2}
-body.dark .wk .bars b.w1,body.dark .wk-leg i.w1{background:#8A8984}body.dark .wk .bars b.w2,body.dark .wk-leg i.w2{background:#B5B3AC}body.dark .wk .bars b.w3,body.dark .wk-leg i.w3{background:#DAD8D1}
-.wk .bars b.lm,.wk-leg i.lm{background:transparent;border:1.5px dashed var(--mute);box-sizing:border-box}.wk .bars b.lm{height:7px}
-.wk .bars b.lm span{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;font-size:11.5px;color:var(--mute);white-space:nowrap;font-weight:400}
-.wk .dl,.wk .vv{align-self:start;padding-top:1px}.wk{row-gap:9px}
-.wk .bars u{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed;text-decoration:none;opacity:.7}.wk .bars u.l{border-color:var(--bad)}.wk .bars u.h{border-color:var(--great)}
-.wk .vv{font-size:13.5px;text-align:right;white-space:nowrap;color:var(--ink)}.wk .vv em{font-style:normal;font-weight:600;margin-left:6px}
-.wk .vv em.up{color:var(--great)}.wk .vv em.down{color:var(--bad)}
-.wk-ax{position:relative;height:16px;margin:2px 0 0 86px;font-size:11px;color:var(--mute)}.wk-ax span{position:absolute;transform:translateX(-50%)}.wk-ax span:last-child{transform:translateX(-100%)}.wk-ax span:first-child{transform:none}
-.wk-ax .l{color:var(--bad);font-weight:600}.wk-ax .h{color:var(--great);font-weight:600}
+.tw-leg{font-size:12.5px;color:var(--ink-70);margin-bottom:6px}.tw-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin:0 5px -1px 0}.tw-leg>span{white-space:nowrap;margin-right:12px;display:inline-block}
+.tw{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-variant-numeric:tabular-nums}
+.tw .dl{font-size:13.5px;color:var(--ink)}
+.tw .bars{position:relative;display:flex;flex-direction:column;gap:3px;padding:3px 0}
+.tw .bars b{display:block;height:5px;border-radius:3px;min-width:2px;position:relative}.tw .bars b.c{height:10px;background:var(--skye)}
+.tw .bars b.w1,.tw-leg i.w1{background:#8C9AA8}.tw .bars b.w2,.tw-leg i.w2{background:#B3BFCA}.tw .bars b.w3,.tw-leg i.w3{background:#D2DAE2}
+body.dark .tw .bars b.w1,body.dark .tw-leg i.w1{background:#8A8984}body.dark .tw .bars b.w2,body.dark .tw-leg i.w2{background:#B5B3AC}body.dark .tw .bars b.w3,body.dark .tw-leg i.w3{background:#DAD8D1}
+.tw .bars b.lm,.tw-leg i.lm{background:transparent;border:1.5px dashed var(--mute);box-sizing:border-box}.tw .bars b.lm{height:7px}
+.tw .bars b.lm span{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;font-size:11.5px;color:var(--mute);white-space:nowrap;font-weight:400}
+.tw .dl,.tw .vv{align-self:start;padding-top:1px}.tw{row-gap:9px}
+.tw .bars u{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed;text-decoration:none;opacity:.7}.tw .bars u.l{border-color:var(--bad)}.tw .bars u.h{border-color:var(--great)}
+.tw .vv{font-size:13.5px;text-align:right;white-space:nowrap;color:var(--ink)}.tw .vv em{font-style:normal;font-weight:600;margin-left:6px}
+.tw .vv em.up{color:var(--great)}.tw .vv em.down{color:var(--bad)}
+.tw-ax{position:relative;height:16px;margin:0;font-size:11px;color:var(--mute)}.tw-ax span{position:absolute;transform:translateX(-50%)}.tw-ax span:last-child{transform:translateX(-100%)}.tw-ax span:first-child{transform:none}
+.tw-ax .l{color:var(--bad);font-weight:600}.tw-ax .h{color:var(--great);font-weight:600}
 .tile .sum{font-size:13.5px;color:var(--ink-70);margin:10px 0 4px}
 .tile .warn{font-size:12.5px;color:var(--bad);margin:2px 0}
 .tile .sub2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
@@ -116,7 +117,7 @@ body.dark .wk .bars b.w1,body.dark .wk-leg i.w1{background:#8A8984}body.dark .wk
 .tile .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .mtd-ghost{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .mtd-ghost:hover{border-color:var(--skye)}
-@media (max-width:560px){.wk .dl .md{display:none}.wk{grid-template-columns:50px minmax(0,1fr) auto}.wk-ax{margin-left:60px}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.tw .dl .md{display:none}.tw{grid-template-columns:50px minmax(0,1fr) auto}.tile .mtd-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* ---- dark mode, neutral (Claude-style) instead of navy ---- */
 body.dark{--ink:#F5F4EF;--ink-70:#C2C0B6;--mute:#9C9A92;--line:#3A3936;--white:#1F1E1D;--skye-8:#262624;--skye-20:#34332F;--skye-45:#5E5D59;--shadow:#E8E6DF;background:#1F1E1D;
@@ -357,7 +358,7 @@ JS = r'''
     const rows = []; for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue;
       const back = [1,2,3].map(w => { const d = addD(dt, -7*w); return {w, d, v: d.getDate() === 1 ? null : netOn(s, d), lm: d.getMonth() !== dt.getMonth()}; });
       rows.push({dt, c: netOn(s, dt), back, p: back[0].v}); }
-    const mx0 = Math.max(1000, ...rows.flatMap(r => [r.c || 0, ...r.back.map(x => x.v || 0)])), mx = Math.ceil(mx0 / 500) * 500, P = v => Math.max(0, Math.min(100, v / mx * 100));
+    const mx0 = Math.max(1000, ...rows.flatMap(r => [r.c || 0, ...r.back.map(x => x.v || 0)])), mx = Math.ceil(mx0 * 1.08 / 500) * 500, P = v => Math.max(0, Math.min(100, v / mx * 100));
     const html = rows.map(r => { const ch = r.c != null && r.p ? Math.round((r.c / r.p - 1) * 100) : null;
       const bk = r.back.filter(x => x.v != null).map(x => x.lm
         ? `<b class="lm" style="width:${P(x.v)}%"><span>${MN[x.d.getMonth()]} ${x.d.getDate()}</span></b>`
@@ -382,9 +383,10 @@ JS = r'''
       const m = t.m, wk = weekRows(t.s, t.ld), fill = Math.min(100, m.mtd / m.T.t * 100), lc = t.pv ? Math.round((t.lv / t.pv - 1) * 100) : null;
       const S = d => lab(d.dt);
       const big = Math.max(...m.days.map(x => x.tgt), 0);
+      let run = m.mtd; m.days.forEach(x => { if (x.k !== "closed") run += x.tgt; x.cum = run; });
       const days = m.days.map(x => x.k === "closed" ? `<div class="mtd-day closed"><div class="w">${S(x)}</div><div class="v">closed</div><div class="x">${x.d === thanks(CUR) && CUR === 11 ? "Thanksgiving" : ""}</div></div>`
-        : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div></div>`).join("");
-      TXT[t.s] = `*${t.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""}`).join("\n");
+        : `<div class="mtd-day${x.tgt === big ? " big" : ""}"><div class="w">${S(x)}${x.k === "sat" ? " ★" : ""}</div><div class="v">${fmt(x.tgt)}</div><div class="x">${x.k === "sat" ? "holiday eve" : "normal " + fmt(x.base)}</div><div class="cu">→ ${"$" + (x.cum / 1000).toFixed(1)}k total</div></div>`).join("");
+      TXT[t.s] = `*${t.s} · ${MN[CUR-1]} targets*\nSo far: ${fmt(m.mtd)} · Target: ${fmt(m.T.t)}${m.gap > 0 ? ` · ${fmt(m.gap)} to go` : " ✅"}\n` + m.days.filter(x => x.k !== "closed").map(x => `${S(x)}: ${fmt(x.tgt)}${x.k === "sat" ? " (holiday eve)" : ""} → ${fmt(x.cum)} total`).join("\n");
       return `<div class="tile${OPEN[t.s] ? " open" : ""}" data-s="${t.s}">
         <button type="button" class="th" aria-expanded="${!!OPEN[t.s]}"><span class="tn">${t.s}<i>▾</i></span><span class="gap ${t.cls}">${kd(t.diff)} at pace</span></button>
         <div class="ld">${DNS[t.ld.getDay()]} ${fmt(t.lv)}${lc == null ? "" : ` · ${lc > 0 ? "+" : ""}${lc}% vs ${lab(addD(t.ld, -7))}`}${t.flags.length ? ` · <span class="flag">check data</span>` : ""}</div>
@@ -392,10 +394,9 @@ JS = r'''
         <div class="ft"><span>${fmt(m.mtd)} of ${fmt(m.T.t)} (${(m.mtd / m.T.t * 100).toFixed(1)}%)</span><span>${t.cmp.join(" · ")}</span></div>
         ${t.fl && t.fl > 200 ?`<div class="ft fl"><span>Floor <b>${fmt(t.fl)}/day</b>${t.fp ? ` · ${pc(pct(t.fl, t.fp))} vs ${MN[CUR-2]}'s ${fmt(t.fp)}` : ""}</span></div>` : ""}
         <div class="body">
-          <div class="wk-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
-          <div class="wk">${wk.html}</div><div class="wk-ax">${wk.ax}</div>
+          <div class="tw-leg"><span><i style="background:var(--skye)"></i>This week</span><span><i class="w1"></i>1 wk ago</span><span><i class="w2"></i>2 wks ago</span><span><i class="w3"></i>3 wks ago</span><span><i class="lm"></i>Last month</span></div>
+          <div class="tw">${wk.html}<span></span><div class="tw-ax">${wk.ax}</div><span></span></div>
           <p class="sum">Matching days ${fmt(wk.sc)} vs ${fmt(wk.sp)} the week before ${wk.sp ? pc(pct(wk.sc, wk.sp)) : ""}</p>
-          <p class="mtd-note">Gray bars are the same weekday 1, 2 and 3 weeks back; a dashed outline means that day fell in last month. % is vs 1 week ago. The 1st (billing day) is left out.</p>
           ${t.flags.map(f => `<p class="warn">⚠ ${f}</p>`).join("")}
           <p class="sub2">Rest of ${MN[CUR-1]} · ${m.gap > 0 ? `${fmt(m.gap)} to go, ${liftTxt(m).replace(/<\/?b>/g, "")}` : "target reached"} · target ${m.T.src}</p>
           <div class="mtd-days">${days || '<div class="mtd-day closed"><div class="v">month complete</div></div>'}</div>
