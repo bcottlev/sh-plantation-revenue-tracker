@@ -192,6 +192,7 @@ JS = r'''
   const DNS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const HOLI = new Set(["01-01","11-26","12-25"]);           // closed at every scenter (2026)
   const CLOSED_DOW = {"PBG Northlake":[0]};                  // JS getDay(): 0 = Sunday
+  const CHECKED = __CHECKED__;                               // low days confirmed real (data/checked_days.json): no "check data" flag
   const DEF_T = {"Plantation":34000,"PBG East":28500,"PBG Northlake":17000};
   const GROUPS = [["Total system",STORES],["Broward (Plantation + Cooper City)",["Plantation","Cooper City"]],["PBG (East + Northlake)",["PBG East","PBG Northlake"]],["Palm Beach County",["Wellington","Lake Worth","West Palm Beach","Boynton Beach","Boca Raton West"]]]
     .map(([n,l]) => [n, l.filter(s => STORES.includes(s))]).filter(g => g[1].length > 1);
@@ -341,7 +342,8 @@ JS = r'''
     const ld = lastDate(s), lv = netOn(s, ld) ?? 0, pv = netOn(s, addD(ld, -7));
     const W = wstats(s), flags = [];
     for (let i = 6; i >= 0; i--) { const dt = addD(ld, -i); if (dt.getDate() === 1) continue; const v = netOn(s, dt), k = kind(s, dt), nrm = W[wdIdx(dt)].m;
-      if (k !== "closed" && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (6-wk avg ${fmt(nrm)}): store closed, or sales missing from the export?`); }
+      const iso = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`;
+      if (k !== "closed" && !(CHECKED[s] || {})[iso] && nrm > 300 && (v == null || v < nrm * 0.4)) flags.push(`${lab(dt)} shows ${fmt(v || 0)} (6-wk avg ${fmt(nrm)}): store closed, or sales missing from the export?`); }
     const cmp = CMPS.slice(0,2).map(mm => { const a = sum([s], CUR, THRU), b = has(s, mm) ? sum([s], mm, THRU) : 0; return b ? `vs ${MN[mm-1]} ${pct(a,b) > 0 ? "+" : ""}${pct(a,b)}%` : null; }).filter(Boolean);
     const fl = floorDay(s, CUR, THRU), fp = has(s, CUR-1) ? floorDay(s, CUR-1, DIM(CUR-1)) : null;
     return {m, proj, diff, cls, ld, lv, pv, flags, cmp, share: expShare(s), fl, fp};
@@ -437,6 +439,11 @@ JS = r'''
 })();
 </script>
 '''
+
+import json as _json, os as _os
+_ck = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "data", "checked_days.json")
+_ckd = {k: v for k, v in _json.load(open(_ck)).items() if not k.startswith("_")} if _os.path.exists(_ck) else {}
+JS = JS.replace("__CHECKED__", _json.dumps(_ckd))
 
 p = sys.argv[1]
 s = open(p).read()

@@ -92,6 +92,7 @@ The month-to-date section (CSS, HTML and JS) lives entirely in **`tools/add_mtd_
   - `CLOSED_DOW` lists stores closed on a weekday; PBG Northlake is closed Sundays.
   - Daily target = round(normal × max(lift, 1)).
 - **Collapsed tile is 3 rows** (Bryan wants them compact): name · latest day vs a week earlier · gap at pace; the progress bar; MTD of target · floor $/day · vs prior months.
+- **"Check data" flags:** a tile flags a day under 40% of its 6-wk avg. When Bryan confirms a flagged day is real (e.g. "open but slow day"), add it to `data/checked_days.json` (store → {"YYYY-MM-DD": note}) and re-run `add_mtd_section.py` + `build_planner.py`; the flag disappears. First entries 11/27: Wellington 11/23, WPB 11/27, Lake Worth 11/27, all open but slow.
 - **Floor figure on each tile:** average net per traded day, leaving out the 1st's billing, vs all of last month. Hidden under $200/day (Cooper City presale).
 - **Store health section** (after the tiles), built by **`tools/add_health_section.py`** from `data/mytime.csv` (ticket level) and re-run by `refresh_pages.py`. Edit it there, never in the HTML.
   - Membership health cards: members billed on the 1st by month (7 months), change since 3 months ago, peak, new membership sales per 30 days. Shrinking/growing = 5% or more over 3 months; headline names the shrinking stores.

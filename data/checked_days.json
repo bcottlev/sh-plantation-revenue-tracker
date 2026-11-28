@@ -1,0 +1,6 @@
+{
+  "_about": "Low days Bryan confirmed are real (store open, just slow). The store tiles stop showing 'check data' for these. Dates are YYYY-MM-DD.",
+  "Wellington": {"2026-11-23": "open, slow day"},
+  "West Palm Beach": {"2026-11-27": "open, slow day"},
+  "Lake Worth": {"2026-11-27": "open, slow day"}
+}

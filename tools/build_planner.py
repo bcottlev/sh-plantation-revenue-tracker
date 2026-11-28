@@ -15,7 +15,7 @@ import os, re, runpy
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 P = os.path.join(REPO, "planner", "index.html")
 src = open(os.path.join(REPO, "tools", "add_mtd_section.py")).read()
-ns = {}
+ns = {"__file__": os.path.join(REPO, "tools", "add_mtd_section.py")}
 exec(src[: src.index("p = sys.argv[1]")], ns)
 
 a = open(P).read()

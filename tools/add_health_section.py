@@ -92,6 +92,9 @@ body.dark .hl h2.hl-h{color:var(--ink)}
 .hl-card .ln{font-size:13px;color:var(--ink-70);margin-top:2px}
 .hl-card .ln b{color:var(--ink);font-weight:600}
 .hl-spark{display:block;width:100%;height:46px;margin:8px 0 2px}
+.hl-sp g{cursor:default}.hl-sp g.on .b{fill:var(--daisy)}
+.hl-tip{position:fixed;z-index:50;pointer-events:none;background:var(--shadow);color:#fff;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+body.dark .hl-tip{background:var(--daisy);color:#1C2D5A}
 .hl-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute)}
 .hl .up{color:var(--great)}.hl .down{color:var(--bad)}
 .hl-wrap{overflow-x:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
@@ -164,11 +167,13 @@ JS = r'''
   const series = (s, key) => M.map(k => (H.stores[s][k] || {})[key] ?? null);
   const pctc = (a, b) => a != null && b ? Math.round((a / b - 1) * 100) : null;
   const sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v);
-  function spark(vals, w, h, opt){                          // bars for each month; current month in Skye, earlier in gray
+  const esc = t => String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  function spark(vals, w, h, opt){                          // bars for each month; current month in Skye, earlier in gray; hover shows month and value
     const v = vals.map(x => x == null ? null : x), have = v.filter(x => x != null); if (!have.length) return "";
     const lo = opt && opt.zero ? 0 : Math.min(...have) * .85, hi = Math.max(...have) || 1, n = v.length, bw = w / n;
-    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">` + v.map((x, i) => x == null ? "" :
-      `<rect x="${(i*bw + bw*.14).toFixed(1)}" width="${(bw*.72).toFixed(1)}" y="${(h - Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2))).toFixed(1)}" height="${Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2)).toFixed(1)}" rx="1.5" fill="${i === n-1 ? "var(--skye)" : "var(--skye-45)"}"/>`).join("") + `</svg>`;
+    const f = (opt && opt.f) || (x => x), so = (opt && opt.sofar) ? ` (1st–${thru.getDate()})` : "";
+    return `<svg class="hl-sp" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">` + v.map((x, i) => x == null ? "" :
+      `<g data-tip="${esc(mlab(M[i]) + (i === n-1 ? so : "") + ": " + f(x))}"><rect class="hit" x="${(i*bw).toFixed(1)}" width="${bw.toFixed(1)}" y="0" height="${h}" fill="transparent"/><rect class="b" x="${(i*bw + bw*.14).toFixed(1)}" width="${(bw*.72).toFixed(1)}" y="${(h - Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2))).toFixed(1)}" height="${Math.max(1.5, (x - lo) / (hi - lo || 1) * (h - 2)).toFixed(1)}" rx="1.5" fill="${i === n-1 ? "var(--skye)" : "var(--skye-45)"}"/></g>`).join("") + `</svg>`;
   }
   // ---------- membership cards ----------
   const k3 = M[M.length-4];
@@ -185,7 +190,7 @@ JS = r'''
     return `<div class="hl-card"><div class="t"><span class="n">${c.s}</span><span class="hl-chip ${chip[0]}">${chip[1]}</span></div>
       <div class="big">${c.cur}<small>members billed ${mlab(CURK)} 1</small></div>
       <div class="ln">${d3 == null ? "" : `<b class="${d3 < 0 ? "down" : d3 > 0 ? "up" : ""}">${sgn(d3)}</b> since ${mlab(k3)} 1`}${fromPeak < 0 ? ` · peak ${c.peak}` : c.ago ? " · at its peak" : ""}</div>
-      ${spark(c.mem, 210, 46)}<div class="hl-ax"><span>${mlab(M[0])}</span><span>${mlab(CURK)}</span></div>
+      ${spark(c.mem, 210, 46, {f: x => x + " members"})}<div class="hl-ax"><span>${mlab(M[0])}</span><span>${mlab(CURK)}</span></div>
       <div class="ln">New sales: <b>${c.nwCur ?? "—"}</b> per 30 days${nwc == null ? "" : ` <span class="${nwc < 0 ? "down" : "up"}">${nwc > 0 ? "+" : ""}${nwc}%</span> vs prior 3 months`}</div>
       ${c.s === "PBG East" ? `<div class="hl-note">Also bills many members on their sign-up date, so the 1st shows only part of its base and "new sales" includes those renewals.</div>` : ""}</div>`; }).join("");
   document.getElementById("hl-mnote").textContent = `Members = membership charges billed on the 1st of each month. New sales = membership charges on other days, scaled to 30 days (${mlab(CURK)} so far: 1st–${thru.getDate()}). Sorted by the change since ${mlab(k3)}, worst first. Shrinking or growing = 5% or more.`;
@@ -198,7 +203,7 @@ JS = r'''
     let ch = "";
     if (pv != null) { const dv = col[0] === "disc" ? +(cur - pv).toFixed(1) : pctc(cur, pv); const good = dv * col[4] > 0;
       ch = dv === 0 ? `<em>flat</em>` : `<em class="${good ? "up" : "down"}">${dv > 0 ? "▲" : "▼"} ${Math.abs(dv)}${col[0] === "disc" ? " pts" : "%"}</em>`; }
-    return `<td><span class="hl-c"><b>${col[3](cur)}</b>${ch}${spark(vals, 56, 22)}</span></td>`; }
+    return `<td><span class="hl-c"><b>${col[3](cur)}</b>${ch}${spark(vals, 56, 22, {f: col[3], sofar: col[0] !== "mem"})}</span></td>`; }
   const sys = {}; M.forEach(k => { const rs = FS.map(s => H.stores[s][k]).filter(r => r && r.days);
     sys[k] = rs.length ? {floor: rs.reduce((a,r) => a + r.floor, 0), vis: +rs.reduce((a,r) => a + r.vis, 0).toFixed(1), mem: rs.reduce((a,r) => a + (r.mem || 0), 0)} : {}; });
   // system avg ticket and discount: weight each store by its visits
@@ -214,6 +219,19 @@ JS = r'''
   document.getElementById("hl-head").textContent = shrinking.length ? `${(n => n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n.at(-1) : n[0])(shrinking.map(c => c.s))} ${shrinking.length > 1 ? "are" : "is"} losing members` : "Membership bases are holding";
   const sf = sys[CURK].floor, sp = sys[prevK].floor;
   document.getElementById("hl-sub").innerHTML = `System floor revenue ${fmt(sf)}/day in ${mlab(CURK)} <span class="${sf >= sp ? "up" : "down"}">${sf >= sp ? "+" : ""}${pctc(sf, sp)}%</span> vs ${mlab(prevK)}${best.length ? ` · best month in this view for ${best.join(", ")}` : ""}`;
+  // ---------- hover / tap readout for the month bars ----------
+  const tip = document.createElement("div"); tip.className = "hl-tip"; tip.hidden = true; document.body.appendChild(tip);
+  let on = null;
+  const show = (g, e) => { if (on && on !== g) on.classList.remove("on"); on = g; g.classList.add("on"); tip.textContent = g.dataset.tip; tip.hidden = false;
+    const r = g.querySelector(".b").getBoundingClientRect(), tw = tip.offsetWidth, x = Math.min(innerWidth - tw - 8, Math.max(8, r.left + r.width / 2 - tw / 2));
+    tip.style.left = x + "px"; tip.style.top = Math.max(8, r.top - tip.offsetHeight - 6) + "px"; };
+  const hide = () => { tip.hidden = true; if (on) on.classList.remove("on"); on = null; };
+  const host = document.getElementById("health");
+  host.addEventListener("pointerover", e => { const g = e.target.closest(".hl-sp g[data-tip]"); if (g) show(g, e); });
+  host.addEventListener("pointerout", e => { const g = e.target.closest(".hl-sp g[data-tip]"); if (g && !g.contains(e.relatedTarget)) hide(); });
+  host.addEventListener("pointerdown", e => { const g = e.target.closest(".hl-sp g[data-tip]"); if (g) show(g, e); });
+  document.addEventListener("pointerdown", e => { if (!e.target.closest(".hl-sp")) hide(); });
+  addEventListener("scroll", hide, {passive: true});
 })();
 </script>
 '''
